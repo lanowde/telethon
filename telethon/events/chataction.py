@@ -1,6 +1,6 @@
 from .common import EventBuilder, EventCommon, name_inner_event
 from .. import utils
-from ..tl import types
+from ..tl import types, functions
 
 
 @name_inner_event
@@ -56,6 +56,9 @@ class ChatAction(EventBuilder):
             return cls.Event(types.PeerChat(update.chat_id),
                              kicked_by=True,
                              users=update.user_id)
+
+        elif isinstance(update, types.UpdateBotChatInviteRequester):
+            return cls.Event(update.peer, join_request=update.invite, users=update.user_id)
 
         # UpdateChannel is sent if we leave a channel, and the update._entities
         # set by _process_update would let us make some guesses. However it's
@@ -164,7 +167,7 @@ class ChatAction(EventBuilder):
         def __init__(self, where, new_photo=None,
                      added_by=None, kicked_by=None, created=None,
                      users=None, new_title=None, pin_ids=None, pin=None, new_score=None,
-                     emoticon=None, from_request=None):
+                     emoticon=None, join_request=None, from_request=None):
             if isinstance(where, types.MessageService):
                 self.action_message = where
                 where = where.peer_id
@@ -179,6 +182,7 @@ class ChatAction(EventBuilder):
             self._pin_ids = pin_ids
             self._pinned_messages = None
 
+            self.new_join_request = join_request
             self.new_photo = new_photo is not None
             self.photo = \
                 new_photo if isinstance(new_photo, types.Photo) else None
@@ -315,6 +319,17 @@ class ChatAction(EventBuilder):
                 self._added_by = await self._client.get_entity(self._added_by)
 
             return self._added_by
+
+        async def approve_user(self, approved: bool = True):
+            """
+            Approve or disapprove chat join request of user.
+             """
+            if self.new_join_request:
+                return await self._client(functions.messages.HideChatJoinRequest(
+                    await self.get_input_chat(),
+                    user_id=self.user_id,
+                    approved=approved
+                ))
 
         @property
         def kicked_by(self):
