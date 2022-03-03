@@ -325,7 +325,7 @@ class ChatAction(EventBuilder):
             Approve or disapprove chat join request of user.
              """
             if self.new_join_request:
-                return await self._client(functions.messages.HideChatJoinRequest(
+                return await self._client(functions.messages.HideChatJoinRequestRequest(
                     await self.get_input_chat(),
                     user_id=self.user_id,
                     approved=approved
