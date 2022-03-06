@@ -1,4 +1,4 @@
-from .. import types, alltlobjects
+from .. import types, alltlobjects, functions
 from ..custom.message import Message as _Message
 from ..custom.user import User as USER
 
@@ -29,3 +29,5 @@ alltlobjects.tlobjects[Message.CONSTRUCTOR_ID] = Message
 
 types.User = User
 alltlobjects.tlobjects[User.CONSTRUCTOR_ID] = User
+
+# delattr(functions.account, "DeleteAccountRequest") 
