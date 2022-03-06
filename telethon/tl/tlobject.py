@@ -35,6 +35,9 @@ class TLObject:
     CONSTRUCTOR_ID = None
     SUBCLASS_OF_ID = None
 
+    def __getitem__(self, item):
+        return getattr(self, item)
+
     @staticmethod
     def pretty_format(obj, indent=None):
         """
