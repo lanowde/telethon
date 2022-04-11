@@ -18,7 +18,7 @@ class User:
         support=None, scam=None, apply_min_photo=None, fake=None, access_hash=None,
         first_name=None, last_name=None, username=None,
         phone=None, photo=None, status=None, bot_info_version=None, restriction_reason=[],
-        bot_inline_placeholder=None, lang_code=None):
+        bot_inline_placeholder=None, lang_code=None, bot_attach_menu=None, *args, **kwargs):
         self._client = None
         self._id = id
         self.is_self = is_self
@@ -32,6 +32,7 @@ class User:
         self.restricted = restricted
         self.min = min
         self.bot_inline_geo = bot_inline_geo
+        self.bot_attach_menu = bot_attach_menu
         self.support = support
         self.scam = scam
         self.fake = fake
