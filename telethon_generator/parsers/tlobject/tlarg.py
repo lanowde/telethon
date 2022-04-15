@@ -126,7 +126,7 @@ class TLArg:
             # Note that 'flags' is NOT the flags name; this
             # is determined by a previous argument
             # However, we assume that the argument will always be called 'flags'
-            flag_match = re.match(r'flags.(\d+)\?([\w<>.]+)', self.type)
+            flag_match = re.match(r'flags\d?.(\d+)\?([\w<>.]+)', self.type)
             if flag_match:
                 self.is_flag = True
                 self.flag_index = int(flag_match.group(1))
