@@ -92,7 +92,7 @@ class TLObject:
             .replace('{', '').replace('}', '')
 
         representation = re.sub(
-            r' \w+:flags\.\d+\?true',
+            r' \w+:flags(\.|\d|)\.\d+\?true',
             r'',
             representation
         )
