@@ -241,7 +241,10 @@ class _ParticipantsIter(RequestIter):
 
         results = await self.client(self.requests)
         for i in reversed(range(len(self.requests))):
-            participants = results[i]
+            try:
+                participants = results[i]
+            except TypeError:
+                participants = results
             if self.total is None:
                 # Will only get here if there was one request with a filter that matched all users.
                 self.total = participants.count
