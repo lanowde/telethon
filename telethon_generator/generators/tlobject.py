@@ -189,7 +189,7 @@ def _write_class_init(tlobject, kind, type_constructors, builder):
 
     # Convert the args to string parameters, flags having =None
     args = ['{}: {}{}'.format(
-        a.name, a.type_hint(), '=None' if a.is_flag or a.can_be_inferred else '')
+        a.name, a.type_hint(), '=None' if a.flag or a.can_be_inferred else '')
         for a in tlobject.real_args
     ]
 
@@ -272,7 +272,7 @@ def _write_resolve(tlobject, builder):
         if not ac:
             continue
 
-        if arg.is_flag:
+        if arg.flag:
             builder.writeln('if self.{}:', arg.name)
 
         if arg.is_vector:
@@ -285,7 +285,7 @@ def _write_resolve(tlobject, builder):
             builder.writeln('self.{} = {}', arg.name,
                           ac.format('self.' + arg.name))
 
-        if arg.is_flag:
+        if arg.flag:
             builder.end_block()
     builder.end_block()
 
