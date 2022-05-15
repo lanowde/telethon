@@ -55,8 +55,8 @@ class TLObject:
         self.class_name = snake_to_camel_case(
             self.name, suffix='Request' if self.is_function else '')
 
-        self.real_args = [a for a in self.sorted_args() if not
-                                  (a.flag_indicator or a.generic_definition)]
+        self.real_args = list(a for a in self.sorted_args() if not
+                              (a.flag_indicator or a.generic_definition))
 
     @property
     def innermost_result(self):
@@ -72,7 +72,7 @@ class TLObject:
            can be inferred will go last so they can default =None)
         """
         return sorted(self.args,
-                      key=lambda x: x.is_flag or x.can_be_inferred)
+                      key=lambda x: bool(x.flag) or x.can_be_inferred)
 
     def __repr__(self, ignore_id=False):
         if self.id is None or ignore_id:
@@ -80,7 +80,11 @@ class TLObject:
         else:
             hex_id = '#{:08x}'.format(self.id)
 
-        args = ' ' + ' '.join(repr(arg) for arg in self.args) if self.args else ''
+        if self.args:
+            args = ' ' + ' '.join([repr(arg) for arg in self.args])
+        else:
+            args = ''
+
         return '{}{}{} = {}'.format(self.fullname, hex_id, args, self.result)
 
     def infer_id(self):
@@ -91,8 +95,9 @@ class TLObject:
             .replace('<', ' ').replace('>', '')\
             .replace('{', '').replace('}', '')
 
+        # Remove optional empty values (special-cased to the true type)
         representation = re.sub(
-            r' \w+:flags(\.|\d|)\.\d+\?true',
+            r' \w+:\w+\.\d+\?true',
             r'',
             representation
         )
