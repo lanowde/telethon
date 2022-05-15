@@ -187,7 +187,7 @@ def _write_class_init(tlobject, kind, type_constructors, builder):
                     crc32(tlobject.result.encode('ascii')))
     builder.writeln()
 
-    # Convert the args to string parameters, flags having =None
+    # Convert the args to string parameters, those with flag having =None
     args = ['{}: {}{}'.format(
         a.name, a.type_hint(), '=None' if a.flag or a.can_be_inferred else '')
         for a in tlobject.real_args
@@ -252,42 +252,36 @@ def _write_class_init(tlobject, kind, type_constructors, builder):
 
 
 def _write_resolve(tlobject, builder):
-    if not tlobject.is_function or not any(
-        (
-            arg.type in AUTO_CASTS
-            or (
-                (arg.name, arg.type) in NAMED_AUTO_CASTS
-                and tlobject.fullname not in NAMED_BLACKLIST
-            )
-        )
-        for arg in tlobject.real_args
+    if tlobject.is_function and any(
+            (arg.type in AUTO_CASTS
+             or ((arg.name, arg.type) in NAMED_AUTO_CASTS
+                 and tlobject.fullname not in NAMED_BLACKLIST))
+            for arg in tlobject.real_args
     ):
-        return
+        builder.writeln('async def resolve(self, client, utils):')
+        for arg in tlobject.real_args:
+            ac = AUTO_CASTS.get(arg.type)
+            if not ac:
+                ac = NAMED_AUTO_CASTS.get((arg.name, arg.type))
+                if not ac:
+                    continue
 
-    builder.writeln('async def resolve(self, client, utils):')
-    for arg in tlobject.real_args:
-        ac = AUTO_CASTS.get(arg.type)
-        if not ac:
-            ac = NAMED_AUTO_CASTS.get((arg.name, arg.type))
-        if not ac:
-            continue
+            if arg.flag:
+                builder.writeln('if self.{}:', arg.name)
 
-        if arg.flag:
-            builder.writeln('if self.{}:', arg.name)
+            if arg.is_vector:
+                builder.writeln('_tmp = []')
+                builder.writeln('for _x in self.{0}:', arg.name)
+                builder.writeln('_tmp.append({})', ac.format('_x'))
+                builder.end_block()
+                builder.writeln('self.{} = _tmp', arg.name)
+            else:
+                builder.writeln('self.{} = {}', arg.name,
+                              ac.format('self.' + arg.name))
 
-        if arg.is_vector:
-            builder.writeln('_tmp = []')
-            builder.writeln('for _x in self.{0}:', arg.name)
-            builder.writeln('_tmp.append({})', ac.format('_x'))
-            builder.end_block()
-            builder.writeln('self.{} = _tmp', arg.name)
-        else:
-            builder.writeln('self.{} = {}', arg.name,
-                          ac.format('self.' + arg.name))
-
-        if arg.flag:
-            builder.end_block()
-    builder.end_block()
+            if arg.flag:
+                builder.end_block()
+        builder.end_block()
 
 
 def _write_to_dict(tlobject, builder):
@@ -305,18 +299,19 @@ def _write_to_dict(tlobject, builder):
                               arg.name)
             else:
                 builder.write('self.{}', arg.name)
-        elif arg.is_vector:
-            builder.write(
-                '[] if self.{0} is None else [x.to_dict() '
-                'if isinstance(x, TLObject) else x for x in self.{0}]',
-                arg.name
-            )
         else:
-            builder.write(
-                'self.{0}.to_dict() '
-                'if isinstance(self.{0}, TLObject) else self.{0}',
-                arg.name
-            )
+            if arg.is_vector:
+                builder.write(
+                    '[] if self.{0} is None else [x.to_dict() '
+                    'if isinstance(x, TLObject) else x for x in self.{0}]',
+                    arg.name
+                )
+            else:
+                builder.write(
+                    'self.{0}.to_dict() '
+                    'if isinstance(self.{0}, TLObject) else self.{0}',
+                    arg.name
+                )
 
     builder.writeln()
     builder.current_indent -= 1
@@ -333,7 +328,7 @@ def _write_to_bytes(tlobject, builder):
     repeated_args = defaultdict(list)
     for arg in tlobject.args:
         if arg.flag:
-            repeated_args[arg.flag_index].append(arg)
+            repeated_args[(arg.flag, arg.flag_index)].append(arg)
 
     for ra in repeated_args.values():
         if len(ra) > 1:
@@ -421,7 +416,7 @@ def _write_arg_to_bytes(builder, arg, tlobject, name=None):
     # if it's not a True type.
     # True types are not actually sent, but instead only used to
     # determine the flags.
-    if arg.is_flag:
+    if arg.flag:
         if arg.type == 'true':
             return  # Exit, since True type is never written
         elif arg.is_vector:
@@ -449,31 +444,31 @@ def _write_arg_to_bytes(builder, arg, tlobject, name=None):
         builder.write("b''.join(")
 
         # Temporary disable .is_vector, not to enter this if again
-        # Also disable .is_flag since it's not needed per element
-        old_flag = arg.is_flag
-        arg.is_vector = arg.is_flag = False
+        # Also disable .flag since it's not needed per element
+        old_flag, arg.flag = arg.flag, None
+        arg.is_vector = False
         _write_arg_to_bytes(builder, arg, tlobject, name='x')
         arg.is_vector = True
-        arg.is_flag = old_flag
+        arg.flag = old_flag
 
         builder.write(' for x in {})', name)
 
     elif arg.flag_indicator:
         # Calculate the flags with those items which are not None
-        if not any(f.is_flag for f in tlobject.args):
+        if not any(f.flag for f in tlobject.args):
             # There's a flag indicator, but no flag arguments so it's 0
             builder.write(r"b'\0\0\0\0'")
         else:
-            def fmt_flag(flag):
-                if flag.type == 'Bool':
+            def fmt_flag_arg(a):
+                if a.type == 'Bool':
                     fmt = '(0 if {0} is None else {1})'
                 else:
                     fmt = '(0 if {0} is None or {0} is False else {1})'
-                return fmt.format('self.{}'.format(flag.name), 1 << flag.flag_index)
+                return fmt.format('self.{}'.format(a.name), 1 << a.flag_index)
 
             builder.write("struct.pack('<I', ")
             builder.write(
-                ' | '.join(fmt_flag(flag) for flag in tlobject.args if flag.is_flag)
+                ' | '.join(fmt_flag_arg(a) for a in tlobject.args if a.flag == arg.name)
             )
             builder.write(')')
 
@@ -525,7 +520,7 @@ def _write_arg_to_bytes(builder, arg, tlobject, name=None):
         if not boxed:
             builder.write('[4:]')
 
-    if arg.is_flag:
+    if arg.flag:
         builder.write(')')
         if arg.is_vector:
             builder.write(')')  # We were using a tuple
@@ -550,20 +545,19 @@ def _write_arg_read_code(builder, arg, tlobject, name):
         return  # Do nothing, this only specifies a later type
 
     # The argument may be a flag, only write that flag was given!
-    was_flag = False
-    if arg.is_flag:
+    old_flag = None
+    if arg.flag:
         # Treat 'true' flags as a special case, since they're true if
         # they're set, and nothing else needs to actually be read.
-        if arg.type == 'true':
-            builder.writeln('{} = bool(flags & {})',
-                            name, 1 << arg.flag_index)
+        if 'true' == arg.type:
+            builder.writeln('{} = bool({} & {})',
+                            name, arg.flag, 1 << arg.flag_index)
             return
 
-        was_flag = True
-        builder.writeln('if flags & {}:', 1 << arg.flag_index)
-        # Temporary disable .is_flag not to enter this if
+        builder.writeln('if {} & {}:', arg.flag, 1 << arg.flag_index)
+        # Temporary disable .flag not to enter this if
         # again when calling the method recursively
-        arg.is_flag = False
+        old_flag, arg.flag = arg.flag, None
 
     if arg.is_vector:
         if arg.use_vector_id:
@@ -580,10 +574,10 @@ def _write_arg_read_code(builder, arg, tlobject, name):
 
     elif arg.flag_indicator:
         # Read the flags, which will indicate what items we should read next
-        builder.writeln('flags = reader.read_int()')
+        builder.writeln('{} = reader.read_int()', arg.name)
         builder.writeln()
 
-    elif arg.type == 'int':
+    elif 'int' == arg.type:
         # User IDs are becoming larger than 2³¹ - 1, which would translate
         # into reading a negative ID, which we would treat as a chat. So
         # special case them to read unsigned. See https://t.me/BotNews/57.
@@ -592,67 +586,69 @@ def _write_arg_read_code(builder, arg, tlobject, name):
         else:
             builder.writeln('{} = reader.read_int()', name)
 
-    elif arg.type == 'long':
+    elif 'long' == arg.type:
         builder.writeln('{} = reader.read_long()', name)
 
-    elif arg.type == 'int128':
+    elif 'int128' == arg.type:
         builder.writeln('{} = reader.read_large_int(bits=128)', name)
 
-    elif arg.type == 'int256':
+    elif 'int256' == arg.type:
         builder.writeln('{} = reader.read_large_int(bits=256)', name)
 
-    elif arg.type == 'double':
+    elif 'double' == arg.type:
         builder.writeln('{} = reader.read_double()', name)
 
-    elif arg.type == 'string':
+    elif 'string' == arg.type:
         builder.writeln('{} = reader.tgread_string()', name)
 
-    elif arg.type == 'Bool':
+    elif 'Bool' == arg.type:
         builder.writeln('{} = reader.tgread_bool()', name)
 
-    elif arg.type == 'true':
+    elif 'true' == arg.type:
         # Arbitrary not-None value, don't actually read "true" flags
         builder.writeln('{} = True', name)
 
-    elif arg.type == 'bytes':
+    elif 'bytes' == arg.type:
         builder.writeln('{} = reader.tgread_bytes()', name)
 
-    elif arg.type == 'date':  # Custom format
+    elif 'date' == arg.type:  # Custom format
         builder.writeln('{} = reader.tgread_date()', name)
 
-    elif not arg.skip_constructor_id:
-        builder.writeln('{} = reader.tgread_object()', name)
     else:
-        # Import the correct type inline to avoid cyclic imports.
-        # There may be better solutions so that we can just access
-        # all the types before the files have been parsed, but I
-        # don't know of any.
-        sep_index = arg.type.find('.')
-        if sep_index == -1:
-            ns, t = '.', arg.type
+        # Else it may be a custom type
+        if not arg.skip_constructor_id:
+            builder.writeln('{} = reader.tgread_object()', name)
         else:
-            ns, t = '.' + arg.type[:sep_index], arg.type[sep_index+1:]
-        class_name = snake_to_camel_case(t)
+            # Import the correct type inline to avoid cyclic imports.
+            # There may be better solutions so that we can just access
+            # all the types before the files have been parsed, but I
+            # don't know of any.
+            sep_index = arg.type.find('.')
+            if sep_index == -1:
+                ns, t = '.', arg.type
+            else:
+                ns, t = '.' + arg.type[:sep_index], arg.type[sep_index+1:]
+            class_name = snake_to_camel_case(t)
 
-        # There would be no need to import the type if we're in the
-        # file with the same namespace, but since it does no harm
-        # and we don't have information about such thing in the
-        # method we just ignore that case.
-        builder.writeln('from {} import {}', ns, class_name)
-        builder.writeln('{} = {}.from_reader(reader)',
-                        name, class_name)
+            # There would be no need to import the type if we're in the
+            # file with the same namespace, but since it does no harm
+            # and we don't have information about such thing in the
+            # method we just ignore that case.
+            builder.writeln('from {} import {}', ns, class_name)
+            builder.writeln('{} = {}.from_reader(reader)',
+                            name, class_name)
 
     # End vector and flag blocks if required (if we opened them before)
     if arg.is_vector:
         builder.end_block()
 
-    if was_flag:
+    if old_flag:
         builder.current_indent -= 1
         builder.writeln('else:')
         builder.writeln('{} = None', name)
         builder.current_indent -= 1
-        # Restore .is_flag
-        arg.is_flag = True
+        # Restore .flag
+        arg.flag = old_flag
 
 
 def _write_all_tlobjects(tlobjects, layer, builder):
