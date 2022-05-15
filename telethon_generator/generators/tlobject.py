@@ -332,7 +332,7 @@ def _write_to_bytes(tlobject, builder):
     # at the same time. In this case, add an assertion.
     repeated_args = defaultdict(list)
     for arg in tlobject.args:
-        if arg.is_flag:
+        if arg.flag:
             repeated_args[arg.flag_index].append(arg)
 
     for ra in repeated_args.values():
