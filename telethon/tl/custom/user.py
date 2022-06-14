@@ -6,7 +6,9 @@ class User:
         self._client = None
        
         self._id = kwargs["id"]
-        
+        del kwargs["id"]
+        for _ in kwargs:
+            setattr(self, _, kwargs[_])
         if self.is_self and self.phone:
             self.phone = "**********"
         self.photo = photo
