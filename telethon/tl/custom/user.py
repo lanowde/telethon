@@ -11,7 +11,6 @@ class User:
             setattr(self, _, kwargs[_])
         if self.is_self and self.phone:
             self.phone = "**********"
-        self.photo = photo
         
         self._fulluser = None
 
