@@ -2,7 +2,7 @@ from .. import types, functions
 from ... import utils 
 
 class User:
-    def __init__(*args, **kwargs):
+    def __init__(self, *args, **kwargs):
         self._client = None
        
         self._id = kwargs["id"]
