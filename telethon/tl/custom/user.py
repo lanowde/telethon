@@ -2,54 +2,15 @@ from .. import types, functions
 from ... import utils 
 
 class User:
-    def __init__(self,
-        id:int=None,
-        is_self:bool=None,
-        contact:bool=None,
-        mutual_contact:bool=None,
-        deleted:bool=None,
-        bot:bool=None,
-        bot_chat_history:bool=None,
-        bot_nochats:bool=None,
-        verified:bool=None,
-        restricted:bool=None,
-        min:bool=None,
-        bot_inline_geo=None,
-        support=None, scam=None, apply_min_photo=None, fake=None, access_hash=None,
-        first_name=None, last_name=None, username=None,
-        phone=None, photo=None, status=None, bot_info_version=None, restriction_reason=[],
-        bot_inline_placeholder=None, lang_code=None, bot_attach_menu=None, *args, **kwargs):
+    def __init__(*args, **kwargs):
         self._client = None
-        self._id = id
-        self.is_self = is_self
-        self.contact = contact
-        self.mutual_contact = mutual_contact
-        self.deleted = deleted
-        self.bot = bot
-        self.bot_chat_history = bot_chat_history
-        self.bot_nochats = bot_nochats
-        self.verified = verified
-        self.restricted = restricted
-        self.min = min
-        self.bot_inline_geo = bot_inline_geo
-        self.bot_attach_menu = bot_attach_menu
-        self.support = support
-        self.scam = scam
-        self.fake = fake
-        self.apply_min_photo = apply_min_photo
-        self.access_hash = access_hash
-        self.first_name = first_name
-        self.last_name = last_name
-        self.username = username
-        self.phone = phone
+       
+        self._id = kwargs["id"]
+        
         if self.is_self and self.phone:
             self.phone = "**********"
         self.photo = photo
-        self.status = status
-        self.bot_info_version = bot_info_version
-        self.restriction_reason = restriction_reason
-        self.bot_inline_placeholder = bot_inline_placeholder
-        self.lang_code = lang_code
+        
         self._fulluser = None
 
 
