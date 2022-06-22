@@ -1342,7 +1342,7 @@ def get_appropriated_part_size(file_size):
         return 256
     if file_size <= 2097152000:  # 2000MB
         return 512
-    if fize_size <= 4294967296:
+    if file_size <= 4294967296:
         return 1024
 
     raise ValueError('File size too large')
