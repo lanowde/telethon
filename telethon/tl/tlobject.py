@@ -27,8 +27,7 @@ def _json_default(value):
         return base64.b64encode(value).decode("ascii")
     elif isinstance(value, datetime):
         return value.isoformat()
-    else:
-        return repr(value)
+    return repr(value)
 
 
 class TLObject:
@@ -44,7 +43,7 @@ class TLObject:
         Pretty formats the given object as a string which is returned.
         If indent is None, a single line will be returned.
         """
-        if isinstance(obj, TLObject):
+        if isinstance(obj, TLObject) or hasattr(obj, "to_dict"):
             obj = obj.to_dict()
 
         if indent is None:
@@ -59,8 +58,7 @@ class TLObject:
                 )
             elif isinstance(obj, (str, bytes)) or not hasattr(obj, "__iter__"):
                 return repr(obj)
-            else:
-                return "[{}]".format(", ".join(TLObject.pretty_format(x) for x in obj))
+            return "[{}]".format(", ".join(TLObject.pretty_format(x) for x in obj))
         else:
             result = []
             if isinstance(obj, dict):
