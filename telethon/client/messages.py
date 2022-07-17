@@ -827,16 +827,13 @@ class MessageMethods:
             else:
                 markup = self.build_reply_markup(buttons)
 
-            if silent is None:
-                silent = message.silent
-
             if (message.media and not isinstance(
                     message.media, types.MessageMediaWebPage)):
                 return await self.send_file(
                     entity,
                     message.media,
                     caption=message.message,
-                    silent=silent,
+                    silent=silent or message.silent,
                     background=background,
                     reply_to=reply_to,
                     buttons=markup,
@@ -848,7 +845,7 @@ class MessageMethods:
             request = functions.messages.SendMessageRequest(
                 peer=entity,
                 message=message.message or '',
-                silent=silent,
+                silent=silent or message.silent,
                 background=background,
                 reply_to_msg_id=utils.get_message_id(reply_to),
                 reply_markup=markup,
@@ -862,11 +859,12 @@ class MessageMethods:
             )
             message = message.message
         else:
-            if message != None and not isinstance(message, str):
+            if message is not None :
                 message = str(message)
 
             if formatting_entities is None:
                 message, formatting_entities = await self._parse_message_text(message, parse_mode)
+ 
             if not message:
                 raise ValueError(
                     'The message cannot be empty unless a file is provided'
