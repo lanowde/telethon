@@ -143,7 +143,7 @@ class File:
 
     def to_dict(self):
         exclude = ["media", "to_dict"]
-        return {key: _getdict(self, key) for key in dir(self) if not key.startswith("_") and key not in exclude}
+        return {key: self._getdict(key) for key in dir(self) if not key.startswith("_") and key not in exclude}
 
     def _getdict(self, key):
         obj = getattr(self, key)
