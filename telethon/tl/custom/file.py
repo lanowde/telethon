@@ -142,7 +142,14 @@ class File:
             return self.media.size
 
     def to_dict(self):
-        return {key: getattr(self, key) for key in dir(self) if not key.startswith("_")}
+        exclude = ["media", "to_dict"]
+        return {key: _getdict(self, key) for key in dir(self) if not key.startswith("_") and key not in exclude}
+
+    def _getdict(self, key):
+        obj = getattr(self, key)
+        if hasattr(obj, "to_dict"):
+            return getattr(obj, "to_dict")()
+        return obj
 
     def _from_attr(self, cls, field):
         if isinstance(self.media, types.Document):
