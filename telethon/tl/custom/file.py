@@ -141,6 +141,9 @@ class File:
         elif isinstance(self.media, types.Document):
             return self.media.size
 
+    def to_dict(self):
+        return {key: getattr(self, key) for key in dir(self) if not key.startswith("_")}
+
     def _from_attr(self, cls, field):
         if isinstance(self.media, types.Document):
             for attr in self.media.attributes:
