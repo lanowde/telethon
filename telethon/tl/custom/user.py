@@ -2,7 +2,7 @@ import traceback
 from .. import types, functions
 from ... import utils
 
-class User:
+class USER(types.User):
     def __init__(self, id:int=None, *args, **kwargs):
         self._client = None
         self._id = id
