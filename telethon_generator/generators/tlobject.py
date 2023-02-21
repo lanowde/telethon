@@ -57,7 +57,7 @@ def _write_modules(
     out_dir.mkdir(parents=True, exist_ok=True)
     for ns, tlobjects in namespace_tlobjects.items():
         file = out_dir / f"{ns or '__init__'}.py"
-        with (file.open('w') as f, SourceBuilder(f) as builder):
+        with file.open('w') as f, SourceBuilder(f) as builder:
             builder.writeln(AUTO_GEN_NOTICE)
 
             builder.writeln('from {}.tl.tlobject import TLObject', '.' * depth)
