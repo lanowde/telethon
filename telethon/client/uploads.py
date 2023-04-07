@@ -365,7 +365,6 @@ class UploadMethods:
                 result += await self._send_album(
                     entity, file[:10], caption=captions[:10],
                     progress_callback=used_callback, reply_to=reply_to,
-                    progress_callback=used_callback, reply_to=reply_to,
                     parse_mode=parse_mode, silent=silent, schedule=schedule,
                     supports_streaming=supports_streaming, clear_draft=clear_draft,
                     force_document=force_document, background=background,
