@@ -365,12 +365,14 @@ class UploadMethods:
                 result += await self._send_album(
                     entity, file[:10], caption=captions[:10],
                     progress_callback=used_callback, reply_to=reply_to,
+                    progress_callback=used_callback, reply_to=reply_to,
                     parse_mode=parse_mode, silent=silent, schedule=schedule,
                     supports_streaming=supports_streaming, clear_draft=clear_draft,
                     force_document=force_document, background=background,
                 )
                 file = file[10:]
                 captions = captions[10:]
+                sent_count += 10
                 sent_count += 10
 
             return result
@@ -443,12 +445,15 @@ class UploadMethods:
         # Need to upload the media first, but only if they're not cached yet
         media = []
         for sent_count, file in enumerate(files):
+        for sent_count, file in enumerate(files):
             # Albums want :tl:`InputMedia` which, in theory, includes
             # :tl:`InputMediaUploadedPhoto`. However using that will
             # make it `raise MediaInvalidError`, so we need to upload
             # it as media and then convert that to :tl:`InputMediaPhoto`.
             fh, fm, _ = await self._file_to_media(
                 file, supports_streaming=supports_streaming,
+                force_document=force_document, ttl=ttl,
+                progress_callback=used_callback)
                 force_document=force_document, ttl=ttl,
                 progress_callback=used_callback)
             if isinstance(fm, (types.InputMediaUploadedPhoto, types.InputMediaPhotoExternal)):
@@ -547,6 +552,13 @@ class UploadMethods:
             progress_callback (`callable`, optional):
                 A callback function accepting two parameters:
                 ``(sent bytes, total)``.
+
+                When sending an album, the callback will receive a number
+                between 0 and the amount of files as the "sent" parameter,
+                and the amount of files as the "total". Note that the first
+                parameter will be a floating point number to indicate progress
+                within a file (e.g. ``2.5`` means it has sent 50% of the third
+                file, because it's between 2 and 3).
 
                 When sending an album, the callback will receive a number
                 between 0 and the amount of files as the "sent" parameter,
