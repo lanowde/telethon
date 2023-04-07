@@ -445,15 +445,12 @@ class UploadMethods:
         # Need to upload the media first, but only if they're not cached yet
         media = []
         for sent_count, file in enumerate(files):
-        for sent_count, file in enumerate(files):
             # Albums want :tl:`InputMedia` which, in theory, includes
             # :tl:`InputMediaUploadedPhoto`. However using that will
             # make it `raise MediaInvalidError`, so we need to upload
             # it as media and then convert that to :tl:`InputMediaPhoto`.
             fh, fm, _ = await self._file_to_media(
                 file, supports_streaming=supports_streaming,
-                force_document=force_document, ttl=ttl,
-                progress_callback=used_callback)
                 force_document=force_document, ttl=ttl,
                 progress_callback=used_callback)
             if isinstance(fm, (types.InputMediaUploadedPhoto, types.InputMediaPhotoExternal)):
@@ -784,5 +781,3 @@ class UploadMethods:
                 nosound_video=nosound_video
             )
         return file_handle, media, as_image
-
-    # endregion

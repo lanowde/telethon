@@ -216,9 +216,6 @@ class Album(EventBuilder):
             # Each individual message in an album all reply to the same message
             return self.messages[0].forward
 
-        # endregion Public Properties
-
-        # region Public Methods
 
         async def get_reply_message(self):
             """
