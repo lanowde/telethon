@@ -736,7 +736,7 @@ def get_attributes(file, *, attributes=None, mime_type=None,
     # of attributes provided by the user easily.
     if attributes:
         for a in attributes:
-            attr_dict[type(a)] = a
+            attr_dict[str(a)] = a
 
     # Ensure we have a mime type, any; but it cannot be None
     # 'The "octet-stream" subtype is used to indicate that a body
