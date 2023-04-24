@@ -680,8 +680,7 @@ def get_attributes(file, *, attributes=None, mime_type=None,
     if mime_type is None:
         mime_type = mimetypes.guess_type(name)[0]
 
-    attr_dict = {types.DocumentAttributeFilename:
-        types.DocumentAttributeFilename(os.path.basename(name))}
+    attr_dict = {}
 
     if is_audio(file):
         if m := _get_metadata(file):
