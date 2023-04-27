@@ -680,9 +680,8 @@ def get_attributes(file, *, attributes=None, mime_type=None,
     if mime_type is None:
         mime_type = mimetypes.guess_type(name)[0]
 
-    attr_dict = {}
-    if isinstance(file, str):
-        attr_dict[types.DocumentAttributeFilename] = types.DocumentAttributeFilename(os.path.basename(name))
+    attr_dict = {types.DocumentAttributeFilename: types.DocumentAttributeFilename(os.path.basename(name))}
+
     if is_audio(file):
         if m := _get_metadata(file):
             if m.has('author'):
@@ -735,11 +734,9 @@ def get_attributes(file, *, attributes=None, mime_type=None,
     # Now override the attributes if any. As we have a dict of
     # {cls: instance}, we can override any class with the list
     # of attributes provided by the user easily.
-    if attributes and not isinstance(file, str):
+    if attributes:
         for a in attributes:
-            for _ in file.attributes:
-                if isinstance(_, a):
-                    attr_dict[type(a)] = _
+            attr_dict[type(a)] = a
 
     # Ensure we have a mime type, any; but it cannot be None
     # 'The "octet-stream" subtype is used to indicate that a body
