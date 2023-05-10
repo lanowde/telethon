@@ -78,6 +78,7 @@ def _resize_photo_if_needed(
 
         buffer = io.BytesIO()
         result.save(buffer, 'JPEG', progressive=True, **kwargs)
+        result.save(buffer, 'JPEG', progressive=True, **kwargs)
         buffer.seek(0)
         return buffer
 
@@ -118,6 +119,7 @@ class UploadMethods:
             schedule: 'hints.DateLike' = None,
             comment_to: 'typing.Union[int, types.Message]' = None,
             ttl: int = None,
+            nosound_video: bool = None,
             nosound_video: bool = None,
             **kwargs) -> 'types.Message':
         """
@@ -297,6 +299,15 @@ class UploadMethods:
                 on non-video files. This is set to ``True`` for albums, as gifs
                 cannot be sent in albums.
 
+            nosound_video (`bool`, optional):
+                Only applicable when sending a video file without an audio
+                track. If set to ``True``, the video will be displayed in
+                Telegram as a video. If set to ``False``, Telegram will attempt
+                to display the video as an animated gif. (It may still display
+                as a video due to other factors.) The value is ignored if set
+                on non-video files. This is set to ``True`` for albums, as gifs
+                cannot be sent in albums.
+
         Returns
             The `Message <telethon.tl.custom.message.Message>` (or messages)
             containing the sent file, or messages if a list of them was passed.
@@ -457,11 +468,13 @@ class UploadMethods:
         for sent_count, file in enumerate(files):
             # Albums want :tl:`InputMedia` which, in theory, includes
             # :tl:`InputMediaUploadedPhoto`. However, using that will
+            # :tl:`InputMediaUploadedPhoto`. However, using that will
             # make it `raise MediaInvalidError`, so we need to upload
             # it as media and then convert that to :tl:`InputMediaPhoto`.
             fh, fm, _ = await self._file_to_media(
                 file, supports_streaming=supports_streaming,
                 force_document=force_document, ttl=ttl,
+                progress_callback=used_callback, nosound_video=True)
                 progress_callback=used_callback, nosound_video=True)
             if isinstance(fm, (types.InputMediaUploadedPhoto, types.InputMediaPhotoExternal)):
                 r = await self(functions.messages.UploadMediaRequest(
@@ -779,6 +792,7 @@ class UploadMethods:
 
             # setting `nosound_video` to `True` doesn't affect videos with sound
             # instead it prevents sending silent videos as GIFs
+            nosound_video = nosound_video if mime_type.split("/")[0] == 'video' else None
             nosound_video = nosound_video if mime_type.split("/")[0] == 'video' else None
 
             media = types.InputMediaUploadedDocument(

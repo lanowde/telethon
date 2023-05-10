@@ -753,6 +753,15 @@ class MessageMethods:
                 on non-video files. This is set to ``True`` for albums, as gifs
                 cannot be sent in albums.
 
+            nosound_video (`bool`, optional):
+                Only applicable when sending a video file without an audio
+                track. If set to ``True``, the video will be displayed in
+                Telegram as a video. If set to ``False``, Telegram will attempt
+                to display the video as an animated gif. (It may still display
+                as a video due to other factors.) The value is ignored if set
+                on non-video files. This is set to ``True`` for albums, as gifs
+                cannot be sent in albums.
+
         Returns
             The sent `custom.Message <telethon.tl.custom.message.Message>`.
 
@@ -1072,6 +1081,7 @@ class MessageMethods:
                 message text.
 
                 You may also pass a :tl:`InputBotInlineMessageID` or :tl:`InputBotInlineMessageID64`,
+                You may also pass a :tl:`InputBotInlineMessageID` or :tl:`InputBotInlineMessageID64`,
                 which is the only way to edit messages that were sent
                 after the user selects an inline query result.
 
@@ -1144,6 +1154,7 @@ class MessageMethods:
         Returns
             The edited `Message <telethon.tl.custom.message.Message>`,
             unless `entity` was a :tl:`InputBotInlineMessageID` or :tl:`InputBotInlineMessageID64` in which
+            unless `entity` was a :tl:`InputBotInlineMessageID` or :tl:`InputBotInlineMessageID64` in which
             case this method returns a boolean.
 
         Raises
@@ -1170,6 +1181,7 @@ class MessageMethods:
                 await client.edit_message(message, 'hello!!!')
         """
         if isinstance(entity, (types.InputBotInlineMessageID, types.InputBotInlineMessageID64)):
+        if isinstance(entity, (types.InputBotInlineMessageID, types.InputBotInlineMessageID64)):
             text = text or message
             message = entity
         elif isinstance(entity, types.Message):
@@ -1185,6 +1197,7 @@ class MessageMethods:
                 attributes=attributes,
                 force_document=force_document)
 
+        if isinstance(entity, (types.InputBotInlineMessageID, types.InputBotInlineMessageID64)):
         if isinstance(entity, (types.InputBotInlineMessageID, types.InputBotInlineMessageID64)):
             request = functions.messages.EditInlineBotMessageRequest(
                 id=entity,
