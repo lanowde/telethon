@@ -475,7 +475,7 @@ class UploadMethods:
                 file, supports_streaming=supports_streaming,
                 force_document=force_document, ttl=ttl,
                 progress_callback=used_callback, nosound_video=True)
-                progress_callback=used_callback, nosound_video=True)
+
             if isinstance(fm, (types.InputMediaUploadedPhoto, types.InputMediaPhotoExternal)):
                 r = await self(functions.messages.UploadMediaRequest(
                     entity, media=fm
