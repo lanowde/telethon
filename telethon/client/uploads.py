@@ -120,7 +120,6 @@ class UploadMethods:
             comment_to: 'typing.Union[int, types.Message]' = None,
             ttl: int = None,
             nosound_video: bool = None,
-            nosound_video: bool = None,
             **kwargs) -> 'types.Message':
         """
         Sends message with the given file to the specified entity.
@@ -289,15 +288,6 @@ class UploadMethods:
 
                 Not all types of media can be used with this parameter, such
                 as text documents, which will fail with ``TtlMediaInvalidError``.
-
-            nosound_video (`bool`, optional):
-                Only applicable when sending a video file without an audio
-                track. If set to ``True``, the video will be displayed in
-                Telegram as a video. If set to ``False``, Telegram will attempt
-                to display the video as an animated gif. (It may still display
-                as a video due to other factors.) The value is ignored if set
-                on non-video files. This is set to ``True`` for albums, as gifs
-                cannot be sent in albums.
 
             nosound_video (`bool`, optional):
                 Only applicable when sending a video file without an audio
@@ -792,7 +782,6 @@ class UploadMethods:
 
             # setting `nosound_video` to `True` doesn't affect videos with sound
             # instead it prevents sending silent videos as GIFs
-            nosound_video = nosound_video if mime_type.split("/")[0] == 'video' else None
             nosound_video = nosound_video if mime_type.split("/")[0] == 'video' else None
 
             media = types.InputMediaUploadedDocument(
