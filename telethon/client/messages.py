@@ -1181,7 +1181,6 @@ class MessageMethods:
                 await client.edit_message(message, 'hello!!!')
         """
         if isinstance(entity, (types.InputBotInlineMessageID, types.InputBotInlineMessageID64)):
-        if isinstance(entity, (types.InputBotInlineMessageID, types.InputBotInlineMessageID64)):
             text = text or message
             message = entity
         elif isinstance(entity, types.Message):
