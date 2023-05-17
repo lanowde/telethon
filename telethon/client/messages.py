@@ -1197,7 +1197,6 @@ class MessageMethods:
                 force_document=force_document)
 
         if isinstance(entity, (types.InputBotInlineMessageID, types.InputBotInlineMessageID64)):
-        if isinstance(entity, (types.InputBotInlineMessageID, types.InputBotInlineMessageID64)):
             request = functions.messages.EditInlineBotMessageRequest(
                 id=entity,
                 message=text,
