@@ -309,4 +309,4 @@ class Button:
 
     @staticmethod
     def mention(text, user_id):
-        return types.KeyboardButtonUserProfile(text, user_id)
+        return types.InputKeyboardButtonUserProfile(text, user_id)
