@@ -3,7 +3,8 @@ import base64
 import datetime
 
 from .. import types, functions
-from ... import events
+from ... import events, password as pwd_mod
+from ...errors import SessionPasswordNeededError
 
 
 class QRLogin:
@@ -13,10 +14,11 @@ class QRLogin:
     Most of the time, you will present the `url` as a QR code to the user,
     and while it's being shown, call `wait`.
     """
-    def __init__(self, client, ignored_ids):
+    def __init__(self, client, ignored_ids, password=lambda: input("Enter 2FA:")):
         self._client = client
         self._request = functions.auth.ExportLoginTokenRequest(
             self._client.api_id, self._client.api_hash, ignored_ids)
+        self._password = password    
         self._resp = None
 
     async def recreate(self):
@@ -105,7 +107,21 @@ class QRLogin:
             self._client.remove_event_handler(handler)
 
         # We got here without it raising timeout error, so we can proceed
-        resp = await self._client(self._request)
+        try:
+            resp = await self._client(self._request)
+        except SessionPasswordNeededError as er:
+            if callable(self._password):
+                self._password = self._password()
+
+            pwd = await self._client(functions.account.GetPasswordRequest())
+            result = await self._client(functions.auth.CheckPasswordRequest(pwd_mod.compute_check(pwd, self._password)))
+            if isinstance(result, types.auth.Authorization):
+                user = result.user
+                await self._client._on_login(user)
+                return user
+            raise er
+            
+        
         if isinstance(resp, types.auth.LoginTokenMigrateTo):
             await self._client._switch_dc(resp.dc_id)
             resp = await self._client(functions.auth.ImportLoginTokenRequest(resp.token))
