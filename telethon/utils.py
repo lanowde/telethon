@@ -60,14 +60,8 @@ TG_JOIN_RE = re.compile(
     r'tg://(join)\?invite='
 )
 
-# The only shorter-than-five-characters usernames are those used for some
-# special, very well known bots. This list may be incomplete though:
-#    "[...] @gif, @vid, @pic, @bing, @wiki, @imdb and @bold [...]"
-#
-# See https://telegram.org/blog/inline-bots#how-does-it-work
 VALID_USERNAME_RE = re.compile(
-    r'^([a-z](?:(?!__)\w){3,30}[a-z\d]'
-    r'|gif|vid|pic|bing|wiki|imdb|bold|vote|like|coub)$',
+    r'^[a-z](?:(?!__)\w){1,30}[a-z\d]$',
     re.IGNORECASE
 )
 
@@ -1032,7 +1026,7 @@ def get_peer_id(peer, add_mark=True):
         if not (0 < peer.channel_id <= 9999999999):
             peer.channel_id = resolve_id(peer.channel_id)[0]
 
-        return -(1000000000000 + peer.channel_id) if add_mark else peer.channel_id
+        return peer.channel_id if not add_mark else -(1000000000000 + peer.channel_id)
 
 
 def resolve_id(marked_id):
