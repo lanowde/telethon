@@ -66,6 +66,17 @@ class QRLogin:
         If you want to try again, you will need to call `recreate`.
         """
         return self._resp.expires
+    
+    async def _handle_2fa(self):
+        if callable(self._password):
+            self._password = self._password()
+
+        pwd = await self._client(functions.account.GetPasswordRequest())
+        result = await self._client(functions.auth.CheckPasswordRequest(pwd_mod.compute_check(pwd, self._password)))
+        if isinstance(result, types.auth.Authorization):
+            user = result.user
+            await self._client._on_login(user)
+            return user
 
     async def wait(self, timeout: float = None):
         """
@@ -110,21 +121,18 @@ class QRLogin:
         try:
             resp = await self._client(self._request)
         except SessionPasswordNeededError as er:
-            if callable(self._password):
-                self._password = self._password()
-
-            pwd = await self._client(functions.account.GetPasswordRequest())
-            result = await self._client(functions.auth.CheckPasswordRequest(pwd_mod.compute_check(pwd, self._password)))
-            if isinstance(result, types.auth.Authorization):
-                user = result.user
-                await self._client._on_login(user)
+            if user := await self._handle_2fa():
                 return user
             raise er
-            
         
         if isinstance(resp, types.auth.LoginTokenMigrateTo):
             await self._client._switch_dc(resp.dc_id)
-            resp = await self._client(functions.auth.ImportLoginTokenRequest(resp.token))
+            try:
+                resp = await self._client(functions.auth.ImportLoginTokenRequest(resp.token))
+            except SessionPasswordNeededError as er:
+                if user:= await self._handle_2fa():
+                    return user
+                raise er
             # resp should now be auth.loginTokenSuccess
 
         if isinstance(resp, types.auth.LoginTokenSuccess):
