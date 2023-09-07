@@ -234,7 +234,7 @@ def main(argv):
         with open("telethon/version.py", "r", encoding="utf-8") as f:
             version = re.search(
                 r"^__version__\s*=\s*'(.*)'.*$", f.read(), flags=re.MULTILINE
-            ).group(1)
+            )[1]
         setup(
             name="Telethon",
             version=version,
