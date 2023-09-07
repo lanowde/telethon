@@ -14,11 +14,13 @@ class QRLogin:
     Most of the time, you will present the `url` as a QR code to the user,
     and while it's being shown, call `wait`.
     """
+
     def __init__(self, client, ignored_ids, password=lambda: input("Enter 2FA:")):
         self._client = client
         self._request = functions.auth.ExportLoginTokenRequest(
-            self._client.api_id, self._client.api_hash, ignored_ids)
-        self._password = password    
+            self._client.api_id, self._client.api_hash, ignored_ids
+        )
+        self._password = password
         self._resp = None
 
     async def recreate(self):
@@ -66,13 +68,17 @@ class QRLogin:
         If you want to try again, you will need to call `recreate`.
         """
         return self._resp.expires
-    
+
     async def _handle_2fa(self):
         if callable(self._password):
             self._password = self._password()
 
         pwd = await self._client(functions.account.GetPasswordRequest())
-        result = await self._client(functions.auth.CheckPasswordRequest(pwd_mod.compute_check(pwd, self._password)))
+        result = await self._client(
+            functions.auth.CheckPasswordRequest(
+                pwd_mod.compute_check(pwd, self._password)
+            )
+        )
         if isinstance(result, types.auth.Authorization):
             user = result.user
             await self._client._on_login(user)
@@ -101,7 +107,9 @@ class QRLogin:
             On success, an instance of :tl:`User`. On failure it will raise.
         """
         if timeout is None:
-            timeout = (self._resp.expires - datetime.datetime.now(tz=datetime.timezone.utc)).total_seconds()
+            timeout = (
+                self._resp.expires - datetime.datetime.now(tz=datetime.timezone.utc)
+            ).total_seconds()
 
         event = asyncio.Event()
 
@@ -124,13 +132,15 @@ class QRLogin:
             if user := await self._handle_2fa():
                 return user
             raise er
-        
+
         if isinstance(resp, types.auth.LoginTokenMigrateTo):
             await self._client._switch_dc(resp.dc_id)
             try:
-                resp = await self._client(functions.auth.ImportLoginTokenRequest(resp.token))
+                resp = await self._client(
+                    functions.auth.ImportLoginTokenRequest(resp.token)
+                )
             except SessionPasswordNeededError as er:
-                if user:= await self._handle_2fa():
+                if user := await self._handle_2fa():
                     return user
                 raise er
             # resp should now be auth.loginTokenSuccess
@@ -140,4 +150,4 @@ class QRLogin:
             await self._client._on_login(user)
             return user
 
-        raise TypeError('Login token response was unexpected: {}'.format(resp))
+        raise TypeError("Login token response was unexpected: {}".format(resp))
