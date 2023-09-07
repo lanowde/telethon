@@ -56,6 +56,7 @@ class Button:
             types.KeyboardButtonUrl,
             types.InputKeyboardButtonUrlAuth,
             types.KeyboardButtonWebView,
+            types.InputKeyboardButtonUserProfile,
         ))
 
     @staticmethod
@@ -306,4 +307,4 @@ class Button:
         `Games <https://core.telegram.org/api/bots/games>`__
         documentation for more information on using games.
         """
-        return types.KeyboardButtonGame(text)
+        return types.InputKeyboardButtonGame(text)

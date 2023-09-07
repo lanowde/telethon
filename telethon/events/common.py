@@ -100,7 +100,8 @@ class EventBuilder(abc.ABC):
                 self.resolved = True
 
     async def _resolve(self, client):
-        self.chats = await _into_id_set(client, self.chats)
+        if self.chats:
+            self.chats = await _into_id_set(client, list(filter(lambda chat: chat, self.chats)))
 
     def filter(self, event):
         """

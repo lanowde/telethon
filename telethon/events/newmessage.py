@@ -74,6 +74,7 @@ class NewMessage(EventBuilder):
         self.outgoing = outgoing
         self.from_users = from_users
         self.forwards = forwards
+        self._pattern = pattern
         if isinstance(pattern, str):
             self.pattern = re.compile(pattern).match
         elif not pattern or callable(pattern):
