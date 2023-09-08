@@ -233,17 +233,19 @@ def main(argv):
 
         with open("telethon/version.py", "r", encoding="utf-8") as f:
             version = re.search(
-                r"^__version__\s*=\s*'(.*)'.*$", f.read(), flags=re.MULTILINE
-            )[1]
+                r"^__version__\s*=\s*(.*).*$", f.read(), flags=re.MULTILINE,
+            ).group(1)
+            version = version.strip('"').strip("'")
+
         setup(
             name="Telethon",
             version=version,
             description="Full-featured Telegram client library for Python 3",
             long_description=long_description,
-            url="https://github.com/LonamiWebs/Telethon",
-            download_url="https://github.com/LonamiWebs/Telethon/releases",
-            author="Lonami Exo",
-            author_email="totufals@hotmail.com",
+            url="https://github.com/lanowde/telethon-testing",
+            download_url="https://github.com/lanowde/telethon-testing/releases",
+            author="Saul Goodman",
+            author_email="saul.goodman@hotmail.com",
             license="MIT",
             # See https://stackoverflow.com/a/40300957/4759433
             # -> https://www.python.org/dev/peps/pep-0345/#requires-python
