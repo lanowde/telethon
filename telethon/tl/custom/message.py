@@ -461,7 +461,7 @@ class Message(ChatGetter, SenderGetter, TLObject):
 
     @property
     def message_link(self):
-        if isinstance(self.chat, types.User):
+        if isinstance(self.chat, types.User) or self.is_private:
             fmt = "tg://openmessage?user_id={user_id}&message_id={msg_id}"
             return fmt.format(user_id=self.chat_id, msg_id=self.id)
         if getattr(self.chat, "username", None):
