@@ -460,6 +460,23 @@ class Message(ChatGetter, SenderGetter, TLObject):
         return self._buttons_count
 
     @property
+    def message_link(self):
+        if isinstance(self.chat, types.User):
+            fmt = "tg://openmessage?user_id={user_id}&message_id={msg_id}"
+            return fmt.format(user_id=self.chat_id, msg_id=self.id)
+        if getattr(self.chat, "username", None):
+            return f"https://t.me/{self.chat.username}/{self.id}"
+        if self.chat_id:
+            chat = self.chat_id
+            if str(chat).startswith(("-", "-100")):
+                chat = int(str(chat).lstrip("-100").lstrip("-"))
+        elif self.chat and self.chat.id:
+            chat = self.chat.id
+        else:
+            return
+        return f"https://t.me/c/{chat}/{self.id}"
+
+    @property
     def file(self):
         """
         Returns a `File <telethon.tl.custom.file.File>` wrapping the
@@ -866,7 +883,7 @@ class Message(ChatGetter, SenderGetter, TLObject):
         data=None,
         share_phone=None,
         share_geo=None,
-        password=None
+        password=None,
     ):
         """
         Calls :tl:`SendVote` with the specified poll option

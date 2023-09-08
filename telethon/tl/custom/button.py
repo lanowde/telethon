@@ -326,3 +326,21 @@ class Button:
         documentation for more information on using games.
         """
         return types.InputKeyboardButtonGame(text)
+
+    @staticmethod
+    def mention(text, user):
+        """
+        Send Button with UserProfile mention.
+
+        call 'get_input_entity' to fill in user parameter.
+        """
+        return types.InputKeyboardButtonUserProfile(text, user)
+
+    @staticmethod
+    def web(text, url):
+        """
+        Send Button with WebView.
+
+        Works Only in Private Chats.
+        """
+        return types.KeyboardButtonSimpleWebView(text, url)
