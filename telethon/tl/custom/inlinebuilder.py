@@ -89,6 +89,7 @@ class InlineBuilder:
         contact=None,
         game=False,
         buttons=None,
+        include_media=False,
         type="article",
     ):
         """
@@ -149,6 +150,7 @@ class InlineBuilder:
             type=type,
             send_message=await self._message(
                 text=text,
+                media=include_media,
                 parse_mode=parse_mode,
                 link_preview=link_preview,
                 geo=geo,
