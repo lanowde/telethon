@@ -219,13 +219,18 @@ class MessageBox:
         # So every call to trace is prefixed with `if __debug__`` instead, to remove
         # it when using `python -O`. Probably unnecessary, but it's nice to avoid
         # paying the cost for something that is not used.
-        self._log.log(
-            LOG_LEVEL_TRACE,
-            "Current MessageBox state: seq = %r, date = %s, map = %r",
-            self.seq,
-            self.date.isoformat(),
-            self.map,
-        )
+        try:
+            self._log.log(
+                LOG_LEVEL_TRACE,
+                "Current MessageBox state: seq = %r, date = %s, map = %r",
+                self.seq,
+                self.date.isoformat(),
+                self.map,
+            )
+        except AttributeError:
+            print(self.date)
+            self._log.error(self.date)
+            raise
         self._log.log(LOG_LEVEL_TRACE, msg, *args, **kwargs)
 
     # region Creation, querying, and setting base state.
