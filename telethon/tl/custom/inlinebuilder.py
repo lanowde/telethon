@@ -88,7 +88,9 @@ class InlineBuilder:
         period=60,
         contact=None,
         game=False,
-        buttons=None
+        buttons=None,
+        include_media=False,
+        type="article",
     ):
         """
         Creates new inline result of article type.
@@ -110,6 +112,10 @@ class InlineBuilder:
             content (:tl:`InputWebDocument`, optional):
                 The content to be shown for this result.
                 For now it has to be a :tl:`InputWebDocument` if present.
+
+            type (`str`, optional):
+                The type of the content. May be one of: article, audio,
+                contact, file, geo, gif, photo, sticker, venue, video, voice.
 
         Example:
             .. code-block:: python
@@ -141,9 +147,10 @@ class InlineBuilder:
         # voice, document, location, venue, contact, game
         result = types.InputBotInlineResult(
             id=id or "",
-            type="article",
+            type=type,
             send_message=await self._message(
                 text=text,
+                media=include_media,
                 parse_mode=parse_mode,
                 link_preview=link_preview,
                 geo=geo,
@@ -177,7 +184,7 @@ class InlineBuilder:
         period=60,
         contact=None,
         game=False,
-        buttons=None
+        buttons=None,
     ):
         """
         Creates a new inline result of photo type.
@@ -274,7 +281,7 @@ class InlineBuilder:
         contact=None,
         game=False,
         buttons=None,
-        include_media=True
+        include_media=True,
     ):
         """
         Creates a new inline result of document type.
@@ -407,7 +414,7 @@ class InlineBuilder:
         period=60,
         contact=None,
         game=False,
-        buttons=None
+        buttons=None,
     ):
         """
         Creates a new inline result of game type.
@@ -446,7 +453,7 @@ class InlineBuilder:
         period=60,
         contact=None,
         game=False,
-        buttons=None
+        buttons=None,
     ):
         # Empty strings are valid but false-y; if they're empty use dummy '\0'
         args = ("\0" if text == "" else text, geo, contact, game)
