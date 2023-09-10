@@ -685,7 +685,6 @@ class MessageMethods:
         schedule: "hints.DateLike" = None,
         comment_to: "typing.Union[int, types.Message]" = None,
         nosound_video: bool = None,
-        comment_to: "typing.Union[int, types.Message]" = None,
     ) -> "types.Message":
         """
         Sends a message to the specified user, chat or channel.
