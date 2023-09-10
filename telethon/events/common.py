@@ -104,7 +104,9 @@ class EventBuilder(abc.ABC):
 
     async def _resolve(self, client):
         if self.chats:
-            self.chats = await _into_id_set(client, list(filter(lambda chat: chat, self.chats)))
+            self.chats = await _into_id_set(
+                client, list(filter(lambda chat: chat, self.chats))
+            )
 
     def filter(self, event):
         """

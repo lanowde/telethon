@@ -610,7 +610,6 @@ class MessageMethods:
             else:
                 kwargs["limit"] = 1
 
-
         if isinstance(entity, str) and "/" in entity:
             split = entity.split("/")
             try:
