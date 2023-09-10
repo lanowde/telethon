@@ -6,6 +6,8 @@ import warnings
 from .. import helpers, utils, errors, hints
 from ..requestiter import RequestIter
 from ..tl import types, functions
+from telethon.errors.rpcerrorlist import FilePart0MissingError
+
 
 _MAX_CHUNK_SIZE = 100
 
@@ -293,11 +295,7 @@ class _MessagesIter(RequestIter):
             self.request.offset_date = last_message.date
 
         if isinstance(self.request, functions.messages.SearchGlobalRequest):
-            if last_message.input_chat:
-                self.request.offset_peer = last_message.input_chat
-            else:
-                self.request.offset_peer = types.InputPeerEmpty()
-
+            self.request.offset_peer = last_message.input_chat or types.InputPeerEmpty()
             self.request.offset_rate = getattr(response, "next_rate", 0)
 
 
@@ -574,7 +572,7 @@ class MessageMethods:
         )
 
     async def get_messages(
-        self: "TelegramClient", *args, **kwargs
+        self: "TelegramClient", entity, *args, **kwargs
     ) -> "hints.TotalList":
         """
         Same as `iter_messages()`, but returns a
@@ -611,6 +609,23 @@ class MessageMethods:
                 kwargs["limit"] = None
             else:
                 kwargs["limit"] = 1
+
+
+        if isinstance(entity, str) and "/" in entity:
+            split = entity.split("/")
+            try:
+                entity = int(split[-2]) if split[-2].isdigit() else split[-2]
+                ids = split[-1].replace("?single", "")
+                if "?comment=" in ids:
+                    ids = int(ids.split("=")[-1])
+                    entity = (
+                        await self(functions.channels.GetFullChannelRequest(entity))
+                    ).full_chat.linked_chat_id
+                kwargs.update({"entity": entity, "ids": ids})
+            except (KeyError, IndexError):
+                kwargs.update({"entity": entity})
+        else:
+            kwargs.update({"entity": entity})
 
         it = self.iter_messages(*args, **kwargs)
 
@@ -649,6 +664,7 @@ class MessageMethods:
         entity: "hints.EntityLike",
         message: "hints.MessageLike" = "",
         *,
+        send_as: "hints.EntityLike" = None,
         reply_to: "typing.Union[int, types.Message]" = None,
         attributes: "typing.Sequence[types.TypeDocumentAttribute]" = None,
         parse_mode: typing.Optional[str] = (),
@@ -663,10 +679,14 @@ class MessageMethods:
         buttons: typing.Optional["hints.MarkupLike"] = None,
         silent: bool = None,
         background: bool = None,
+        album: bool = False,
+        allow_cache: bool = False,
+        noforwards: bool = False,
         supports_streaming: bool = False,
         schedule: "hints.DateLike" = None,
         comment_to: "typing.Union[int, types.Message]" = None,
         nosound_video: bool = None,
+        comment_to: "typing.Union[int, types.Message]" = None,
     ) -> "types.Message":
         """
         Sends a message to the specified user, chat or channel.
@@ -867,6 +887,10 @@ class MessageMethods:
                 comment_to=comment_to,
                 background=background,
                 nosound_video=nosound_video,
+                album=album,
+                allow_cache=allow_cache,
+                send_as=send_as,
+                noforwards=noforwards,
             )
 
         entity = await self.get_input_entity(entity)
@@ -898,6 +922,8 @@ class MessageMethods:
                     formatting_entities=message.entities,
                     parse_mode=None,  # explicitly disable parse_mode to force using even empty formatting_entities
                     schedule=schedule,
+                    send_as=send_as,
+                    noforwards=noforwards,
                 )
 
             request = functions.messages.SendMessageRequest(
@@ -913,9 +939,13 @@ class MessageMethods:
                 clear_draft=clear_draft,
                 no_webpage=not isinstance(message.media, types.MessageMediaWebPage),
                 schedule_date=schedule,
+                send_as=send_as,
+                noforwards=noforwards,
             )
             message = message.message
         else:
+            if message is not None:
+                message = str(message)
             if formatting_entities is None:
                 message, formatting_entities = await self._parse_message_text(
                     message, parse_mode
@@ -938,6 +968,8 @@ class MessageMethods:
                 background=background,
                 reply_markup=self.build_reply_markup(buttons),
                 schedule_date=schedule,
+                send_as=send_as,
+                noforwards=noforwards,
             )
 
         result = await self(request)
@@ -965,11 +997,15 @@ class MessageMethods:
         messages: "typing.Union[hints.MessageIDLike, typing.Sequence[hints.MessageIDLike]]",
         from_peer: "hints.EntityLike" = None,
         *,
+        send_as: "hints.EntityLike" = None,
         background: bool = None,
+        drop_author: bool = None,
+        drop_caption: bool = None,
         with_my_score: bool = None,
         silent: bool = None,
         as_album: bool = None,
         schedule: "hints.DateLike" = None,
+        noforwards: bool = None,
     ) -> "typing.Sequence[types.Message]":
         """
         Forwards the given messages to the specified entity.
@@ -1073,7 +1109,7 @@ class MessageMethods:
             if isinstance(chunk[0], int):
                 chat = from_peer
             else:
-                chat = from_peer or await self.get_input_entity(chunk[0].peer_id)
+                chat = from_peer or await chunk[0].get_input_chat()
                 chunk = [m.id for m in chunk]
 
             req = functions.messages.ForwardMessagesRequest(
@@ -1082,8 +1118,12 @@ class MessageMethods:
                 to_peer=entity,
                 silent=silent,
                 background=background,
+                drop_author=drop_author,
+                drop_media_captions=drop_caption,
                 with_my_score=with_my_score,
                 schedule_date=schedule,
+                send_as=send_as,
+                noforwards=noforwards,
             )
             result = await self(req)
             sent.extend(self._get_response_message(req, result, entity))
@@ -1253,14 +1293,36 @@ class MessageMethods:
             # Invoke `messages.editInlineBotMessage` from the right datacenter.
             # Otherwise, Telegram will error with `MESSAGE_ID_INVALID` and do nothing.
             exported = self.session.dc_id != entity.dc_id
-            if exported:
-                try:
-                    sender = await self._borrow_exported_sender(entity.dc_id)
-                    return await self._call(sender, request)
-                finally:
-                    await self._return_exported_sender(sender)
-            else:
+            if not exported:
                 return await self(request)
+
+            sender = None
+            try:
+                sender = await self._borrow_exported_sender(entity.dc_id)
+                try:
+                    return await self._call(sender, request)
+                except FilePart0MissingError:
+                    media = await self(
+                        functions.messages.UploadMediaRequest(
+                            types.InputPeerSelf(), media
+                        )
+                    )
+                    return await self.edit_message(
+                        entity,
+                        None,
+                        text=text,
+                        file=media,
+                        buttons=buttons,
+                        supports_streaming=supports_streaming,
+                        attributes=attributes,
+                        formatting_entities=formatting_entities,
+                        force_document=force_document,
+                        schedule=schedule,
+                        link_preview=link_preview,
+                    )
+            finally:
+                if sender:
+                    await self._return_exported_sender(sender)
 
         entity = await self.get_input_entity(entity)
         request = functions.messages.EditMessageRequest(
@@ -1273,13 +1335,14 @@ class MessageMethods:
             reply_markup=self.build_reply_markup(buttons),
             schedule_date=schedule,
         )
-        msg = self._get_response_message(request, await self(request), entity)
-        return msg
+        return self._get_response_message(request, await self(request), entity)
 
     async def delete_messages(
         self: "TelegramClient",
         entity: "hints.EntityLike",
-        message_ids: "typing.Union[hints.MessageIDLike, typing.Sequence[hints.MessageIDLike]]",
+        message_ids: "typing.Union[hints.MessageIDLike, typing.Sequence[hints.MessageIDLike]]" = None,
+        from_user: "hints.EntityLike" = None,
+        is_scheduled: bool = False,
         *,
         revoke: bool = True,
     ) -> "typing.Sequence[types.messages.AffectedMessages]":
@@ -1343,6 +1406,19 @@ class MessageMethods:
         else:
             # no entity (None), set a value that's not a channel for private delete
             ty = helpers._EntityType.USER
+
+        if from_user:
+            return await self(
+                functions.channels.DeleteParticipantHistoryRequest(entity, from_user)
+            )
+
+        if is_scheduled:
+            return await self(
+                [
+                    functions.messages.DeleteScheduledMessagesRequest(entity, list(c))
+                    for c in utils.chunks(message_ids)
+                ]
+            )
 
         if ty == helpers._EntityType.CHANNEL:
             return await self(
