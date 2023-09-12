@@ -18,28 +18,24 @@ _MAX_PROFILE_PHOTO_CHUNK_SIZE = 100
 
 class _ChatAction:
     _str_mapping = {
-        'typing': types.SendMessageTypingAction(),
-        'contact': types.SendMessageChooseContactAction(),
-        'game': types.SendMessageGamePlayAction(),
-        'location': types.SendMessageGeoLocationAction(),
-        'sticker': types.SendMessageChooseStickerAction(),
-
-        'record-audio': types.SendMessageRecordAudioAction(),
-        'record-voice': types.SendMessageRecordAudioAction(),  # alias
-        'record-round': types.SendMessageRecordRoundAction(),
-        'record-video': types.SendMessageRecordVideoAction(),
-
-        'audio': types.SendMessageUploadAudioAction(1),
-        'voice': types.SendMessageUploadAudioAction(1),  # alias
-        'song': types.SendMessageUploadAudioAction(1),  # alias
-        'round': types.SendMessageUploadRoundAction(1),
-        'video': types.SendMessageUploadVideoAction(1),
-
-        'photo': types.SendMessageUploadPhotoAction(1),
-        'document': types.SendMessageUploadDocumentAction(1),
-        'file': types.SendMessageUploadDocumentAction(1),  # alias
-
-        'cancel': types.SendMessageCancelAction()
+        "typing": types.SendMessageTypingAction(),
+        "contact": types.SendMessageChooseContactAction(),
+        "game": types.SendMessageGamePlayAction(),
+        "location": types.SendMessageGeoLocationAction(),
+        "sticker": types.SendMessageChooseStickerAction(),
+        "record-audio": types.SendMessageRecordAudioAction(),
+        "record-voice": types.SendMessageRecordAudioAction(),  # alias
+        "record-round": types.SendMessageRecordRoundAction(),
+        "record-video": types.SendMessageRecordVideoAction(),
+        "audio": types.SendMessageUploadAudioAction(1),
+        "voice": types.SendMessageUploadAudioAction(1),  # alias
+        "song": types.SendMessageUploadAudioAction(1),  # alias
+        "round": types.SendMessageUploadRoundAction(1),
+        "video": types.SendMessageUploadVideoAction(1),
+        "photo": types.SendMessageUploadPhotoAction(1),
+        "document": types.SendMessageUploadDocumentAction(1),
+        "file": types.SendMessageUploadDocumentAction(1),  # alias
+        "cancel": types.SendMessageCancelAction(),
     }
 
     def __init__(self, client, chat, action, *, delay, auto_cancel):
@@ -172,7 +168,7 @@ class _ParticipantsIter(RequestIter):
 
             users = {user.id: user for user in full.users}
             for chat in full.chats:
-                users.update({chat.id:chat})
+                users.update({chat.id: chat})
             for participant in full.full_chat.participants.participants:
                 if isinstance(participant, types.ChannelParticipantBanned):
                     peer = participant.peer
@@ -257,7 +253,6 @@ class _ParticipantsIter(RequestIter):
             for chat in participants.chats:
                 users.update({chat.id: chat})
             for participant in participants.participants:
-
                 if isinstance(participant, types.ChannelParticipantBanned):
                     peer = participant.peer
                     if isinstance(peer, types.PeerChannel):
@@ -475,7 +470,6 @@ class _ProfilePhotoIter(RequestIter):
 
 
 class ChatMethods:
-
     # region Public methods
 
     async def join_chat(self, chat):

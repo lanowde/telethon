@@ -1,19 +1,19 @@
 from .. import types, functions
-from ... import utils 
+from ... import utils
+
 
 class User:
     def __init__(self, *args, **kwargs):
         self._client = None
-       
+
         self._id = kwargs["id"]
         del kwargs["id"]
         for _ in kwargs:
             setattr(self, _, kwargs[_])
         if self.is_self and self.phone:
             self.phone = "**********"
-        
-        self._fulluser = None
 
+        self._fulluser = None
 
     def _set_client(self, client):
         self._client = client
@@ -32,7 +32,11 @@ class User:
 
     async def comman_chats(self, max_id=0, limit=0):
         if self._client:
-            chat = await self._client(functions.messages.GetCommonChatsRequest(self.id, max_id=max_id, limit=limit))
+            chat = await self._client(
+                functions.messages.GetCommonChatsRequest(
+                    self.id, max_id=max_id, limit=limit
+                )
+            )
             if not isinstance(chat, types.messages.ChatsSlice):
                 chat.count = len(chat.chats)
             return chat

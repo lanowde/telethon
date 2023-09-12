@@ -17,7 +17,7 @@ from ..tl.types import (
     MessageEntityMentionName,
     MessageEntityStrike,
     MessageEntityUnderline,
-    MessageEntitySpoiler
+    MessageEntitySpoiler,
 )
 
 DEFAULT_DELIMITERS = {
@@ -27,7 +27,7 @@ DEFAULT_DELIMITERS = {
     "`": MessageEntityCode,
     "```": MessageEntityPre,
     "==": MessageEntityUnderline,
-    "||": MessageEntitySpoiler
+    "||": MessageEntitySpoiler,
 }
 
 DEFAULT_URL_RE = re.compile(r"\[([\S\s]+?)\]\((.+?)\)")
@@ -90,7 +90,6 @@ def parse(message, delimiters=None, url_re=None):
 
             # Did we find the earliest closing tag?
             if end != -1:
-
                 # Remove the delimiter from the string
                 message = "".join(
                     (

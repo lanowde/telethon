@@ -8,6 +8,7 @@ from ..tl.custom.chatgetter import ChatGetter
 
 logger = logging.getLogger(__name__)
 
+
 async def _into_id_set(client, chats):
     """Helper util to turn the input chat or chats into a set of IDs."""
     if chats is None:

@@ -1,6 +1,7 @@
 from .. import types, functions, TLObject
 from ... import password as pwd_mod
 from ...errors import BotResponseTimeoutError
+
 # import webbrowser
 
 
@@ -63,9 +64,10 @@ class MessageButton:
 
     def to_dict(self):
         return self.button.to_dict()
-#        if not "url" in data:
-#            data.update({"url":None})
-#        return data
+
+    #        if not "url" in data:
+    #            data.update({"url":None})
+    #        return data
 
     to_json = TLObject.to_json
 

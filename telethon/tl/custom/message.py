@@ -196,7 +196,7 @@ class Message(ChatGetter, SenderGetter, TLObject):
         replies: Optional[types.TypeMessageReplies] = None,
         # For MessageAction (mandatory)
         action: Optional[types.TypeMessageAction] = None,
-        reactions=None
+        reactions=None,
     ):
         # Common properties to messages, then to service (in the order they're defined in the `.tl`)
         self.out = bool(out)
@@ -691,15 +691,14 @@ class Message(ChatGetter, SenderGetter, TLObject):
             return None
         return utils.get_input_media(self.media)
 
-
     @property
     def message_link(self):
-#        if isinstance(self.chat, types.User):
-#            return
+        #        if isinstance(self.chat, types.User):
+        #            return
 
         if hasattr(self.chat, "username") and self.chat.username:
             return f"https://t.me/{self.chat.username}/{self.id}"
-        if (self.chat and self.chat.id):
+        if self.chat and self.chat.id:
             chat = self.chat.id
         elif self.chat_id:
             if str(self.chat_id).startswith("-" or "-100"):
@@ -809,7 +808,11 @@ class Message(ChatGetter, SenderGetter, TLObject):
 
     async def react(self, reaction, big=True):
         if self._client:
-            return await self._client(functions.messages.SendReactionRequest(big=big, peer=self.chat_id, msg_id=self.id, reaction=reaction))
+            return await self._client(
+                functions.messages.SendReactionRequest(
+                    big=big, peer=self.chat_id, msg_id=self.id, reaction=reaction
+                )
+            )
 
     async def forward_to(self, *args, **kwargs):
         """
@@ -1149,10 +1152,10 @@ class Message(ChatGetter, SenderGetter, TLObject):
         if self._client:
             return await self._client(
                 functions.messages.GetMessageReadParticipantsRequest(
-                    await self.get_input_chat(), 
-                    self.id
+                    await self.get_input_chat(), self.id
                 )
             )
+
     # endregion Public Methods
 
     # region Private Methods

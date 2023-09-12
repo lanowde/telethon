@@ -179,13 +179,10 @@ class NewMessage(EventBuilder):
             return
 
         if callable(self.from_users):
-           from_users = self.from_users()
+            from_users = self.from_users()
         else:
-           from_users = self.from_users
-        if (
-            from_users is not None
-            and event.message.sender_id not in from_users
-        ):
+            from_users = self.from_users
+        if from_users is not None and event.message.sender_id not in from_users:
             return
 
         if self.pattern:

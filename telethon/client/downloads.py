@@ -206,7 +206,6 @@ class _GenericDownloadIter(_DirectDownloadIter):
 
 
 class DownloadMethods:
-
     # region Public methods
 
     async def download_profile_photo(
