@@ -13,6 +13,7 @@ from collections import defaultdict
 from telethon import TelegramClient, events
 
 import logging
+
 logging.basicConfig(level=logging.WARNING)
 
 # "When did we last react?" dictionary, 0.0 by default
@@ -51,46 +52,46 @@ def can_react(chat_id):
 # Once you have a client, `add_event_handler` will use this event.
 @events.register(events.NewMessage)
 async def handler(event):
-    if 'emacs' in event.raw_text:
+    if "emacs" in event.raw_text:
         if not event.out and can_react(event.chat_id):
-            await event.reply('> emacs\nneeds more vim')
+            await event.reply("> emacs\nneeds more vim")
 
-    elif 'vim' in event.raw_text:
+    elif "vim" in event.raw_text:
         if not event.out and can_react(event.chat_id):
-            await event.reply('> vim\nneeds more emacs')
+            await event.reply("> vim\nneeds more emacs")
 
-    elif 'chrome' in event.raw_text:
+    elif "chrome" in event.raw_text:
         if not event.out and can_react(event.chat_id):
-            await event.reply('> chrome\nneeds more firefox')
+            await event.reply("> chrome\nneeds more firefox")
 
     # Reply always responds as a reply. We can respond without replying too
-    if 'shrug' in event.raw_text and can_react(event.chat_id):
-        await event.respond(r'¯\_(ツ)_/¯')
+    if "shrug" in event.raw_text and can_react(event.chat_id):
+        await event.respond(r"¯\_(ツ)_/¯")
 
     # If we sent the message, we are replying to someone,
     # and we said "save pic" in the message
-    if event.out and event.is_reply and 'save pic' in event.raw_text:
+    if event.out and event.is_reply and "save pic" in event.raw_text:
         reply_msg = await event.get_reply_message()
         replied_to_user = await reply_msg.get_input_sender()
 
-        message = await event.reply('Downloading your profile photo...')
+        message = await event.reply("Downloading your profile photo...")
         # We can also use client methods from here
         client = event.client
 
         file = await client.download_profile_photo(replied_to_user)
-        await message.edit(f'I saved your photo in {file}')
+        await message.edit(f"I saved your photo in {file}")
 
 
 client = TelegramClient(
-    os.environ.get('TG_SESSION', 'replier'),
-    get_env('TG_API_ID', 'Enter your API ID: ', int),
-    get_env('TG_API_HASH', 'Enter your API hash: '),
-    proxy=None
+    os.environ.get("TG_SESSION", "replier"),
+    get_env("TG_API_ID", "Enter your API ID: ", int),
+    get_env("TG_API_HASH", "Enter your API hash: "),
+    proxy=None,
 )
 
 with client:
     # This remembers the events.NewMessage we registered before
     client.add_event_handler(handler)
 
-    print('(Press Ctrl+C to stop this)')
+    print("(Press Ctrl+C to stop this)")
     client.run_until_disconnected()

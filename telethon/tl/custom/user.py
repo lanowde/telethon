@@ -2,22 +2,24 @@ import traceback
 from .. import types, functions
 from ... import utils
 
+
 class USER(types.User):
-    def __init__(self, id:int=None, *args, **kwargs):
+    def __init__(self, id: int = None, *args, **kwargs):
         self._client = None
         self._id = id
 
         for kwg in kwargs:
             setattr(self, kwg, kwargs[kwg])
 
-        _is_ult = any(("core/__main__" in file.filename or 
-                       'core\\__main__' in file.filename) for file in traceback.extract_stack())
+        _is_ult = any(
+            ("core/__main__" in file.filename or "core\\__main__" in file.filename)
+            for file in traceback.extract_stack()
+        )
         if _is_ult and self.is_self and self.phone:
             self.phone = "**********"
         if self.restriction_reason is None:
             self.restriction_reason = []
         self._fulluser = None
-
 
     def _set_client(self, client):
         self._client = client
@@ -36,7 +38,11 @@ class USER(types.User):
 
     async def comman_chats(self, max_id=0, limit=0):
         if self._client:
-            chat = await self._client(functions.messages.GetCommonChatsRequest(self.id, max_id=max_id, limit=limit))
+            chat = await self._client(
+                functions.messages.GetCommonChatsRequest(
+                    self.id, max_id=max_id, limit=limit
+                )
+            )
             if not isinstance(chat, types.messages.ChatsSlice):
                 chat.count = len(chat.chats)
             return chat

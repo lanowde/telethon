@@ -11,7 +11,7 @@ from .inlinequery import InlineQuery
 from .joinrequest import JoinRequest
 
 
-_HANDLERS_ATTRIBUTE = '__tl.handlers'
+_HANDLERS_ATTRIBUTE = "__tl.handlers"
 
 
 class StopPropagation(Exception):
@@ -36,6 +36,7 @@ class StopPropagation(Exception):
         ...     # Will never be reached, because it is the second handler
         ...     pass
     """
+
     # For some reason Sphinx wants the silly >>> or
     # it will show warnings and look bad when generated.
     pass

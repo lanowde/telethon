@@ -44,9 +44,12 @@ class InlineResults(list):
             switch to a private conversation with the bot using
             the text in this object.
     """
+
     def __init__(self, client, original, *, entity=None):
-        super().__init__(InlineResult(client, x, original.query_id, entity=entity)
-                         for x in original.results)
+        super().__init__(
+            InlineResult(client, x, original.query_id, entity=entity)
+            for x in original.results
+        )
 
         self.result = original
         self.query_id = original.query_id

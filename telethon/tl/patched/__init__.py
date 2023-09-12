@@ -2,6 +2,7 @@ from .. import types, alltlobjects, functions
 from ..custom.message import Message as _Message
 from ..custom.user import USER
 
+
 class MessageEmpty(_Message, types.MessageEmpty):
     pass
 
@@ -20,6 +21,7 @@ alltlobjects.tlobjects[MessageService.CONSTRUCTOR_ID] = MessageService
 
 class Message(_Message, types.Message):
     pass
+
 
 types.Message = Message
 alltlobjects.tlobjects[Message.CONSTRUCTOR_ID] = Message

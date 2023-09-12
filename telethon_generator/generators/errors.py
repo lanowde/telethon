@@ -17,42 +17,44 @@ def generate_errors(errors, f):
             exact_match.append(error)
 
     # Imports and new subclass creation
-    f.write(
-        f'from .rpcbaseerrors import RPCError, {", ".join(sorted(import_base))}\n'
-    )
+    f.write(f'from .rpcbaseerrors import RPCError, {", ".join(sorted(import_base))}\n')
 
     for cls, int_code in sorted(create_base.items(), key=lambda t: t[1]):
-        f.write(f'\n\nclass {cls}(RPCError):\n    code = {int_code}\n')
+        f.write(f"\n\nclass {cls}(RPCError):\n    code = {int_code}\n")
 
     # Error classes generation
     for error in errors:
-        f.write(f'\n\nclass {error.name}({error.subclass}):\n    ')
+        f.write(f"\n\nclass {error.name}({error.subclass}):\n    ")
 
         if error.has_captures:
-            f.write('def __init__(self, request, capture=0):\n    '
-                    '    self.request = request\n    ')
-            f.write(f'    self.{error.capture_name} = int(capture)\n        ')
+            f.write(
+                "def __init__(self, request, capture=0):\n    "
+                "    self.request = request\n    "
+            )
+            f.write(f"    self.{error.capture_name} = int(capture)\n        ")
         else:
-            f.write('def __init__(self, request):\n    '
-                    '    self.request = request\n        ')
+            f.write(
+                "def __init__(self, request):\n    "
+                "    self.request = request\n        "
+            )
 
-        f.write(f'super(Exception, self).__init__({repr(error.description)}')
+        f.write(f"super(Exception, self).__init__({repr(error.description)}")
 
         if error.has_captures:
-            f.write('.format({0}=self.{0})'.format(error.capture_name))
+            f.write(".format({0}=self.{0})".format(error.capture_name))
 
-        f.write(' + self._fmt_request(self.request))\n\n')
-        f.write('    def __reduce__(self):\n        ')
+        f.write(" + self._fmt_request(self.request))\n\n")
+        f.write("    def __reduce__(self):\n        ")
         if error.has_captures:
-            f.write(f'return type(self), (self.request, self.{error.capture_name})\n')
+            f.write(f"return type(self), (self.request, self.{error.capture_name})\n")
         else:
-            f.write('return type(self), (self.request,)\n')
+            f.write("return type(self), (self.request,)\n")
 
     # Create the actual {CODE: ErrorClassName} dict once classes are defined
-    f.write('\n\nrpc_errors_dict = {\n')
+    f.write("\n\nrpc_errors_dict = {\n")
     for error in exact_match:
-        f.write(f'    {repr(error.pattern)}: {error.name},\n')
-    f.write('}\n\nrpc_errors_re = (\n')
+        f.write(f"    {repr(error.pattern)}: {error.name},\n")
+    f.write("}\n\nrpc_errors_re = (\n")
     for error in regex_match:
-        f.write(f'    ({repr(error.pattern)}, {error.name}),\n')
-    f.write(')\n')
+        f.write(f"    ({repr(error.pattern)}, {error.name}),\n")
+    f.write(")\n")

@@ -7,14 +7,19 @@ from ...utils import snake_to_camel_case
 # https://github.com/telegramdesktop/tdesktop/blob/4bf66cb6e93f3965b40084771b595e93d0b11bcd/Telegram/SourceFiles/codegen/scheme/codegen_scheme.py#L57-L62
 WHITELISTED_MISMATCHING_IDS = {
     # 0 represents any layer
-    0: {'channel',  # Since layer 77, there seems to be no going back...
-        'ipPortSecret', 'accessPointRule', 'help.configSimple'}
+    0: {
+        "channel",  # Since layer 77, there seems to be no going back...
+        "ipPortSecret",
+        "accessPointRule",
+        "help.configSimple",
+    }
 }
 
 
 class TLObject:
-    def __init__(self, fullname, object_id, args, result,
-                 is_function, usability, friendly, layer):
+    def __init__(
+        self, fullname, object_id, args, result, is_function, usability, friendly, layer
+    ):
         """
         Initializes a new TLObject, given its properties.
 
@@ -30,8 +35,8 @@ class TLObject:
         """
         # The name can or not have a namespace
         self.fullname = fullname
-        if '.' in fullname:
-            self.namespace, self.name = fullname.split('.', maxsplit=1)
+        if "." in fullname:
+            self.namespace, self.name = fullname.split(".", maxsplit=1)
         else:
             self.namespace, self.name = None, fullname
 
@@ -45,14 +50,18 @@ class TLObject:
             self.id = self.infer_id()
         else:
             self.id = int(object_id, base=16)
-            whitelist = WHITELISTED_MISMATCHING_IDS[0] |\
-                    WHITELISTED_MISMATCHING_IDS.get(layer, set())
+            whitelist = WHITELISTED_MISMATCHING_IDS[
+                0
+            ] | WHITELISTED_MISMATCHING_IDS.get(layer, set())
 
             if self.fullname not in whitelist:
-                assert self.id == self.infer_id(), f'Invalid inferred ID for {repr(self)}'
+                assert (
+                    self.id == self.infer_id()
+                ), f"Invalid inferred ID for {repr(self)}"
 
         self.class_name = snake_to_camel_case(
-            self.name, suffix='Request' if self.is_function else '')
+            self.name, suffix="Request" if self.is_function else ""
+        )
 
         self.real_args = [
             a
@@ -62,85 +71,79 @@ class TLObject:
 
     @property
     def innermost_result(self):
-        index = self.result.find('<')
-        return self.result if index == -1 else self.result[index + 1:-1]
+        index = self.result.find("<")
+        return self.result if index == -1 else self.result[index + 1 : -1]
 
     def sorted_args(self):
         """Returns the arguments properly sorted and ready to plug-in
-           into a Python's method header (i.e., flags and those which
-           can be inferred will go last so they can default =None)
+        into a Python's method header (i.e., flags and those which
+        can be inferred will go last so they can default =None)
         """
-        return sorted(self.args,
-                      key=lambda x: bool(x.flag) or x.can_be_inferred)
+        return sorted(self.args, key=lambda x: bool(x.flag) or x.can_be_inferred)
 
     def __repr__(self, ignore_id=False):
-        hex_id = '' if self.id is None or ignore_id else '#{:08x}'.format(self.id)
-        args = ' ' + ' '.join([repr(arg) for arg in self.args]) if self.args else ''
-        return f'{self.fullname}{hex_id}{args} = {self.result}'
+        hex_id = "" if self.id is None or ignore_id else "#{:08x}".format(self.id)
+        args = " " + " ".join([repr(arg) for arg in self.args]) if self.args else ""
+        return f"{self.fullname}{hex_id}{args} = {self.result}"
 
     def infer_id(self):
         representation = self.__repr__(ignore_id=True)
-        representation = representation\
-            .replace(':bytes ', ':string ')\
-            .replace('?bytes ', '?string ')\
-            .replace('<', ' ').replace('>', '')\
-            .replace('{', '').replace('}', '')
+        representation = (
+            representation.replace(":bytes ", ":string ")
+            .replace("?bytes ", "?string ")
+            .replace("<", " ")
+            .replace(">", "")
+            .replace("{", "")
+            .replace("}", "")
+        )
 
         # Remove optional empty values (special-cased to the true type)
-        representation = re.sub(
-            r' \w+:\w+\.\d+\?true',
-            r'',
-            representation
-        )
-        return zlib.crc32(representation.encode('ascii'))
+        representation = re.sub(r" \w+:\w+\.\d+\?true", r"", representation)
+        return zlib.crc32(representation.encode("ascii"))
 
     def to_dict(self):
         return {
-            'id':
-                str(struct.unpack('i', struct.pack('I', self.id))[0]),
-            'method' if self.is_function else 'predicate':
-                self.fullname,
-            'params':
-                [x.to_dict() for x in self.args if not x.generic_definition],
-            'type':
-                self.result
+            "id": str(struct.unpack("i", struct.pack("I", self.id))[0]),
+            "method" if self.is_function else "predicate": self.fullname,
+            "params": [x.to_dict() for x in self.args if not x.generic_definition],
+            "type": self.result,
         }
 
     def is_good_example(self):
-        return not self.class_name.endswith('Empty')
+        return not self.class_name.endswith("Empty")
 
     def as_example(self, f, indent=0):
-        f.write('functions' if self.is_function else 'types')
+        f.write("functions" if self.is_function else "types")
         if self.namespace:
-            f.write('.')
+            f.write(".")
             f.write(self.namespace)
 
-        f.write('.')
+        f.write(".")
         f.write(self.class_name)
-        f.write('(')
+        f.write("(")
 
         args = [arg for arg in self.real_args if not arg.omit_example()]
         if not args:
-            f.write(')')
+            f.write(")")
             return
 
-        f.write('\n')
+        f.write("\n")
         indent += 1
         remaining = len(args)
         for arg in args:
             remaining -= 1
-            f.write('    ' * indent)
+            f.write("    " * indent)
             f.write(arg.name)
-            f.write('=')
+            f.write("=")
             if arg.is_vector:
-                f.write('[')
+                f.write("[")
             arg.as_example(f, indent)
             if arg.is_vector:
-                f.write(']')
+                f.write("]")
             if remaining:
-                f.write(',')
-            f.write('\n')
+                f.write(",")
+            f.write("\n")
 
         indent -= 1
-        f.write('    ' * indent)
-        f.write(')')
+        f.write("    " * indent)
+        f.write(")")

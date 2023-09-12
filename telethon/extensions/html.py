@@ -10,18 +10,25 @@ from typing import Iterable, Optional, Tuple, List
 from ..helpers import add_surrogate, del_surrogate, within_surrogate, strip_text
 from ..tl import TLObject
 from ..tl.types import (
-    MessageEntityBold, MessageEntityItalic, MessageEntityCode,
-    MessageEntityPre, MessageEntityEmail, MessageEntityUrl,
-    MessageEntityTextUrl, MessageEntityMentionName,
-    MessageEntityUnderline, MessageEntityStrike, MessageEntityBlockquote,
-    TypeMessageEntity
+    MessageEntityBold,
+    MessageEntityItalic,
+    MessageEntityCode,
+    MessageEntityPre,
+    MessageEntityEmail,
+    MessageEntityUrl,
+    MessageEntityTextUrl,
+    MessageEntityMentionName,
+    MessageEntityUnderline,
+    MessageEntityStrike,
+    MessageEntityBlockquote,
+    TypeMessageEntity,
 )
 
 
 class HTMLToTelegramParser(HTMLParser):
     def __init__(self):
         super().__init__()
-        self.text = ''
+        self.text = ""
         self.entities = []
         self._building_entities = {}
         self._open_tags = deque()
@@ -34,17 +41,17 @@ class HTMLToTelegramParser(HTMLParser):
         attrs = dict(attrs)
         EntityType = None
         args = {}
-        if tag in ['strong', 'b']:
+        if tag in ["strong", "b"]:
             EntityType = MessageEntityBold
-        elif tag in ['em', 'i']:
+        elif tag in ["em", "i"]:
             EntityType = MessageEntityItalic
-        elif tag == 'u':
+        elif tag == "u":
             EntityType = MessageEntityUnderline
-        elif tag in ['del', 's']:
+        elif tag in ["del", "s"]:
             EntityType = MessageEntityStrike
-        elif tag == 'blockquote':
+        elif tag == "blockquote":
             EntityType = MessageEntityBlockquote
-        elif tag == 'code':
+        elif tag == "code":
             try:
                 # If we're in the middle of a <pre> tag, this <code> tag is
                 # probably intended for syntax highlighting.
@@ -52,29 +59,29 @@ class HTMLToTelegramParser(HTMLParser):
                 # Syntax highlighting is set with
                 #     <code class='language-...'>codeblock</code>
                 # inside <pre> tags
-                pre = self._building_entities['pre']
+                pre = self._building_entities["pre"]
                 try:
-                    pre.language = attrs['class'][len('language-'):]
+                    pre.language = attrs["class"][len("language-") :]
                 except KeyError:
                     pass
             except KeyError:
                 EntityType = MessageEntityCode
-        elif tag == 'pre':
+        elif tag == "pre":
             EntityType = MessageEntityPre
-            args['language'] = ''
-        elif tag == 'a':
+            args["language"] = ""
+        elif tag == "a":
             try:
-                url = attrs['href']
+                url = attrs["href"]
             except KeyError:
                 return
-            if url.startswith('mailto:'):
-                url = url[len('mailto:'):]
+            if url.startswith("mailto:"):
+                url = url[len("mailto:") :]
                 EntityType = MessageEntityEmail
             elif self.get_starttag_text() == url:
                 EntityType = MessageEntityUrl
             else:
                 EntityType = MessageEntityTextUrl
-                args['url'] = del_surrogate(url)
+                args["url"] = del_surrogate(url)
                 url = None
             self._open_tags_meta.popleft()
             self._open_tags_meta.appendleft(url)
@@ -84,11 +91,12 @@ class HTMLToTelegramParser(HTMLParser):
                 offset=len(self.text),
                 # The length will be determined when closing the tag.
                 length=0,
-                **args)
+                **args,
+            )
 
     def handle_data(self, text):
-        previous_tag = self._open_tags[0] if len(self._open_tags) > 0 else ''
-        if previous_tag == 'a':
+        previous_tag = self._open_tags[0] if len(self._open_tags) > 0 else ""
+        if previous_tag == "a":
             if url := self._open_tags_meta[0]:
                 text = url
 
@@ -125,22 +133,22 @@ def parse(html: str) -> Tuple[str, List[TypeMessageEntity]]:
 
 
 ENTITY_TO_FORMATTER = {
-    MessageEntityBold: ('<strong>', '</strong>'),
-    MessageEntityItalic: ('<em>', '</em>'),
-    MessageEntityCode: ('<code>', '</code>'),
-    MessageEntityUnderline: ('<u>', '</u>'),
-    MessageEntityStrike: ('<del>', '</del>'),
-    MessageEntityBlockquote: ('<blockquote>', '</blockquote>'),
+    MessageEntityBold: ("<strong>", "</strong>"),
+    MessageEntityItalic: ("<em>", "</em>"),
+    MessageEntityCode: ("<code>", "</code>"),
+    MessageEntityUnderline: ("<u>", "</u>"),
+    MessageEntityStrike: ("<del>", "</del>"),
+    MessageEntityBlockquote: ("<blockquote>", "</blockquote>"),
     MessageEntityPre: lambda e, _: (
         f"<pre>\n    <code class='language-{e.language}'>\n        ",
         "{}\n" "    </code>\n" "</pre>",
     ),
-    MessageEntityEmail: lambda _, t: (f'<a href="mailto:{t}">', '</a>'),
-    MessageEntityUrl: lambda _, t: (f'<a href="{t}">', '</a>'),
-    MessageEntityTextUrl: lambda e, _: (f'<a href="{escape(e.url)}">', '</a>'),
+    MessageEntityEmail: lambda _, t: (f'<a href="mailto:{t}">', "</a>"),
+    MessageEntityUrl: lambda _, t: (f'<a href="{t}">', "</a>"),
+    MessageEntityTextUrl: lambda e, _: (f'<a href="{escape(e.url)}">', "</a>"),
     MessageEntityMentionName: lambda e, _: (
         f'<a href="tg://user?id={e.user_id}">',
-        '</a>',
+        "</a>",
     ),
 }
 
@@ -179,7 +187,12 @@ def unparse(text: str, entities: Iterable[TypeMessageEntity]) -> str:
         while within_surrogate(text, at):
             at += 1
 
-        text = text[:at] + what + escape(text[at:next_escape_bound]) + text[next_escape_bound:]
+        text = (
+            text[:at]
+            + what
+            + escape(text[at:next_escape_bound])
+            + text[next_escape_bound:]
+        )
         next_escape_bound = at
 
     text = escape(text[:next_escape_bound]) + text[next_escape_bound:]

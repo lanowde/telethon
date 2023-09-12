@@ -5,15 +5,15 @@ from ..utils import snake_to_camel_case
 
 # Core base classes depending on the integer error code
 KNOWN_BASE_CLASSES = {
-    303: 'InvalidDCError',
-    400: 'BadRequestError',
-    401: 'UnauthorizedError',
-    403: 'ForbiddenError',
-    404: 'NotFoundError',
-    406: 'AuthKeyError',
-    420: 'FloodError',
-    500: 'ServerError',
-    503: 'TimedOutError'
+    303: "InvalidDCError",
+    400: "BadRequestError",
+    401: "UnauthorizedError",
+    403: "ForbiddenError",
+    404: "NotFoundError",
+    406: "AuthKeyError",
+    420: "FloodError",
+    500: "ServerError",
+    503: "TimedOutError",
 }
 
 
@@ -24,20 +24,23 @@ def _get_class_name(error_code):
     """
     if isinstance(error_code, int):
         return KNOWN_BASE_CLASSES.get(
-            abs(error_code), 'RPCError' + str(error_code).replace('-', 'Neg')
+            abs(error_code), "RPCError" + str(error_code).replace("-", "Neg")
         )
 
-    if error_code.startswith('2'):
-        error_code = re.sub(r'2', 'TWO_', error_code, count=1)
+    if error_code.startswith("2"):
+        error_code = re.sub(r"2", "TWO_", error_code, count=1)
 
-    if re.match(r'\d+', error_code):
+    if re.match(r"\d+", error_code):
         raise RuntimeError(
-            f'error code starting with a digit cannot have valid Python name: {error_code}'
+            f"error code starting with a digit cannot have valid Python name: {error_code}"
         )
 
     return snake_to_camel_case(
-        error_code.replace('FIRSTNAME', 'FIRST_NAME')\
-                  .replace('SLOWMODE', 'SLOW_MODE').lower(), suffix='Error')
+        error_code.replace("FIRSTNAME", "FIRST_NAME")
+        .replace("SLOWMODE", "SLOW_MODE")
+        .lower(),
+        suffix="Error",
+    )
 
 
 class Error:
@@ -52,11 +55,11 @@ class Error:
         self.subclass_exists = abs(codes[0]) in KNOWN_BASE_CLASSES
         self.description = description
 
-        self.has_captures = '_X' in name
+        self.has_captures = "_X" in name
         if self.has_captures:
-            self.name = _get_class_name(name.replace('_X', '_'))
-            self.pattern = name.replace('_X', r'_(\d+)')
-            self.capture_name = re.search(r'{(\w+)}', description)[1]
+            self.name = _get_class_name(name.replace("_X", "_"))
+            self.pattern = name.replace("_X", r"_(\d+)")
+            self.capture_name = re.search(r"{(\w+)}", description)[1]
         else:
             self.name = _get_class_name(name)
             self.pattern = name
@@ -68,7 +71,7 @@ def parse_errors(csv_file):
     Parses the input CSV file with columns (name, error codes, description)
     and yields `Error` instances as a result.
     """
-    with csv_file.open(newline='') as f:
+    with csv_file.open(newline="") as f:
         f = csv.reader(f)
         next(f, None)  # header
         for line, tup in enumerate(f, start=2):
@@ -76,12 +79,12 @@ def parse_errors(csv_file):
                 name, codes, description = tup
             except ValueError:
                 raise ValueError(
-                    f'Columns count mismatch, unquoted comma in desc? (line {line})'
+                    f"Columns count mismatch, unquoted comma in desc? (line {line})"
                 ) from None
 
             try:
                 codes = [int(x) for x in codes.split()] or [400]
             except ValueError:
-                raise ValueError(f'Not all codes are integers (line {line})') from None
+                raise ValueError(f"Not all codes are integers (line {line})") from None
 
             yield Error([int(x) for x in codes], name, description)
