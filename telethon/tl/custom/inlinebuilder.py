@@ -113,6 +113,10 @@ class InlineBuilder:
                 The content to be shown for this result.
                 For now it has to be a :tl:`InputWebDocument` if present.
 
+            type (`str`, optional):
+                The type of the content. May be one of: article, audio,
+                contact, file, geo, gif, photo, sticker, venue, video, voice.
+
         Example:
             .. code-block:: python
 

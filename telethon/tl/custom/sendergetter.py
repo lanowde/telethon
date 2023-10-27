@@ -52,11 +52,10 @@ class SenderGetter(abc.ABC):
         ) and await self.get_input_sender():
             # self.get_input_sender may refresh in which case the sender may no longer be min
             # However it could still incur a cost so the cheap check is done twice instead.
-            if self._sender is None or getattr(self._sender, "min", None):
-                try:
-                    self._sender = await self._client.get_entity(self._input_sender)
-                except ValueError:
-                    await self._refetch_sender()
+            try:
+                self._sender = await self._client.get_entity(self._input_sender)
+            except ValueError:
+                await self._refetch_sender()
         return self._sender
 
     @property
