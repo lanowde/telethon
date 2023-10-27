@@ -892,7 +892,7 @@ class Message(ChatGetter, SenderGetter, TLObject):
         data=None,
         share_phone=None,
         share_geo=None,
-        password=None
+        password=None,
     ):
         """
         Calls :tl:`SendVote` with the specified poll option
