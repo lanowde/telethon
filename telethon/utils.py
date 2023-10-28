@@ -17,6 +17,7 @@ import struct
 from collections import namedtuple
 from mimetypes import guess_extension
 from types import GeneratorType
+import typing
 
 from .extensions import markdown, html
 from .helpers import add_surrogate, del_surrogate, strip_text
@@ -1642,3 +1643,44 @@ def _photo_size_byte_count(size):
         return max(size.sizes)
     else:
         return None
+
+
+def get_input_reply_to(
+    entity: typing.Optional[
+        typing.Union[int, types.InputUser, types.InputChannel]
+    ] = None,
+    reply_to: typing.Optional[typing.Union[int, types.Message, types.StoryItem]] = None,
+    top_msg_id: typing.Optional[int] = None,
+    stories: bool = False,
+):
+    """
+    Get the input reply to object from the given parameters.
+    If `reply_to` is integer, it will be treated as it is message ID (not story ID) by default.
+    If you want to change this behaviour, pass `stories=True`
+    """
+    if isinstance(reply_to, types.StoryItem):
+        return types.InputReplyToStory(entity, reply_to.id)
+
+    if isinstance(reply_to, types.Message):
+        return types.InputReplyToMessage(
+            reply_to.id,
+            top_msg_id or getattr(reply_to.reply_to, "reply_to_msg_id", None),
+        )
+
+    if isinstance(reply_to, int):
+        return (
+            types.InputReplyToStory(entity, reply_to)
+            if stories
+            else types.InputReplyToMessage(reply_to, top_msg_id)
+        )
+
+    return reply_to or None
+
+
+def get_input_story_id(
+    story: "hints.StoryItemLike",
+) -> int:
+    """
+    Get the input story ID from the given parameters.
+    """
+    return story if isinstance(story, int) else story.id

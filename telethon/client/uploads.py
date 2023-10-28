@@ -120,7 +120,7 @@ class UploadMethods:
         file_size: int = None,
         clear_draft: bool = False,
         progress_callback: "hints.ProgressCallback" = None,
-        reply_to: "hints.MessageIDLike" = None,
+        reply_to: "typing.Union[hints.MessageIDLike, types.TypeInputReplyTo]" = None,
         attributes: "typing.Sequence[types.TypeDocumentAttribute]" = None,
         thumb: "hints.FileLike" = None,
         allow_cache: bool = True,
@@ -136,6 +136,7 @@ class UploadMethods:
         supports_streaming: bool = False,
         schedule: "hints.DateLike" = None,
         comment_to: "typing.Union[int, types.Message]" = None,
+        top_msg_id: int = None,
         ttl: int = None,
         nosound_video: bool = None,
         **kwargs
@@ -220,7 +221,7 @@ class UploadMethods:
                 A callback function accepting two parameters:
                 ``(sent bytes, total)``.
 
-            reply_to (`int` | `Message <telethon.tl.custom.message.Message>`):
+            reply_to (`int` | `Message <telethon.tl.custom.message.Message>` | `types.TypeInputReplyTo` | `StoryItem <telethon.tl.types.StoryItem>`):
                 Same as `reply_to` from `send_message`.
 
             attributes (`list`, optional):
@@ -295,6 +296,11 @@ class UploadMethods:
 
                 This parameter takes precedence over ``reply_to``. If there is
                 no linked chat, `telethon.errors.sgIdInvalidError` is raised.
+
+            top_msg_id (`int`, optional):
+                The top message ID of the discussion to which the message
+                will be sent. This is only used when sending a message to
+                a forum chat.
 
             ttl (`int`. optional):
                 The Time-To-Live of the file (also known as "self-destruct timer"
@@ -378,7 +384,8 @@ class UploadMethods:
         if comment_to is not None:
             entity, reply_to = await self._get_comment_data(entity, comment_to)
         else:
-            reply_to = utils.get_message_id(reply_to)
+            reply_to = utils.get_input_reply_to(entity, reply_to, top_msg_id)
+            # get_message_id(reply_to)
 
         # First check if the user passed an iterable, in which case
         # we may want to send grouped.
@@ -414,6 +421,31 @@ class UploadMethods:
                 file = file[10:]
                 captions = captions[10:]
                 sent_count += 10
+
+            for doc, cap in zip(file, captions):
+                result.append(
+                    await self.send_file(
+                        entity,
+                        doc,
+                        allow_cache=allow_cache,
+                        caption=cap,
+                        force_document=force_document,
+                        progress_callback=progress_callback,
+                        reply_to=reply_to,
+                        top_msg_id=top_msg_id,
+                        attributes=attributes,
+                        thumb=thumb,
+                        voice_note=voice_note,
+                        video_note=video_note,
+                        buttons=buttons,
+                        silent=silent,
+                        supports_streaming=supports_streaming,
+                        schedule=schedule,
+                        clear_draft=clear_draft,
+                        background=background,
+                        **kwargs
+                    )
+                )
 
             return result
 

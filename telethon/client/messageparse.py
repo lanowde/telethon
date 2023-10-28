@@ -157,6 +157,9 @@ class MessageParseMethods:
                 else:
                     return update.message
 
+            elif isinstance(update, types.UpdateStory):
+                return update.story
+
             elif (
                 isinstance(update, types.UpdateEditMessage)
                 and helpers._entity_type(request.peer) != helpers._EntityType.CHANNEL

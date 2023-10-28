@@ -666,8 +666,9 @@ class MessageMethods:
         entity: "hints.EntityLike",
         message: "hints.MessageLike" = "",
         *,
+        top_msg_id: int = None,
         send_as: "hints.EntityLike" = None,
-        reply_to: "typing.Union[int, types.Message]" = None,
+        reply_to: "typing.Union[int, types.Message, types.StoryItem, types.TypeInputReplyTo]" = None,
         attributes: "typing.Sequence[types.TypeDocumentAttribute]" = None,
         parse_mode: typing.Optional[str] = (),
         formatting_entities: typing.Optional[
@@ -717,6 +718,11 @@ class MessageMethods:
                 characters. Longer messages will not be sliced automatically,
                 and you should slice them manually if the text to send is
                 longer than said length.
+
+            top_msg_id (`int`, optional):
+                The top message ID of the discussion to which the message
+                will be sent. This is only used when sending a message to
+                a forum chat.
 
             reply_to (`int` | `Message <telethon.tl.custom.message.Message>`, optional):
                 Whether to reply to a message or not. If an integer is provided,
@@ -875,6 +881,7 @@ class MessageMethods:
                 file,
                 caption=message,
                 reply_to=reply_to,
+                top_msg_id=top_msg_id,
                 attributes=attributes,
                 parse_mode=parse_mode,
                 force_document=force_document,
@@ -897,8 +904,8 @@ class MessageMethods:
         entity = await self.get_input_entity(entity)
         if comment_to is not None:
             entity, reply_to = await self._get_comment_data(entity, comment_to)
-        else:
-            reply_to = utils.get_message_id(reply_to)
+
+        reply_to = utils.get_input_reply_to(entity, reply_to, top_msg_id)
 
         if isinstance(message, types.Message):
             if buttons is None:
@@ -916,6 +923,7 @@ class MessageMethods:
                     entity,
                     message.media,
                     caption=message.message,
+                    top_msg_id=top_msg_id,
                     silent=silent,
                     background=background,
                     reply_to=reply_to,
@@ -999,7 +1007,9 @@ class MessageMethods:
         from_peer: "hints.EntityLike" = None,
         *,
         send_as: "hints.EntityLike" = None,
+        top_msg_id: int = None,
         background: bool = None,
+        with_my_score: bool = None,
         drop_author: bool = None,
         drop_caption: bool = None,
         with_my_score: bool = None,
@@ -1042,6 +1052,10 @@ class MessageMethods:
             with_my_score (`bool`, optional):
                 Whether forwarded should contain your game score.
 
+            top_msg_id (`int`, optional):
+                The top message ID of the thread to which the message(s)
+                will be forwarded. Only applicable when forwarding to a
+                forum chat.
             as_album (`bool`, optional):
                 This flag no longer has any effect.
 
@@ -1124,6 +1138,7 @@ class MessageMethods:
                 with_my_score=with_my_score,
                 schedule_date=schedule,
                 send_as=send_as,
+                top_msg_id=top_msg_id,
                 noforwards=noforwards,
             )
             result = await self(req)
@@ -1448,6 +1463,7 @@ class MessageMethods:
         max_id: int = None,
         clear_mentions: bool = False,
         clear_reactions: bool = False,
+        top_msg_id: int = None,
     ) -> bool:
         """
         Marks messages as read and optionally clears mentions.
@@ -1489,6 +1505,11 @@ class MessageMethods:
                 If no message is provided, this will be the only action
                 taken.
 
+            top_msg_id (`int`, optional):
+                The top message ID of the discussion in which the mentions
+                are being cleared. This is required for topics of forum
+                chats.
+
         Example
             .. code-block:: python
 
@@ -1510,11 +1531,11 @@ class MessageMethods:
 
         entity = await self.get_input_entity(entity)
         if clear_mentions:
-            await self(functions.messages.ReadMentionsRequest(entity))
+            await self(functions.messages.ReadMentionsRequest(entity, top_msg_id))
             if max_id is None and not clear_reactions:
                 return True
         if clear_reactions:
-            await self(functions.messages.ReadReactionsRequest(entity))
+            await self(functions.messages.ReadReactionsRequest(entity, top_msg_id))
             if max_id is None:
                 return True
 

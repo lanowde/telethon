@@ -56,3 +56,10 @@ MessageLike = typing.Union[str, types.Message]
 MessageIDLike = typing.Union[int, types.Message, types.TypeInputMessage]
 
 ProgressCallback = typing.Callable[[int, int], None]
+
+StoryItemLike = typing.Union[
+    int,
+    types.StoryItem,
+    types.StoryItemDeleted,
+    types.StoryItemSkipped,
+]
