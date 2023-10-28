@@ -298,9 +298,9 @@ class StoriesMethods:
     async def get_user_stories(
         self: "TelegramClient",
         user: "hints.EntityLike",
-    ) -> types.stories.UserStories:
+    ) -> types.stories.PeerStories:
         return await self(
-            functions.stories.GetUserStoriesRequest(
+            functions.stories.GetPeerStoriesRequest(
                 user_id=await self.get_input_entity(user),
             )
         )

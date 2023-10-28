@@ -384,8 +384,8 @@ class UploadMethods:
         if comment_to is not None:
             entity, reply_to = await self._get_comment_data(entity, comment_to)
         else:
-            reply_to = utils.get_input_reply_to(entity, reply_to, top_msg_id)
-            # get_message_id(reply_to)
+            if not isinstance(reply_to, (types.InputReplyToStory, types.InputReplyToMessage)):
+                reply_to = utils.get_input_reply_to(entity, reply_to, top_msg_id)
 
         # First check if the user passed an iterable, in which case
         # we may want to send grouped.
@@ -475,7 +475,6 @@ class UploadMethods:
             raise TypeError("Cannot use {!r} as file".format(file))
 
         markup = self.build_reply_markup(buttons)
-        reply_to = None if reply_to is None else types.InputReplyToMessage(reply_to)
         request = functions.messages.SendMediaRequest(
             entity,
             media,

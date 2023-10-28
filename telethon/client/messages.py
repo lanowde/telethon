@@ -904,8 +904,8 @@ class MessageMethods:
         entity = await self.get_input_entity(entity)
         if comment_to is not None:
             entity, reply_to = await self._get_comment_data(entity, comment_to)
-
-        reply_to = utils.get_input_reply_to(entity, reply_to, top_msg_id)
+        else:
+            reply_to = utils.get_input_reply_to(entity, reply_to, top_msg_id)
 
         if isinstance(message, types.Message):
             if buttons is None:
@@ -940,9 +940,7 @@ class MessageMethods:
                 message=message.message or "",
                 silent=silent,
                 background=background,
-                reply_to=(
-                    None if reply_to is None else types.InputReplyToMessage(reply_to)
-                ),
+                reply_to=reply_to,
                 reply_markup=markup,
                 entities=message.entities,
                 clear_draft=clear_draft,
@@ -969,9 +967,7 @@ class MessageMethods:
                 message=message,
                 entities=formatting_entities,
                 no_webpage=not link_preview,
-                reply_to=(
-                    None if reply_to is None else types.InputReplyToMessage(reply_to)
-                ),
+                reply_to=reply_to,
                 clear_draft=clear_draft,
                 silent=silent,
                 background=background,
@@ -993,7 +989,7 @@ class MessageMethods:
                 entities=result.entities,
                 reply_markup=request.reply_markup,
                 ttl_period=result.ttl_period,
-                reply_to=request.reply_to,
+                reply_to=types.MessageReplyHeader(request.reply_to),
             )
             message._finish_init(self, {}, entity)
             return message
@@ -1009,7 +1005,6 @@ class MessageMethods:
         send_as: "hints.EntityLike" = None,
         top_msg_id: int = None,
         background: bool = None,
-        with_my_score: bool = None,
         drop_author: bool = None,
         drop_caption: bool = None,
         with_my_score: bool = None,
