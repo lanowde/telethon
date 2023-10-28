@@ -410,6 +410,7 @@ class UploadMethods:
                     caption=captions[:10],
                     progress_callback=used_callback,
                     reply_to=reply_to,
+                    top_msg_id=top_msg_id,
                     parse_mode=parse_mode,
                     silent=silent,
                     schedule=schedule,

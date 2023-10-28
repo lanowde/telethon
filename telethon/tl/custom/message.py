@@ -262,6 +262,10 @@ class Message(ChatGetter, SenderGetter, TLObject):
             if post or (not out and isinstance(peer_id, types.PeerUser)):
                 sender_id = utils.get_peer_id(peer_id)
 
+        # todo: check this
+        self.old_from_id = self.from_id
+        self.from_id = sender_id
+
         # Note that these calls would reset the client
         ChatGetter.__init__(self, peer_id, broadcast=post)
         SenderGetter.__init__(self, sender_id)
