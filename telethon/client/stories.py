@@ -301,7 +301,7 @@ class StoriesMethods:
     ) -> types.stories.PeerStories:
         return await self(
             functions.stories.GetPeerStoriesRequest(
-                user_id=await self.get_input_entity(user),
+                peer=await self.get_input_entity(user),
             )
         )
 
