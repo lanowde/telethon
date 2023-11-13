@@ -33,8 +33,9 @@ class MethodInfo:
             }[usability.lower()]
         except KeyError:
             raise ValueError(
-                "Usability must be either user, bot, both or "
-                "unknown, not {}".format(usability)
+                "Usability must be either user, bot, both or " "unknown, not {}".format(
+                    usability
+                )
             ) from None
 
 

@@ -30,7 +30,7 @@ class AuthMethods:
         code_callback: typing.Callable[[], typing.Union[str, int]] = None,
         first_name: str = "New User",
         last_name: str = "",
-        max_attempts: int = 3
+        max_attempts: int = 3,
     ) -> "TelegramClient":
         """
         Starts the client (connects and logs in if necessary).
@@ -287,7 +287,7 @@ class AuthMethods:
         *,
         password: str = None,
         bot_token: str = None,
-        phone_code_hash: str = None
+        phone_code_hash: str = None,
     ) -> "typing.Union[types.User, types.auth.SentCode]":
         """
         Logs in to Telegram to an existing user or bot account.
@@ -388,7 +388,7 @@ class AuthMethods:
         last_name: str = "",
         *,
         phone: str = None,
-        phone_code_hash: str = None
+        phone_code_hash: str = None,
     ) -> "types.User":
         """
         This method can no longer be used, and will immediately raise a ``ValueError``.
@@ -422,7 +422,7 @@ class AuthMethods:
         phone: str,
         *,
         force_sms: bool = False,
-        _retry_count: int = 0
+        _retry_count: int = 0,
     ) -> "types.auth.SentCode":
         """
         Sends the Telegram code needed to login to the given phone number.
@@ -581,7 +581,7 @@ class AuthMethods:
         *,
         hint: str = "",
         email: str = None,
-        email_code_callback: typing.Callable[[int], str] = None
+        email_code_callback: typing.Callable[[int], str] = None,
     ) -> bool:
         """
         Changes the 2FA settings of the logged in user.

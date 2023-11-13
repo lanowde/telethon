@@ -75,7 +75,7 @@ class MTProtoSender:
         connect_timeout=None,
         auth_key_callback=None,
         updates_queue=None,
-        auto_reconnect_callback=None
+        auto_reconnect_callback=None,
     ):
         self._connection = None
         self._loggers = loggers
@@ -764,7 +764,7 @@ class MTProtoSender:
                 _tl.messages.AffectedMessages.CONSTRUCTOR_ID,
                 _tl.messages.AffectedFoundMessages.CONSTRUCTOR_ID,
             )
-        )
+        ),
     ):
         try:
             if obj.CONSTRUCTOR_ID in _update_ids:

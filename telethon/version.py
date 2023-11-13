@@ -1,4 +1,4 @@
 # Versions should comply with PEP440.
 # This line is parsed in setup.py:
-__version__ = "1.32.0"
-__ver__ = "3.2"
+__version__ = "1.32.1"
+__ver__ = "3.3"

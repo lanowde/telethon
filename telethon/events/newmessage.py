@@ -67,7 +67,7 @@ class NewMessage(EventBuilder):
         outgoing=None,
         from_users=None,
         forwards=None,
-        pattern=None
+        pattern=None,
     ):
         if incoming and outgoing:
             incoming = outgoing = None  # Same as no filter

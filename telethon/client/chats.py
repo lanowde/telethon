@@ -448,7 +448,7 @@ class ChatMethods:
         *,
         search: str = "",
         filter: "types.TypeChannelParticipantsFilter" = None,
-        aggressive: bool = False
+        aggressive: bool = False,
     ) -> _ParticipantsIter:
         """
         Iterator over the participants belonging to the specified chat.
@@ -553,7 +553,7 @@ class ChatMethods:
         pinned: bool = None,
         edit: bool = None,
         delete: bool = None,
-        group_call: bool = None
+        group_call: bool = None,
     ) -> _AdminLogIter:
         """
         Iterator over the admin log for the specified channel.
@@ -704,7 +704,7 @@ class ChatMethods:
         limit: int = None,
         *,
         offset: int = 0,
-        max_id: int = 0
+        max_id: int = 0,
     ) -> _ProfilePhotoIter:
         """
         Iterator over a user's profile photos or a chat's photos.
@@ -767,7 +767,7 @@ class ChatMethods:
         action: "typing.Union[str, types.TypeSendMessageAction]",
         *,
         delay: float = 4,
-        auto_cancel: bool = True
+        auto_cancel: bool = True,
     ) -> "typing.Union[_ChatAction, typing.Coroutine]":
         """
         Returns a context-manager object to represent a "chat action".
@@ -879,7 +879,7 @@ class ChatMethods:
         manage_call: bool = None,
         anonymous: bool = None,
         is_admin: bool = None,
-        title: str = None
+        title: str = None,
     ) -> types.Updates:
         """
         Edits admin permissions for someone in a chat.
@@ -1048,7 +1048,7 @@ class ChatMethods:
         send_polls: bool = True,
         change_info: bool = True,
         invite_users: bool = True,
-        pin_messages: bool = True
+        pin_messages: bool = True,
     ) -> types.Updates:
         """
         Edits user restrictions in a chat.

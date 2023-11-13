@@ -15,7 +15,7 @@ class BotMethods:
         *,
         entity: "hints.EntityLike" = None,
         offset: str = None,
-        geo_point: "types.GeoPoint" = None
+        geo_point: "types.GeoPoint" = None,
     ) -> custom.InlineResults:
         """
         Makes an inline query to the specified bot (``@vote New Poll``).

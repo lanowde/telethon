@@ -43,7 +43,8 @@ def test_trailing_malformed_entities():
     entities = [MessageEntityTextUrl(offset=2, length=43, url="https://example.com")]
     result = markdown.unparse(text, entities)
     assert (
-        result == "🏆[Telegram Official Android Challenge is over](https://example.com)🏆"
+        result
+        == "🏆[Telegram Official Android Challenge is over](https://example.com)🏆"
     )
 
 

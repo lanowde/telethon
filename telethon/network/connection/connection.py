@@ -154,11 +154,14 @@ class Connection(abc.ABC):
                 # connects to the proxy server, not destination server.
                 # IPv family is also checked on proxy address.
                 if ":" in proxy.proxy_host:
-                    mode, address = socket.AF_INET6, (
-                        proxy.proxy_host,
-                        proxy.proxy_port,
-                        0,
-                        0,
+                    mode, address = (
+                        socket.AF_INET6,
+                        (
+                            proxy.proxy_host,
+                            proxy.proxy_port,
+                            0,
+                            0,
+                        ),
                     )
                 else:
                     mode, address = socket.AF_INET, (proxy.proxy_host, proxy.proxy_port)

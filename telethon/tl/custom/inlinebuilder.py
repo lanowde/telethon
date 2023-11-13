@@ -90,7 +90,7 @@ class InlineBuilder:
         game=False,
         buttons=None,
         include_media=False,
-        type="article"
+        type="article",
     ):
         """
         Creates new inline result of article type.
@@ -184,7 +184,7 @@ class InlineBuilder:
         period=60,
         contact=None,
         game=False,
-        buttons=None
+        buttons=None,
     ):
         """
         Creates a new inline result of photo type.
@@ -281,7 +281,7 @@ class InlineBuilder:
         contact=None,
         game=False,
         buttons=None,
-        include_media=True
+        include_media=True,
     ):
         """
         Creates a new inline result of document type.
@@ -414,7 +414,7 @@ class InlineBuilder:
         period=60,
         contact=None,
         game=False,
-        buttons=None
+        buttons=None,
     ):
         """
         Creates a new inline result of game type.
@@ -453,7 +453,7 @@ class InlineBuilder:
         period=60,
         contact=None,
         game=False,
-        buttons=None
+        buttons=None,
     ):
         # Empty strings are valid but false-y; if they're empty use dummy '\0'
         args = ("\0" if text == "" else text, geo, contact, game)

@@ -122,7 +122,7 @@ class AccountMethods:
         megagroups: bool = None,
         channels: bool = None,
         files: bool = None,
-        max_file_size: bool = None
+        max_file_size: bool = None,
     ) -> "TelegramClient":
         """
         Returns a :ref:`telethon-client` which calls methods behind a takeout session.

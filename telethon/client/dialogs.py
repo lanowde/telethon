@@ -175,7 +175,7 @@ class DialogMethods:
         ignore_pinned: bool = False,
         ignore_migrated: bool = False,
         folder: int = None,
-        archived: bool = None
+        archived: bool = None,
     ) -> _DialogsIter:
         """
         Iterator over the dialogs (open conversations/subscribed channels).
@@ -343,7 +343,7 @@ class DialogMethods:
         entity: "hints.EntitiesLike" = None,
         folder: typing.Union[int, typing.Sequence[int]] = None,
         *,
-        unpack=None
+        unpack=None,
     ) -> types.Updates:
         """
         Edits the folder used by one or more dialogs to archive them.
@@ -502,7 +502,7 @@ class DialogMethods:
         total_timeout: float = None,
         max_messages: int = 100,
         exclusive: bool = True,
-        replies_are_responses: bool = True
+        replies_are_responses: bool = True,
     ) -> custom.Conversation:
         """
         Creates a `Conversation <telethon.tl.custom.conversation.Conversation>`

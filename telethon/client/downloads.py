@@ -213,7 +213,7 @@ class DownloadMethods:
         entity: "hints.EntityLike",
         file: "hints.FileLike" = None,
         *,
-        download_big: bool = True
+        download_big: bool = True,
     ) -> typing.Optional[str]:
         """
         Downloads the profile photo from the given user, chat or channel.
@@ -333,7 +333,7 @@ class DownloadMethods:
         file: "hints.FileLike" = None,
         *,
         thumb: "typing.Union[int, types.TypePhotoSize]" = None,
-        progress_callback: "hints.ProgressCallback" = None
+        progress_callback: "hints.ProgressCallback" = None,
     ) -> typing.Optional[typing.Union[str, bytes]]:
         """
         Downloads the given media from a message object.
@@ -457,7 +457,7 @@ class DownloadMethods:
         progress_callback: "hints.ProgressCallback" = None,
         dc_id: int = None,
         key: bytes = None,
-        iv: bytes = None
+        iv: bytes = None,
     ) -> typing.Optional[bytes]:
         """
         Low-level method to download files from their input location.
@@ -533,7 +533,7 @@ class DownloadMethods:
         dc_id: int = None,
         key: bytes = None,
         iv: bytes = None,
-        msg_data: tuple = None
+        msg_data: tuple = None,
     ) -> typing.Optional[bytes]:
         if not part_size_kb:
             if not file_size:
@@ -593,7 +593,7 @@ class DownloadMethods:
         chunk_size: int = None,
         request_size: int = MAX_CHUNK_SIZE,
         file_size: int = None,
-        dc_id: int = None
+        dc_id: int = None,
     ):
         """
         Iterates over a file download, yielding chunks of the file.
@@ -700,7 +700,7 @@ class DownloadMethods:
         request_size: int = MAX_CHUNK_SIZE,
         file_size: int = None,
         dc_id: int = None,
-        msg_data: tuple = None
+        msg_data: tuple = None,
     ):
         info = utils._get_file_info(file)
         if info.dc_id is not None:

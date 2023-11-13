@@ -437,7 +437,7 @@ def get_input_media(
     voice_note=False,
     video_note=False,
     supports_streaming=False,
-    ttl=None
+    ttl=None,
 ):
     """
     Similar to :meth:`get_input_peer`, but for media.
@@ -686,7 +686,7 @@ def get_attributes(
     voice_note=False,
     video_note=False,
     supports_streaming=False,
-    thumb=None
+    thumb=None,
 ):
     """
     Get a list of attributes for the given file and

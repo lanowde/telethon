@@ -151,7 +151,7 @@ class InlineQuery(EventBuilder):
             next_offset=None,
             private=False,
             switch_pm=None,
-            switch_pm_param=""
+            switch_pm_param="",
         ):
             """
             Answers the inline query with the given results.
