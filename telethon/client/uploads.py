@@ -504,6 +504,7 @@ class UploadMethods:
         force_document=False,
         background=None,
         ttl=None,
+        top_msg_id=None,
     ):
         """Specialized version of .send_file for albums"""
         # We don't care if the user wants to avoid cache, we will use it
