@@ -69,6 +69,8 @@ class ChatAction(EventBuilder):
             action = update.message.action
             if isinstance(action, types.MessageActionChatJoinedByLink):
                 return cls.Event(msg, added_by=True, users=msg.from_id)
+            if isinstance(action, types.MessageActionChatJoinedByRequest):
+                return cls.Event(msg, from_request=True, users=msg.from_id)
             elif isinstance(action, types.MessageActionChatAddUser):
                 # If a user adds itself, it means they joined via the public chat username
                 added_by = ([msg.sender_id] == action.users) or msg.from_id
@@ -166,6 +168,7 @@ class ChatAction(EventBuilder):
             pin_ids=None,
             pin=None,
             new_score=None,
+            from_request=None,
         ):
             if isinstance(where, types.MessageService):
                 self.action_message = where
@@ -186,6 +189,7 @@ class ChatAction(EventBuilder):
 
             self._added_by = None
             self._kicked_by = None
+            self.from_request = from_request
             self.user_added = (
                 self.user_joined
             ) = self.user_left = self.user_kicked = self.unpin = False
@@ -195,6 +199,9 @@ class ChatAction(EventBuilder):
             elif added_by:
                 self.user_added = True
                 self._added_by = added_by
+
+            if from_request:
+                self.user_joined = True
 
             # If `from_id` was not present (it's `True`) or the affected
             # user was "kicked by itself", then it left. Else it was kicked.
