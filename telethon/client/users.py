@@ -99,6 +99,7 @@ class UserMethods:
                     return result
             except (
                 errors.ServerError,
+                errors.TimedOutError,
                 errors.RpcCallFailError,
                 errors.RpcMcgetFailError,
                 errors.InterdcCallErrorError,
@@ -109,7 +110,7 @@ class UserMethods:
                     "Telegram is having internal issues %s: %s", e.__class__.__name__, e
                 )
 
-                await asyncio.sleep(2)
+                await asyncio.sleep(3)
             except (
                 errors.FloodWaitError,
                 errors.SlowModeWaitError,
@@ -128,7 +129,7 @@ class UserMethods:
                 # In test servers, FLOOD_WAIT_0 has been observed, and sleeping for
                 # such a short amount will cause retries very fast leading to issues.
                 if e.seconds == 0:
-                    e.seconds = 1
+                    e.seconds = 2
 
                 if e.seconds <= self.flood_sleep_threshold:
                     self._log[__name__].info(*_fmt_flood(e.seconds, request))

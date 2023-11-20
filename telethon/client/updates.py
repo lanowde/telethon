@@ -436,7 +436,7 @@ class UpdateMethods:
                         # Somehow our pts is either too new or the server does not know about this.
                         # We treat this as PersistentTimestampOutdatedError for now.
                         # TODO investigate why/when this happens and if this is the proper solution
-                        self._log[__name__].warning(
+                        self._log[__name__].info(
                             "Getting difference for channel updates %s caused %s;"
                             " ending getting difference prematurely until server issues are resolved",
                             get_diff.channel.channel_id,
@@ -452,7 +452,7 @@ class UpdateMethods:
                         # Timeout triggered a get difference, but we have been banned in the channel since then.
                         # Because we can no longer fetch updates from this channel, we should stop keeping track
                         # of it entirely.
-                        self._log[__name__].info(
+                        self._log[__name__].warning(
                             "Account is now banned in %d so we can no longer fetch updates from it",
                             get_diff.channel.channel_id,
                         )
@@ -461,7 +461,7 @@ class UpdateMethods:
                         )
                         continue
                     except OSError as e:
-                        self._log[__name__].info(
+                        self._log[__name__].warning(
                             "Cannot get difference for channel %d since the network is down: %s: %s",
                             get_diff.channel.channel_id,
                             type(e).__name__,
