@@ -1,8 +1,13 @@
+import os
+
 from .. import types, functions
 from ... import password as pwd_mod
 from ...errors import BotResponseTimeoutError
-import webbrowser
-import os
+
+try:
+    import webbrowser
+except ImportError:
+    webbrowser = None
 
 
 class MessageButton:
@@ -118,7 +123,8 @@ class MessageButton:
                 )
             )
         elif isinstance(self.button, types.KeyboardButtonUrl):
-            return webbrowser.open(self.button.url)
+            if webbrowser:
+                return webbrowser.open(self.button.url)
         elif isinstance(self.button, types.KeyboardButtonGame):
             req = functions.messages.GetBotCallbackAnswerRequest(
                 peer=self._chat, msg_id=self._msg_id, game=True
