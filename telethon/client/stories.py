@@ -337,7 +337,7 @@ class StoriesMethods:
         stories: "typing.Sequence[hints.StoryItemLike]",
     ) -> types.stories.Stories:
         return await self(
-            functions.stories.GetStoriesByIdRequest(
+            functions.stories.GetStoriesByIDRequest(
                 user_id=await self.get_input_entity(user),
                 id=[utils.get_input_story_id(story) for story in stories],
             )
