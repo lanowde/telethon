@@ -785,7 +785,11 @@ def sanitize_parse_mode(mode):
     if not mode:
         return None
 
-    if callable(mode):
+    if all(hasattr(mode, x) for x in ("parse", "unparse")) and all(
+        callable(x) for x in (mode.parse, mode.unparse)
+    ):
+        return mode
+    elif callable(mode):
 
         class CustomMode:
             @staticmethod
