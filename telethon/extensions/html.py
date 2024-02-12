@@ -177,6 +177,7 @@ class TextDecoration(ABC):
             MessageEntityCode: "code",
             MessageEntityUnderline: "underline",
             MessageEntityStrike: "strikethrough",
+            MessageEntityBlockquote: "blockquote",
         }
         if type(entity) in entity_map:
             if re.match(r"^<emoji document_id=\"?\d+?\"?>[^<]*?<\/emoji>$", text):
@@ -332,6 +333,9 @@ class HtmlDecoration(TextDecoration):
 
     def strikethrough(self, value: str) -> str:
         return f"<s>{value}</s>"
+
+    def blockquote(self, value: str) -> str:
+        return f"<blockquote>{value}</blockquote>"
 
     def quote(self, value: str) -> str:
         return escape(value, quote=False)
