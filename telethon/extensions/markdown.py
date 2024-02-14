@@ -16,6 +16,8 @@ from ..tl.types import (
     MessageEntityTextUrl,
     MessageEntityMentionName,
     MessageEntityStrike,
+    MessageEntityCustomEmoji,
+    MessageEntitySpoiler,
 )
 
 DEFAULT_DELIMITERS = {
@@ -24,6 +26,7 @@ DEFAULT_DELIMITERS = {
     "~~": MessageEntityStrike,
     "`": MessageEntityCode,
     "```": MessageEntityPre,
+    "||": MessageEntitySpoiler,
 }
 
 DEFAULT_URL_RE = re.compile(r"\[([^\]]+)\]\(([^)]+)\)")
@@ -112,7 +115,7 @@ def parse(message, delimiters=None, url_re=None):
                     lang_index = message.find("\n", i, end - len(delim))
                     m_len = end - len(delim) - lang_index
                     if lang_index != -1 and m_len > 1:  # must have some message
-                        lang = message[i: lang_index]
+                        lang = message[i:lang_index]
                         message = "".join(
                             (
                                 message[:i],
@@ -148,13 +151,25 @@ def parse(message, delimiters=None, url_re=None):
                     if ent.offset + ent.length > m.start():
                         ent.length -= delim_size
 
-                result.append(
-                    MessageEntityTextUrl(
-                        offset=m.start(),
-                        length=len(m.group(1)),
-                        url=del_surrogate(m.group(2)),
+                _offset = m.start()
+                _length = len(m.group(1))
+                _url = del_surrogate(m.group(2))
+                if _url == "spoiler":
+                    result.append(MessageEntitySpoiler(_offset, _length))
+                elif _url.startswith("emoji/"):
+                    result.append(
+                        MessageEntityCustomEmoji(
+                            _offset, _length, int(_url.split("/")[1])
+                        )
                     )
-                )
+                else:
+                    result.append(
+                        MessageEntityTextUrl(
+                            offset=_offset,
+                            length=_length,
+                            url=_url,
+                        )
+                    )
                 i += len(m.group(1))
                 continue
 
@@ -205,6 +220,10 @@ def unparse(text, entities, delimiters=None, url_fmt=None):
                 url = entity.url
             elif isinstance(entity, MessageEntityMentionName):
                 url = "tg://user?id={}".format(entity.user_id)
+            elif isinstance(entity, MessageEntitySpoiler):
+                url = "spoiler"
+            elif isinstance(entity, MessageEntityCustomEmoji):
+                url = f"emoji/{entity.document_id}"
             if url:
                 insert_at.append((s, i, "["))
                 insert_at.append((e, len(entities) - i, "]({})".format(url)))
