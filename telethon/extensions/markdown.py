@@ -108,7 +108,23 @@ def parse(message, delimiters=None, url_re=None):
                 # Append the found entity
                 ent = delimiters[delim]
                 if ent == MessageEntityPre:
-                    result.append(ent(i, end - i - len(delim), ""))  # has 'lang'
+                    lang = ""
+                    lang_index = message.find("\n", i, end - len(delim))
+                    m_len = end - len(delim) - lang_index
+                    if lang_index != -1 and m_len > 1:  # must have some message
+                        lang = message[i: lang_index]
+                        message = "".join(
+                            (
+                                message[:i],
+                                message[lang_index + 1 : end - len(delim)],
+                                message[end - len(delim) :],
+                            )
+                        )
+
+                    m_len = end - i - len(delim) if not lang else m_len
+                    result.append(ent(i, m_len, lang))  # has lang
+                    i = end - len(delim) - (len(lang) + 1) if lang else end - len(delim)
+                    continue
                 else:
                     result.append(ent(i, end - i - len(delim)))
 
