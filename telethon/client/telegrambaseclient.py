@@ -7,6 +7,7 @@ import platform
 import time
 import typing
 import datetime
+import pathlib
 
 from .. import version, helpers, __name__ as __base_name__
 from ..crypto import rsa
@@ -23,6 +24,7 @@ from .._updates import (
     Entity,
     EntityType,
 )
+
 
 DEFAULT_DC_ID = 2
 DEFAULT_IPV4_IP = "149.154.167.51"
@@ -244,7 +246,7 @@ class TelegramBaseClient(abc.ABC):
 
     def __init__(
         self: "TelegramClient",
-        session: "typing.Union[str, Session]",
+        session: "typing.Union[str, pathlib.Path, Session]",
         api_id: int,
         api_hash: str,
         *,
@@ -294,9 +296,9 @@ class TelegramBaseClient(abc.ABC):
         self._log = _Loggers()
 
         # Determine what session object we have
-        if isinstance(session, str) or session is None:
+        if isinstance(session, (str, pathlib.Path)) or session is None:
             try:
-                session = SQLiteSession(session)
+                session = SQLiteSession(str(session))
             except ImportError:
                 import warnings
 
