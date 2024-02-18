@@ -208,6 +208,7 @@ class Message(ChatGetter, SenderGetter, TLObject):
         forwards: Optional[int] = None,
         replies: Optional[types.TypeMessageReplies] = None,
         saved_peer_id: Optional[types.TypePeer] = None,
+        from_boosts_applied: Optional[int] = None,
         # For MessageAction (mandatory)
         action: Optional[types.TypeMessageAction] = None,
     ):
@@ -244,6 +245,7 @@ class Message(ChatGetter, SenderGetter, TLObject):
         self.restriction_reason = restriction_reason
         self.ttl_period = ttl_period
         self.saved_peer_id = saved_peer_id
+        self.from_boosts_applied = from_boosts_applied
         self.action = action
 
         # Convenient storage for custom functions
