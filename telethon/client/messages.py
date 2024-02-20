@@ -689,6 +689,7 @@ class MessageMethods:
         schedule: "hints.DateLike" = None,
         comment_to: "typing.Union[int, types.Message]" = None,
         nosound_video: bool = None,
+        invert_media: bool = None,
     ) -> "types.Message":
         """
         Sends a message to the specified user, chat or channel.
@@ -815,6 +816,9 @@ class MessageMethods:
                 as a video due to other factors.) The value is ignored if set
                 on non-video files. This is set to ``True`` for albums, as gifs
                 cannot be sent in albums.
+
+            invert_media (`bool`, optional):
+                Change the position of Media in link preview to top of message.
 
         Returns
             The sent `custom.Message <telethon.tl.custom.message.Message>`.
@@ -951,6 +955,7 @@ class MessageMethods:
                 schedule_date=schedule,
                 send_as=send_as,
                 noforwards=noforwards,
+                invert_media=invert_media,
             )
             message = message.message
         else:
@@ -980,6 +985,7 @@ class MessageMethods:
                 schedule_date=schedule,
                 send_as=send_as,
                 noforwards=noforwards,
+                invert_media=invert_media,
             )
 
         result = await self(request)
@@ -1164,6 +1170,7 @@ class MessageMethods:
         buttons: typing.Optional["hints.MarkupLike"] = None,
         supports_streaming: bool = False,
         schedule: "hints.DateLike" = None,
+        invert_media: bool = None,
     ) -> "types.Message":
         """
         Edits the given message to change its text or media.
@@ -1247,6 +1254,9 @@ class MessageMethods:
                 Note that this parameter will have no effect if you are
                 trying to edit a message that was sent via inline bots.
 
+            invert_media (`bool`, optional):
+                Change the position of Media in link preview to top of message.
+
         Returns
             The edited `Message <telethon.tl.custom.message.Message>`,
             unless `entity` was a :tl:`InputBotInlineMessageID` or :tl:`InputBotInlineMessageID64` in which
@@ -1305,6 +1315,7 @@ class MessageMethods:
                 entities=formatting_entities,
                 media=media,
                 reply_markup=self.build_reply_markup(buttons),
+                invert_media=invert_media,
             )
             # Invoke `messages.editInlineBotMessage` from the right datacenter.
             # Otherwise, Telegram will error with `MESSAGE_ID_INVALID` and do nothing.
@@ -1335,6 +1346,7 @@ class MessageMethods:
                         force_document=force_document,
                         schedule=schedule,
                         link_preview=link_preview,
+                        invert_media=invert_media,
                     )
             finally:
                 if sender:
@@ -1350,6 +1362,7 @@ class MessageMethods:
             media=media,
             reply_markup=self.build_reply_markup(buttons),
             schedule_date=schedule,
+            invert_media=invert_media,
         )
         return self._get_response_message(request, await self(request), entity)
 
