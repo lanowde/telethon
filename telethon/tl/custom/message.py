@@ -1148,6 +1148,16 @@ class Message(ChatGetter, SenderGetter, TLObject):
                 await self.get_input_chat(), self.id
             )
 
+    async def copy(self, to_chat, **kwargs):
+        """Copy the message to another chat. ShortHand for
+        `telethon.client.messages.MessageMethods.send_message`
+        with ``message`` already set.
+        """
+        assert not isinstance(self, types.MessageService), "cannot copy service message"
+        if "caption" in kwargs:
+            self.text = kwargs.pop("caption")
+        return await self._client.send_message(to_chat, self, **kwargs)
+
     # endregion Public Methods
 
     # region Private Methods
