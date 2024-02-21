@@ -2,6 +2,7 @@ import inspect
 import itertools
 import typing
 import warnings
+from secrets import token_bytes
 
 from .. import helpers, utils, errors, hints
 from ..requestiter import RequestIter
@@ -1668,3 +1669,52 @@ class MessageMethods:
     # endregion
 
     # endregion
+
+    """
+    # todo: recheck if this works
+    # imported from telethonpatch
+    async def send_poll(
+        self: "TelegramClient",
+        chat_id: "hints.EntityLike",
+        question: str,
+        options,
+        correct_answers=None,
+        solution: str = "",
+        schedule=None,
+        is_anonymous: bool = True,
+        closed: bool = False,
+        multiple_choice: bool = False,
+        quiz: bool = False,
+        close_date=None,
+    ):
+        solution, solution_entities = await self._parse_message_text(
+            solution, self.parse_mode
+        )
+        options = list(
+            map(
+                lambda opt: types.PollAnswer(opt, token_bytes(5))
+                if isinstance(opt, str)
+                else opt,
+                options,
+            )
+        )
+        await self.send_file(
+            chat_id,
+            types.InputMediaPoll(
+                poll=types.TypePoll(
+                    id=0,
+                    question=question,
+                    answers=options,
+                    public_voters=not is_anonymous,
+                    multiple_choice=multiple_choice,
+                    closed=closed,
+                    quiz=quiz,
+                    close_date=close_date,
+                ),
+                correct_answers=correct_answers,
+                solution=solution,
+                solution_entities=solution_entities,
+            ),
+            schedule=schedule,
+        )
+    """

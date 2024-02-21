@@ -14,7 +14,6 @@ if typing.TYPE_CHECKING:
 
 
 class StoriesMethods:
-
     # region Public methods
 
     async def send_story(
