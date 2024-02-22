@@ -8,7 +8,8 @@ from .newmessage import NewMessage
 from .userupdate import UserUpdate
 from .callbackquery import CallbackQuery
 from .inlinequery import InlineQuery
-
+from .joinrequest import JoinRequest
+from .voicecall import GroupCall
 
 _HANDLERS_ATTRIBUTE = "__tl.handlers"
 

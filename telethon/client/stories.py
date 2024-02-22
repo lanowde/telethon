@@ -9,6 +9,7 @@ import typing
 from ..tl import types, functions
 from .. import utils, hints
 
+
 if typing.TYPE_CHECKING:
     from .telegramclient import TelegramClient
 
@@ -16,6 +17,7 @@ if typing.TYPE_CHECKING:
 class StoriesMethods:
     # region Public methods
 
+    '''
     async def send_story(
         self: "TelegramClient",
         media: "types.TypeInputMedia",
@@ -270,6 +272,7 @@ class StoriesMethods:
         )
 
         return self._get_response_message(request, await self(request), input_chat=None)
+    '''
 
     async def delete_stories(
         self: "TelegramClient",

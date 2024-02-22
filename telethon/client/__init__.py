@@ -15,12 +15,15 @@ from .messageparse import MessageParseMethods  # Required for messages
 from .uploads import UploadMethods  # Required for messages to send files
 from .updates import UpdateMethods  # Required for buttons (register callbacks)
 from .buttons import ButtonMethods  # Required for messages to use buttons
-from .stories import StoriesMethods
 from .messages import MessageMethods
 from .chats import ChatMethods
 from .dialogs import DialogMethods
 from .downloads import DownloadMethods
 from .account import AccountMethods
 from .auth import AuthMethods
+from .stories import StoriesMethods
+from .topics import TopicMethods
+from .reactions import ReactionMethods
+from .extras import ExtraMethods
 from .bots import BotMethods
 from .telegramclient import TelegramClient

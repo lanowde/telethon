@@ -1,5 +1,7 @@
+import asyncio
 from typing import Optional, List, TYPE_CHECKING
 from datetime import datetime
+
 from .chatgetter import ChatGetter
 from .sendergetter import SenderGetter
 from .messagebutton import MessageButton
@@ -1148,6 +1150,10 @@ class Message(ChatGetter, SenderGetter, TLObject):
                 await self.get_input_chat(), self.id
             )
 
+    # endregion Public Methods
+
+    # region Private Methods
+
     async def copy(self, to_chat, **kwargs):
         """Copy the message to another chat. ShortHand for
         `telethon.client.messages.MessageMethods.send_message`
@@ -1157,10 +1163,6 @@ class Message(ChatGetter, SenderGetter, TLObject):
         if "caption" in kwargs:
             self.text = kwargs.pop("caption")
         return await self._client.send_message(to_chat, self, **kwargs)
-
-    # endregion Public Methods
-
-    # region Private Methods
 
     async def _reload_message(self):
         """
@@ -1248,5 +1250,102 @@ class Message(ChatGetter, SenderGetter, TLObject):
                     if not condition or condition(attr):
                         return doc
                     return None
+
+    @property
+    def message_link(self):
+        """
+        Returns the message link.
+        """
+        if isinstance(self.chat, types.User) or self.is_private:
+            fmt = "tg://openmessage?user_id={user_id}&message_id={msg_id}"
+            return fmt.format(user_id=self.chat_id, msg_id=self.id)
+        if getattr(self.chat, "username", None):
+            return f"https://t.me/{self.chat.username}/{self.id}"
+        if self.chat_id:
+            chat = self.chat_id
+            if str(chat).startswith(("-", "-100")):
+                chat = int(str(chat).removeprefix("-100").removeprefix("-"))
+        elif self.chat and self.chat.id:
+            chat = self.chat.id
+        else:
+            return
+        return f"https://t.me/c/{chat}/{self.id}"
+
+    async def comment(self, *args, **kwargs):
+        """
+        Bound Method to comment.
+        """
+        if self._client:
+            return await self._client.send_message(
+                await self.get_input_chat(),
+                comment_to=self.id,
+                *args,
+                **kwargs,
+            )
+
+    async def react(
+        self,
+        reaction: "typing.Optional[hints.Reaction]" = None,
+        big: bool = False,
+        add_to_recent: bool = False,
+        **kwargs,
+    ):
+        """
+        Reacts on the given message. 
+
+
+        """
+        if self._client:
+            result = await self(
+                functions.messages.SendReactionRequest(
+                    peer=entity,
+                    msg_id=msg_id,
+                    big=big,
+                    reaction=utils.convert_reaction(reaction),
+                    add_to_recent=add_to_recent,
+                    **kwargs,
+                ),
+            )
+            for update in result.updates:
+                if isinstance(update, types.UpdateMessageReactions):
+                    return update.reactions
+                if isinstance(update, types.UpdateEditMessage):
+                    return update.message.reactions
+        
+    async def eor(
+        self, text=None, time=None, edit_time=None, **kwargs,
+    ):
+        """
+        Edit or Reply to a Message.
+        """
+        reply_to = self.reply_to_msg_id or self.id
+        link_preview = kwargs.pop("link_preview", None)
+        chat = await self.get_input_chat()
+        if self.out and not isinstance(self, types.MessageService):
+            if edit_time:
+                await asyncio.sleep(edit_time)
+            if kwargs.get("file") and not self.media:
+                await self.delete()
+                ok = await self.client.send_message(
+                    chat,
+                    text,
+                    link_preview=link_preview,
+                    reply_to=reply_to,
+                    **kwargs,
+                )
+            else:
+                try:
+                    ok = await self.edit(text, link_preview=link_preview, **kwargs)
+                except errors.MessageNotModifiedError:
+                    ok = self
+        else:
+            ok = await self.client.send_message(
+                chat, text, link_preview=link_preview, reply_to=reply_to, **kwargs,
+            )
+    
+        if time:
+            await asyncio.sleep(time)
+            return await ok.delete()
+        return ok
 
     # endregion Private Methods
