@@ -175,7 +175,7 @@ class Message(ChatGetter, SenderGetter, TLObject):
         self,
         id: int,
         peer_id: types.TypePeer,
-        date: Optional[datetime],
+        date: Optional[datetime] = None,
         message: Optional[str] = None,
         # Copied from Message.__init__ signature
         out: Optional[bool] = None,

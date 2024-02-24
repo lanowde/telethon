@@ -257,7 +257,7 @@ class TelegramBaseClient(abc.ABC):
         timeout: int = 10,
         request_retries: int = 5,
         connection_retries: int = 5,
-        retry_delay: int = 1,
+        retry_delay: int = 2,
         auto_reconnect: bool = True,
         sequential_updates: bool = False,
         flood_sleep_threshold: int = 60,
@@ -271,7 +271,7 @@ class TelegramBaseClient(abc.ABC):
         base_logger: typing.Union[str, logging.Logger] = None,
         receive_updates: bool = True,
         catch_up: bool = False,
-        entity_cache_limit: int = 5000,
+        entity_cache_limit: int = 3000,
     ):
         if not api_id or not api_hash:
             raise ValueError(

@@ -1,3 +1,4 @@
+import asyncio
 import inspect
 import itertools
 import typing
@@ -1668,7 +1669,187 @@ class MessageMethods:
 
     # endregion
 
-    # endregion
+    # custom methods
+
+    async def translate(
+        self: "TelegramClient",
+        peer: "hints.EntityLike",
+        message: "hints.MessageIDLike",
+        to_lang: str,
+        raw_text: "typing.Optional[str]" = None,
+        entities: "typing.Optional[typing.List[types.MessageEntity]]" = None,
+    ) -> str:
+        msg_id = utils.get_message_id(message) or 0
+        if not msg_id:
+            return None
+
+        if not isinstance(message, types.Message):
+            message = (await self.get_messages(peer, ids=[msg_id]))[0]
+
+        result = await self(
+            functions.messages.TranslateTextRequest(
+                to_lang=to_lang,
+                peer=peer,
+                id=[msg_id],
+                text=[
+                    types.TextWithEntities(
+                        raw_text or message.raw_text,
+                        entities or message.entities or [],
+                    )
+                ],
+            )
+        )
+        return (
+            (result.result[0].text, result.result[0].entities)
+            if result and result.result
+            else ""
+        )
+
+    async def transcribe(
+        self: "TelegramClient",
+        peer: "hints.EntityLike",
+        message: "hints.MessageIDLike",
+        timeout: int = 30,
+    ) -> typing.Optional[str]:
+        result = await self(
+            functions.messages.TranscribeAudioRequest(
+                peer,
+                utils.get_message_id(message),
+            )
+        )
+
+        transcription_result = None
+
+        event = asyncio.Event()
+
+        @self.on(events.Raw(types.UpdateTranscribedAudio))
+        async def handler(update):
+            nonlocal result, transcription_result
+            if update.transcription_id != result.transcription_id or update.pending:
+                return
+
+            transcription_result = update.text
+            event.set()
+            raise events.StopPropagation
+
+        try:
+            await asyncio.wait_for(event.wait(), timeout=timeout)
+        except Exception:
+            return None
+
+        return transcription_result
+
+    async def set_emoji_status(
+        self: "TelegramClient",
+        document_id: int,
+        until: typing.Optional[int] = None,
+    ) -> bool:
+        return await self(
+            functions.account.UpdateEmojiStatusRequest(
+                types.EmojiStatusUntil(document_id, until)
+                if until
+                else types.EmojiStatus(document_id)
+            )
+        )
+
+    async def join_chat(
+        self: "TelegramClient",
+        entity: types.InputChannel = None,
+        hash: str = "",
+    ):
+        if entity:
+            return await self(functions.channels.JoinChannelRequest(entity))
+        elif hash:
+            return await self(functions.messages.ImportChatInviteRequest(hash))
+        raise ValueError("Either entity or hash is required!")
+
+    async def hide_participants(
+        self: "TelegramClient",
+        channel: types.InputChannel,
+        enabled: bool = False,
+    ):
+        """Toggle hidden participants"""
+        return await self(
+            functions.channels.ToggleParticipantsHiddenRequest(channel, enabled)
+        )
+
+    async def set_contact_photo(
+        self: "TelegramClient",
+        user: types.InputUser,
+        file: str = None,
+        video: str = None,
+        suggest: bool = True,
+        save: bool = False,
+        **kwargs,
+    ):
+        if isinstance(file, str):
+            file = await self.upload_file(file)
+            video = None
+        elif isinstance(video, str):
+            video = await self.upload_file(video)
+            file = None
+        return await self(
+            functions.photos.UploadContactProfilePhotoRequest(
+                user,
+                file=file,
+                video=video,
+                suggest=suggest,
+                save=True,
+                **kwargs,
+            )
+        )
+
+    async def send_reaction(
+        self: "TelegramClient",
+        entity: "hints.DialogLike",
+        msg_id: "hints.MessageIDLike",
+        reaction: "typing.Optional[hints.Reaction]" = None,
+        big: bool = False,
+        add_to_recent: bool = False,
+        **kwargs,
+    ):
+        """
+        Send reaction to a message.
+
+        Args:
+           entity:
+           msg_id:
+           big:
+           reaction:
+        """
+        result = await self(
+            functions.messages.SendReactionRequest(
+                peer=entity,
+                msg_id=msg_id,
+                big=big,
+                reaction=utils.convert_reaction(reaction),
+                add_to_recent=add_to_recent,
+                **kwargs,
+            ),
+        )
+        for update in result.updates:
+            if isinstance(update, types.UpdateMessageReactions):
+                return update.reactions
+            if isinstance(update, types.UpdateEditMessage):
+                return update.message.reactions
+
+    async def set_quick_reaction(
+        self: "TelegramClient",
+        reaction: "hints.Reaction",
+    ):
+        return await functions.messages.SetDefaultReactionRequest(
+            reaction=utils.convert_reaction(reaction),
+        )
+
+    async def report_reaction(
+        self: "TelegramClient",
+        peer: "hints.EntityLike",
+        id: int,
+        reaction_peer: "hints.EntityLike",
+    ) -> bool:
+        return await self(
+            functions.messages.ReportReactionRequest(peer, id, reaction_peer)
+        )
 
     """
     # recheck
