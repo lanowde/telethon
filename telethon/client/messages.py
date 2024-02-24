@@ -1853,7 +1853,6 @@ class MessageMethods:
 
     """
     # recheck
-
     async def send_poll(
         self: "TelegramClient",
         chat_id: "hints.EntityLike",

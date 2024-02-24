@@ -17,8 +17,6 @@ from .updates import UpdateMethods  # Required for buttons (register callbacks)
 from .buttons import ButtonMethods  # Required for messages to use buttons
 from .stories import StoriesMethods
 from .topics import TopicMethods
-# from .reactions import ReactionMethods
-# from .extras import ExtraMethods
 from .groupcalls import GroupCallMethod
 from .messages import MessageMethods
 from .chats import ChatMethods
