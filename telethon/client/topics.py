@@ -21,26 +21,26 @@ class TopicMethods:
         """
         Creates a forum topic in the given channel.
         This method is only available in channels, not in supergroups.
-    
+
         Arguments
             entity (`entity`):
                 The channel where the forum topic should be created.
-    
+
             title (`str`):
                 The title of the forum topic.
-    
+
             icon_color (`int`, optional):
                 The color of the icon.
-    
+
             icon_emoji_id (`int`, optional):
                 The ID of the emoji.
-    
+
             send_as (`entity`, optional):
                 The user who should send the message.
-    
+
         Returns
             The resulting :tl:`Message` object.
-    
+
         Example
             .. code-block:: python
                 # Create a forum topic in the channel
@@ -75,26 +75,26 @@ class TopicMethods:
         """
         Edits the given forum topic.
         This method is only available in channels, not in supergroups.
-    
+
         Arguments
             entity (`entity`):
                 The channel where the forum topic should be edited.
-    
+
             topic_id (`int`):
                 The ID of the topic to edit.
-    
+
             title (`str`, optional):
                 The new title of the topic.
-    
+
             icon_emoji_id (`int`, optional):
                 The new emoji ID of the topic.
-    
+
             closed (`bool`, optional):
                 Whether the topic should be closed or not.
-    
+
         Returns
             The resulting :tl:`Updates` object.
-    
+
         Example
             .. code-block:: python
                 # Edit the forum topic in the channel
@@ -129,32 +129,32 @@ class TopicMethods:
         """
         Gets the forum topics in the given channel.
         This method is only available in channels, not in supergroups.
-    
+
         Arguments
             entity (`entity`):
                 The channel where the forum topics should be retrieved.
-    
+
             topic_id (`int`, optional):
                 specific topic_id to get.
-    
+
             query (`str`, optional):
                 The query to search for.
-    
+
             offset_date (`int`, optional):
                 The offset date.
-    
+
             offset_id (`int`, optional):
                 The offset ID.
-    
+
             offset_topic (`int`, optional):
                 The offset topic.
-    
+
             limit (`int`, optional):
                 The maximum number of topics to retrieve.
-    
+
         Returns
             The resulting :tl:`ForumTopics` object.
-    
+
         Example
             .. code-block:: python
                 # Get the forum topics in the channel
@@ -173,9 +173,11 @@ class TopicMethods:
                 )
             )
         return await self(
-            functions.channels.GetForumTopicsByIDRequest(channel=channel, topics=topic_id)
+            functions.channels.GetForumTopicsByIDRequest(
+                channel=channel, topics=topic_id
+            )
         )
-    
+
     async def update_pinned_topic(
         self: "TelegramClient",
         entity: "hints.EntityLike",
@@ -185,20 +187,20 @@ class TopicMethods:
         """
         Pins or unpins the given forum topic.
         This method is only available in channels, not in supergroups.
-    
+
         Arguments
             entity (`entity`):
                 The channel where the forum topic should be pinned.
-    
+
             topic_id (`int`):
                 The ID of the topic to pin.
-    
+
             pinned (`bool`):
                 Whether the topic should be pinned or not.
-    
+
         Returns
             The resulting :tl:`Updates` object.
-    
+
         Example
             .. code-block:: python
                 # Pin the forum topic in the channel
@@ -216,8 +218,7 @@ class TopicMethods:
                 pinned=pinned,
             )
         )
-    
-    
+
     async def delete_topic(
         self: "TelegramClient",
         entity: "hints.EntityLike",
@@ -226,17 +227,17 @@ class TopicMethods:
         """
         Deletes the history of the given forum topic.
         This method is only available in channels, not in supergroups.
-    
+
         Arguments
             entity (`entity`):
                 The channel where the forum topic should be deleted.
-    
+
             topic_id (`int`):
                 The ID of the topic to delete.
-    
+
         Returns
             The resulting :tl:`AffectedHistory` object.
-    
+
         Example
             .. code-block:: python
                 # Delete the forum topic in the channel

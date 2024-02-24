@@ -20,7 +20,7 @@ class ReactionMethods:
     ):
         """
         Send reaction to a message.
-    
+
         Args:
            entity:
            msg_id:
@@ -42,7 +42,7 @@ class ReactionMethods:
                 return update.reactions
             if isinstance(update, types.UpdateEditMessage):
                 return update.message.reactions
-    
+
     async def set_quick_reaction(
         self: "TelegramClient",
         reaction: "hints.Reaction",
@@ -57,4 +57,6 @@ class ReactionMethods:
         id: int,
         reaction_peer: "hints.EntityLike",
     ) -> bool:
-        return await self(functions.messages.ReportReactionRequest(peer, id, reaction_peer))
+        return await self(
+            functions.messages.ReportReactionRequest(peer, id, reaction_peer)
+        )

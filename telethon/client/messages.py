@@ -1670,42 +1670,8 @@ class MessageMethods:
 
     # endregion
 
-    async def translate(
-        self: "TelegramClient",
-        peer: "hints.EntityLike",
-        message: "hints.MessageIDLike",
-        to_lang: str,
-        raw_text: "typing.Optional[str]" = None,
-        entities: "typing.Optional[typing.List[types.MessageEntity]]" = None,
-    ) -> str:
-        msg_id = utils.get_message_id(message) or 0
-        if not msg_id:
-            return None
-    
-        if not isinstance(message, types.Message):
-            message = (await self.get_messages(peer, ids=[msg_id]))[0]
-    
-        result = await self(
-            functions.messages.TranslateTextRequest(
-                to_lang=to_lang,
-                peer=peer,
-                id=[msg_id],
-                text=[
-                    types.TextWithEntities(
-                        raw_text or message.raw_text,
-                        entities or message.entities or [],
-                    )
-                ],
-            )
-        )
-        return (
-            (result.result[0].text, result.result[0].entities)
-            if result and result.result
-            else ""
-        )
-    
     """
-    # check
+    # recheck
 
     async def send_poll(
         self: "TelegramClient",

@@ -337,8 +337,7 @@ class Button:
     def web(text, url):
         """
         Send Button with WebView.
-    
+
         - Works Only in Private.
         """
         return types.KeyboardButtonSimpleWebView(text, url)
-    

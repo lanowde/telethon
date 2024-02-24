@@ -10,6 +10,40 @@ if typing.TYPE_CHECKING:
 
 
 class ExtraMethods:
+    async def translate(
+        self: "TelegramClient",
+        peer: "hints.EntityLike",
+        message: "hints.MessageIDLike",
+        to_lang: str,
+        raw_text: "typing.Optional[str]" = None,
+        entities: "typing.Optional[typing.List[types.MessageEntity]]" = None,
+    ) -> str:
+        msg_id = utils.get_message_id(message) or 0
+        if not msg_id:
+            return None
+
+        if not isinstance(message, types.Message):
+            message = (await self.get_messages(peer, ids=[msg_id]))[0]
+
+        result = await self(
+            functions.messages.TranslateTextRequest(
+                to_lang=to_lang,
+                peer=peer,
+                id=[msg_id],
+                text=[
+                    types.TextWithEntities(
+                        raw_text or message.raw_text,
+                        entities or message.entities or [],
+                    )
+                ],
+            )
+        )
+        return (
+            (result.result[0].text, result.result[0].entities)
+            if result and result.result
+            else ""
+        )
+
     async def transcribe(
         self: "TelegramClient",
         peer: "hints.EntityLike",
@@ -22,28 +56,28 @@ class ExtraMethods:
                 utils.get_message_id(message),
             )
         )
-    
+
         transcription_result = None
-    
+
         event = asyncio.Event()
-    
+
         @self.on(events.Raw(types.UpdateTranscribedAudio))
         async def handler(update):
             nonlocal result, transcription_result
             if update.transcription_id != result.transcription_id or update.pending:
                 return
-    
+
             transcription_result = update.text
             event.set()
             raise events.StopPropagation
-    
+
         try:
             await asyncio.wait_for(event.wait(), timeout=timeout)
         except Exception:
             return None
-    
+
         return transcription_result
-    
+
     async def set_emoji_status(
         self: "TelegramClient",
         document_id: int,
@@ -56,7 +90,7 @@ class ExtraMethods:
                 else types.EmojiStatus(document_id)
             )
         )
-    
+
     async def join_chat(
         self: "TelegramClient",
         entity: types.InputChannel = None,
@@ -66,9 +100,8 @@ class ExtraMethods:
             return await self(functions.channels.JoinChannelRequest(entity))
         elif hash:
             return await self(functions.messages.ImportChatInviteRequest(hash))
-        raise ValueError("Either entity or hash is required.")
-    
-    
+        raise ValueError("Either entity or hash is required!")
+
     async def hide_participants(
         self: "TelegramClient",
         channel: types.InputChannel,
@@ -78,7 +111,7 @@ class ExtraMethods:
         return await self(
             functions.channels.ToggleParticipantsHiddenRequest(channel, enabled)
         )
-    
+
     async def set_contact_photo(
         self: "TelegramClient",
         user: types.InputUser,
@@ -104,4 +137,3 @@ class ExtraMethods:
                 **kwargs,
             )
         )
-    

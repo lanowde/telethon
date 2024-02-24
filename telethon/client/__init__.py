@@ -25,5 +25,6 @@ from .stories import StoriesMethods
 from .topics import TopicMethods
 from .reactions import ReactionMethods
 from .extras import ExtraMethods
+from .groupcalls import GroupCallMethods
 from .bots import BotMethods
 from .telegramclient import TelegramClient

@@ -1155,7 +1155,7 @@ class Message(ChatGetter, SenderGetter, TLObject):
     # region Private Methods
 
     async def copy(self, to_chat, **kwargs):
-        """Copy the message to another chat. ShortHand for
+        """Copy the message to another chat. Shorthand for
         `telethon.client.messages.MessageMethods.send_message`
         with ``message`` already set.
         """
@@ -1251,6 +1251,8 @@ class Message(ChatGetter, SenderGetter, TLObject):
                         return doc
                     return None
 
+    # moi custom methods
+
     @property
     def message_link(self):
         """
@@ -1283,6 +1285,15 @@ class Message(ChatGetter, SenderGetter, TLObject):
                 **kwargs,
             )
 
+    async def try_delete(self, *args, **kwargs):
+        """
+        This function will skip any exception raise while deleting message.
+        """
+        try:
+            await self.delete(*args, **kwargs)
+        except Exception:
+            pass
+
     async def react(
         self,
         reaction: "typing.Optional[hints.Reaction]" = None,
@@ -1291,32 +1302,55 @@ class Message(ChatGetter, SenderGetter, TLObject):
         **kwargs,
     ):
         """
-        Reacts on the given message. 
-
-
+        Reacts on the given message. Shorthand for
+        `telethon.client.reactions.ReactionMethods.send_reaction`
+        with both ``entity`` and ``message_id`` already set.
         """
         if self._client:
-            result = await self(
-                functions.messages.SendReactionRequest(
-                    peer=entity,
-                    msg_id=msg_id,
-                    big=big,
-                    reaction=utils.convert_reaction(reaction),
-                    add_to_recent=add_to_recent,
-                    **kwargs,
-                ),
+            return await self._client.send_reaction(
+                await self.get_input_chat(),
+                self.id,
+                reaction,
+                big=big,
+                add_to_recent=add_to_recent,
+                **kwargs,
             )
-            for update in result.updates:
-                if isinstance(update, types.UpdateMessageReactions):
-                    return update.reactions
-                if isinstance(update, types.UpdateEditMessage):
-                    return update.message.reactions
-        
+
+    async def translate(self, to_lang: str):
+        """
+        Helper method to translate message text. Shorthand for
+        `telethon.client.extras.ExtraMethods.translate`
+        with ``entity`` and ``message_id`` already set.
+
+        Args:
+            to_lang (`str`):
+                The language to translate to. Must be a valid language code
+                (e.g. ``en``, ``es``, ``fr``, etc).
+
+        Returns:
+            `str`: The translated text.
+            `entities`: list of entites. [optional]
+
+        Example:
+            .. code-block:: python
+                # Translate the message to Spanish
+                translated = await message.translate('es')
+        """
+        if self._client:
+            return await self._client.translate(self.peer_id, self, to_lang)
+
     async def eor(
-        self, text=None, time=None, edit_time=None, **kwargs,
+        self,
+        text=None,
+        time=None,
+        edit_time=None,
+        **kwargs,
     ):
         """
-        Edit or Reply to a Message.
+        Helper method to edit or reply a Message. Shorthand for
+        `telethon.client.messages.MessageMethods.send_message` or
+        `telethon.client.messages.MessageMethods.edit_message`
+        with ``message`` already set.
         """
         reply_to = self.reply_to_msg_id or self.id
         link_preview = kwargs.pop("link_preview", None)
@@ -1340,9 +1374,13 @@ class Message(ChatGetter, SenderGetter, TLObject):
                     ok = self
         else:
             ok = await self.client.send_message(
-                chat, text, link_preview=link_preview, reply_to=reply_to, **kwargs,
+                chat,
+                text,
+                link_preview=link_preview,
+                reply_to=reply_to,
+                **kwargs,
             )
-    
+
         if time:
             await asyncio.sleep(time)
             return await ok.delete()
