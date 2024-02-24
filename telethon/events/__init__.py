@@ -11,6 +11,7 @@ from .inlinequery import InlineQuery
 from .joinrequest import JoinRequest
 from .voicecall import GroupCall
 
+
 _HANDLERS_ATTRIBUTE = "__tl.handlers"
 
 

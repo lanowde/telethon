@@ -1,3 +1,4 @@
+import datetime
 import typing
 
 from ..tl import types, functions
@@ -8,7 +9,7 @@ if typing.TYPE_CHECKING:
     from .telegramclient import TelegramClient
 
 
-class GroupCallMethods:
+class GroupCallMethod:
     async def create_group_call(
         self: "TelegramClient",
         peer: types.TypeInputPeer,

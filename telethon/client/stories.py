@@ -298,7 +298,7 @@ class StoriesMethods:
             )
         )
 
-    async def get_user_stories(
+    async def get_peer_stories(
         self: "TelegramClient",
         user: "hints.EntityLike",
     ) -> types.stories.PeerStories:

@@ -176,6 +176,7 @@ class Message(ChatGetter, SenderGetter, TLObject):
         id: int,
         peer_id: types.TypePeer,
         date: Optional[datetime],
+        message: Optional[str] = None,
         # Copied from Message.__init__ signature
         out: Optional[bool] = None,
         mentioned: Optional[bool] = None,
@@ -1286,7 +1287,7 @@ class Message(ChatGetter, SenderGetter, TLObject):
         This function will skip any exception raise while deleting message.
         """
         try:
-            await self.delete(*args, **kwargs)
+            return await self.delete(*args, **kwargs)
         except Exception:
             pass
 
