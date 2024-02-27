@@ -20,6 +20,7 @@ from ..tl.types import (
     MessageEntitySpoiler,
 )
 
+
 DEFAULT_DELIMITERS = {
     "**": MessageEntityBold,
     "__": MessageEntityItalic,
@@ -28,6 +29,7 @@ DEFAULT_DELIMITERS = {
     "```": MessageEntityPre,
     "||": MessageEntitySpoiler,
 }
+REVERSE_DELIMITERS = {v: k for k, v in DEFAULT_DELIMITERS.items()}
 
 DEFAULT_URL_RE = re.compile(r"\[([^\]]+)\]\(([^)]+)\)")
 DEFAULT_URL_FORMAT = "[{0}]({1})"
@@ -194,7 +196,7 @@ def unparse(text, entities, delimiters=None, url_fmt=None):
     if not delimiters:
         if delimiters is not None:
             return text
-        delimiters = DEFAULT_DELIMITERS
+        delimiters = REVERSE_DELIMITERS
 
     if url_fmt is not None:
         warnings.warn(
@@ -205,24 +207,27 @@ def unparse(text, entities, delimiters=None, url_fmt=None):
         entities = (entities,)
 
     text = add_surrogate(text)
-    delimiters = {v: k for k, v in delimiters.items()}
     insert_at = []
     for i, entity in enumerate(entities):
         s = entity.offset
         e = entity.offset + entity.length
-        delimiter = delimiters.get(type(entity), None)
+        e_type = type(entity)
+        delimiter = delimiters.get(e_type, None)
         if delimiter:
+            if e_type == MessageEntityPre:
+                if lang := getattr(entity, "language", None):
+                    delimiter += f"{lang}\n"
             insert_at.append((s, i, delimiter))
             insert_at.append((e, len(entities) - i, delimiter))
         else:
             url = None
-            if isinstance(entity, MessageEntityTextUrl):
+            if e_type == MessageEntityTextUrl:
                 url = entity.url
-            elif isinstance(entity, MessageEntityMentionName):
+            elif e_type == MessageEntityMentionName:
                 url = "tg://user?id={}".format(entity.user_id)
-            elif isinstance(entity, MessageEntitySpoiler):
+            elif e_type == MessageEntitySpoiler:
                 url = "spoiler"
-            elif isinstance(entity, MessageEntityCustomEmoji):
+            elif e_type == MessageEntityCustomEmoji:
                 url = f"emoji/{entity.document_id}"
             if url:
                 insert_at.append((s, i, "["))
