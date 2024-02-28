@@ -214,10 +214,11 @@ def unparse(text, entities, delimiters=None, url_fmt=None):
         e_type = type(entity)
         delimiter = delimiters.get(e_type, None)
         if delimiter:
+            s_delimiter = delimiter
             if e_type == MessageEntityPre:
                 if lang := getattr(entity, "language", None):
-                    delimiter += f"{lang}\n"
-            insert_at.append((s, i, delimiter))
+                    s_delimiter += f"{lang}\n"
+            insert_at.append((s, i, s_delimiter))
             insert_at.append((e, len(entities) - i, delimiter))
         else:
             url = None
