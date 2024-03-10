@@ -1,6 +1,7 @@
 """
 This module holds the AuthKey class.
 """
+
 import struct
 from hashlib import sha1
 

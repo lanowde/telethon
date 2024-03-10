@@ -1,6 +1,7 @@
 """
 This module holds a fast Factorization class.
 """
+
 from random import randint
 
 

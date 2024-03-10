@@ -2,6 +2,7 @@
 This module contains the class used to communicate with Telegram's servers
 in plain text, when no authorization key has been created yet.
 """
+
 import struct
 
 from .mtprotostate import MTProtoState

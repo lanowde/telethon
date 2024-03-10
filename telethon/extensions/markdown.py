@@ -3,6 +3,7 @@ Simple markdown parser which does not support nesting. Intended primarily
 for use within the library, which attempts to handle emojies correctly,
 since they seem to count as two characters and it's a bit strange.
 """
+
 import re
 import warnings
 

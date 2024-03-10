@@ -1,6 +1,7 @@
 """
 This module holds the CdnDecrypter utility class.
 """
+
 from hashlib import sha256
 
 from ..tl.functions.upload import GetCdnFileRequest, ReuploadCdnFileRequest

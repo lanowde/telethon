@@ -2,6 +2,7 @@
 This module contains several functions that authenticate the client machine
 with Telegram's servers, effectively creating an authorization key.
 """
+
 import os
 import time
 from hashlib import sha1

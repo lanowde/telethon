@@ -1,6 +1,7 @@
 """
 This module contains the BinaryReader utility class.
 """
+
 import os
 import time
 from datetime import datetime, timezone, timedelta

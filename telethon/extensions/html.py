@@ -1,6 +1,7 @@
 """
 Simple HTML -> Telegram entity parser.
 """
+
 import re
 import struct
 from collections import deque

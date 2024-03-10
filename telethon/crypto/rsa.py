@@ -1,6 +1,7 @@
 """
 This module holds several utilities regarding RSA and server fingerprints.
 """
+
 import os
 import struct
 from hashlib import sha1

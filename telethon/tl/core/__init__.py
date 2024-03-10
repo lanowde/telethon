@@ -16,6 +16,7 @@ Three things to note with this definition:
    some can return ``Vector<int>`` and ``Vector<long>``).
 3. Those bytes may be gzipped data, which needs to be treated early.
 """
+
 from .tlmessage import TLMessage
 from .gzippacked import GzipPacked
 from .messagecontainer import MessageContainer

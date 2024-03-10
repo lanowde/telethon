@@ -1,6 +1,7 @@
 """
 Helper module around the system's libssl library if available for IGE mode.
 """
+
 import ctypes
 import ctypes.util
 import platform

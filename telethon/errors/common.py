@@ -1,4 +1,5 @@
 """Errors not related to the Telegram API itself"""
+
 import struct
 import textwrap
 

@@ -190,9 +190,9 @@ class ChatAction(EventBuilder):
             self._added_by = None
             self._kicked_by = None
             self.from_request = from_request
-            self.user_added = (
-                self.user_joined
-            ) = self.user_left = self.user_kicked = self.unpin = False
+            self.user_added = self.user_joined = self.user_left = self.user_kicked = (
+                self.unpin
+            ) = False
 
             if added_by is True:
                 self.user_joined = True

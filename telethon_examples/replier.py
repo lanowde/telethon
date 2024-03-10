@@ -5,6 +5,7 @@ A example script to automatically send messages based on certain triggers.
 This script assumes that you have certain files on the working directory,
 such as "xfiles.m4a" or "anytime.png" for some of the automated replies.
 """
+
 import os
 import sys
 import time

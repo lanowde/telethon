@@ -2,6 +2,7 @@
 This module holds all the base and automatically generated errors that the
 Telegram API has. See telethon_generator/errors.json for more.
 """
+
 import re
 
 from .common import (

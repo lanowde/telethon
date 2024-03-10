@@ -1,4 +1,5 @@
 """Various helpers not related to the Telegram API itself"""
+
 import asyncio
 import io
 import enum
