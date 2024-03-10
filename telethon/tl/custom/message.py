@@ -207,6 +207,7 @@ class Message(ChatGetter, SenderGetter, TLObject):
         reactions: Optional[types.TypeMessageReactions] = None,
         restriction_reason: Optional[List[types.TypeRestrictionReason]] = None,
         ttl_period: Optional[int] = None,
+        quick_reply_shortcut_id: Optional[int] = None,
         # Copied from MessageService.__init__ signature
         action: Optional[types.TypeMessageAction] = None,
     ):
