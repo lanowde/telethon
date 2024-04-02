@@ -103,7 +103,10 @@ class _DirectDownloadIter(RequestIter):
             self._exported = True
             return await self._request()
 
-        except errors.FilerefUpgradeNeededError as e:
+        except (
+            errors.FilerefUpgradeNeededError,
+            errors.FileReferenceExpiredError,
+        ) as e:
             # Only implemented for documents which are the ones that may take that long to download
             if (
                 not self._msg_data
