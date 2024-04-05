@@ -189,11 +189,13 @@ class Message(ChatGetter, SenderGetter, TLObject):
         pinned: Optional[bool] = None,
         noforwards: Optional[bool] = None,
         invert_media: Optional[bool] = None,
+        offline: Optional[bool] = None,
         from_id: Optional[types.TypePeer] = None,
         from_boosts_applied: Optional[int] = None,
         saved_peer_id: Optional[types.TypePeer] = None,
         fwd_from: Optional[types.TypeMessageFwdHeader] = None,
         via_bot_id: Optional[int] = None,
+        via_business_bot_id: Optional[int] = None,
         reply_to: Optional[types.TypeMessageReplyHeader] = None,
         media: Optional[types.TypeMessageMedia] = None,
         reply_markup: Optional[types.TypeReplyMarkup] = None,
@@ -227,11 +229,13 @@ class Message(ChatGetter, SenderGetter, TLObject):
         self.pinned = pinned
         self.noforwards = noforwards
         self.invert_media = invert_media
+        self.offline = offline
         self.from_id = from_id
         self.from_boosts_applied = from_boosts_applied
         self.saved_peer_id = saved_peer_id
         self.fwd_from = fwd_from
         self.via_bot_id = via_bot_id
+        self.via_business_bot_id = via_business_bot_id
         self.reply_to = reply_to
         self.media = None if isinstance(media, types.MessageMediaEmpty) else media
         self.reply_markup = reply_markup
