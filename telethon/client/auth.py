@@ -18,10 +18,10 @@ class AuthMethods:
 
     def start(
         self: "TelegramClient",
-        phone: typing.Callable[[], str] | str = lambda: input(
+        phone: typing.Union[typing.Callable[[], str], str] = lambda: input(
             "Please enter your phone (or bot token): "
         ),
-        password: typing.Callable[[], str] | str = lambda: getpass.getpass(
+        password: typing.Union[typing.Callable[[], str], str] = lambda: getpass.getpass(
             "Please enter your password: "
         ),
         *,

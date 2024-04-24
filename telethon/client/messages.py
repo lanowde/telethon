@@ -578,7 +578,7 @@ class MessageMethods:
 
     async def get_messages(
         self: "TelegramClient", entity, *args, **kwargs
-    ) -> "hints.TotalList":
+    ) -> typing.Union["hints.TotalList", typing.Optional["types.Message"]]:
         """
         Same as `iter_messages()`, but returns a
         `TotalList <telethon.helpers.TotalList>` instead.
