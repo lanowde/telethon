@@ -1668,12 +1668,12 @@ def convert_reaction(
     if isinstance(reaction, (types.ReactionEmoji, types.ReactionCustomEmoji)):
         reaction = [reaction]
 
-    for r in reaction:
+    for index, r in enumerate(reaction):
         if isinstance(r, str):
-            reaction[reaction.index(r)] = types.ReactionEmoji(r)
+            reaction[index] = types.ReactionEmoji(r)
 
         if isinstance(r, int):
-            reaction[reaction.index(r)] = types.ReactionCustomEmoji(r)
+            reaction[index] = types.ReactionCustomEmoji(r)
 
     return reaction
 

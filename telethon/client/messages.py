@@ -1711,6 +1711,8 @@ class MessageMethods:
         message: "hints.MessageIDLike",
         timeout: int = 30,
     ) -> typing.Optional[str]:
+        from .. import events
+
         result = await self(
             functions.messages.TranscribeAudioRequest(
                 peer,
@@ -1719,7 +1721,6 @@ class MessageMethods:
         )
 
         transcription_result = None
-
         event = asyncio.Event()
 
         @self.on(events.Raw(types.UpdateTranscribedAudio))
@@ -1762,16 +1763,6 @@ class MessageMethods:
         elif hash:
             return await self(functions.messages.ImportChatInviteRequest(hash))
         raise ValueError("Either entity or hash is required!")
-
-    async def hide_participants(
-        self: "TelegramClient",
-        channel: types.InputChannel,
-        enabled: bool = False,
-    ):
-        """Toggle hidden participants"""
-        return await self(
-            functions.channels.ToggleParticipantsHiddenRequest(channel, enabled)
-        )
 
     async def set_contact_photo(
         self: "TelegramClient",
@@ -1841,6 +1832,17 @@ class MessageMethods:
             reaction=utils.convert_reaction(reaction),
         )
 
+    '''
+    async def hide_participants(
+        self: "TelegramClient",
+        channel: types.InputChannel,
+        enabled: bool = False,
+    ):
+        """Toggle hidden participants"""
+        return await self(
+            functions.channels.ToggleParticipantsHiddenRequest(channel, enabled)
+        )
+
     async def report_reaction(
         self: "TelegramClient",
         peer: "hints.EntityLike",
@@ -1851,7 +1853,6 @@ class MessageMethods:
             functions.messages.ReportReactionRequest(peer, id, reaction_peer)
         )
 
-    """
     # recheck
     async def send_poll(
         self: "TelegramClient",
@@ -1897,4 +1898,4 @@ class MessageMethods:
             ),
             schedule=schedule,
         )
-    """
+    '''
