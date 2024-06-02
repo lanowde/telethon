@@ -213,6 +213,8 @@ class Message(ChatGetter, SenderGetter, TLObject):
         restriction_reason: Optional[List[types.TypeRestrictionReason]] = None,
         ttl_period: Optional[int] = None,
         quick_reply_shortcut_id: Optional[int] = None,
+        effect: Optional[int] = None,
+        factcheck: Optional[types.TypeFactCheck] = None,
         # Copied from MessageService.__init__ signature
         action: Optional[types.TypeMessageAction] = None,
     ):
@@ -253,6 +255,8 @@ class Message(ChatGetter, SenderGetter, TLObject):
         self.restriction_reason = restriction_reason
         self.ttl_period = ttl_period
         self.quick_reply_shortcut_id = quick_reply_shortcut_id
+        self.effect = effect
+        self.factcheck = factcheck
         # Copied from MessageService.__init__ body
         self.action = action
 
