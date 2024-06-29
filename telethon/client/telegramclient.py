@@ -12,7 +12,7 @@ from . import (
     MessageParseMethods,
     UserMethods,
     TelegramBaseClient,
-    StoriesMethods,
+    # StoriesMethods,
 )
 
 
@@ -29,7 +29,7 @@ class TelegramClient(
     UpdateMethods,
     MessageParseMethods,
     UserMethods,
-    StoriesMethods,
+    # StoriesMethods,
     TelegramBaseClient,
 ):
     pass
