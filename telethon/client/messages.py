@@ -1709,36 +1709,17 @@ class MessageMethods:
         self: "TelegramClient",
         peer: "hints.EntityLike",
         message: "hints.MessageIDLike",
-        timeout: int = 30,
     ) -> typing.Optional[str]:
         from .. import events
 
-        result = await self(
+        transcript_reult = await self(
             functions.messages.TranscribeAudioRequest(
                 peer,
                 utils.get_message_id(message),
             )
         )
 
-        transcription_result = None
-        event = asyncio.Event()
-
-        @self.on(events.Raw(types.UpdateTranscribedAudio))
-        async def handler(update):
-            nonlocal result, transcription_result
-            if update.transcription_id != result.transcription_id or update.pending:
-                return
-
-            transcription_result = update.text
-            event.set()
-            raise events.StopPropagation
-
-        try:
-            await asyncio.wait_for(event.wait(), timeout=timeout)
-        except Exception:
-            return None
-
-        return transcription_result
+        return transcript_result.text
 
     async def set_emoji_status(
         self: "TelegramClient",
