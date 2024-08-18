@@ -113,6 +113,7 @@ class UserMethods:
                 await asyncio.sleep(3)
             except (
                 errors.FloodWaitError,
+                errors.FloodPremiumWaitError,
                 errors.SlowModeWaitError,
                 errors.FloodTestPhoneWaitError,
             ) as e:

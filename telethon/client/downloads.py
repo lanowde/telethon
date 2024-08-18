@@ -28,13 +28,34 @@ MAX_CHUNK_SIZE = 512 * 1024
 TIMED_OUT_SLEEP = 1
 
 
+class _CdnRedirect(Exception):
+    def __init__(self, cdn_redirect=None):
+        self.cdn_redirect = cdn_redirect
+
+
 class _DirectDownloadIter(RequestIter):
     async def _init(
-        self, file, dc_id, offset, stride, chunk_size, request_size, file_size, msg_data
+        self,
+        file,
+        dc_id,
+        offset,
+        stride,
+        chunk_size,
+        request_size,
+        file_size,
+        msg_data,
+        cdn_redirect=None,
     ):
         self.request = functions.upload.GetFileRequest(
             file, offset=offset, limit=request_size
         )
+        self._client = self.client
+        self._cdn_redirect = cdn_redirect
+        if cdn_redirect is not None:
+            self.request = functions.upload.GetCdnFileRequest(
+                cdn_redirect.file_token, offset=offset, limit=request_size
+            )
+            self._client = await self.client._get_cdn_client(cdn_redirect)
 
         self.total = file_size
         self._stride = stride
@@ -43,7 +64,7 @@ class _DirectDownloadIter(RequestIter):
         self._msg_data = msg_data
         self._timed_out = False
 
-        self._exported = dc_id and self.client.session.dc_id != dc_id
+        self._exported = dc_id and self._client.session.dc_id != dc_id
         if not self._exported:
             # The used sender will also change if ``FileMigrateError`` occurs
             self._sender = self.client._sender
@@ -76,10 +97,24 @@ class _DirectDownloadIter(RequestIter):
 
     async def _request(self):
         try:
-            result = await self.client._call(self._sender, self.request)
+            result = await self._client._call(self._sender, self.request)
             self._timed_out = False
             if isinstance(result, types.upload.FileCdnRedirect):
-                raise NotImplementedError  # TODO Implement
+                if self.client._mb_entity_cache.self_bot:
+                    raise ValueError(
+                        "FileCdnRedirect but the GetCdnFileRequest API access for bot users is restricted. Try to change api_id to avoid FileCdnRedirect"
+                    )
+                raise _CdnRedirect(result)
+            if isinstance(result, types.upload.CdnFileReuploadNeeded):
+                await self.client._call(
+                    self.client._sender,
+                    functions.upload.ReuploadCdnFileRequest(
+                        file_token=self._cdn_redirect.file_token,
+                        request_token=result.request_token,
+                    ),
+                )
+                result = await self._client._call(self._sender, self.request)
+                return result.bytes
             else:
                 return result.bytes
 
@@ -537,6 +572,7 @@ class DownloadMethods:
         key: bytes = None,
         iv: bytes = None,
         msg_data: tuple = None,
+        cdn_redirect: types.upload.FileCdnRedirect = None,
     ) -> typing.Optional[bytes]:
         if not part_size_kb:
             if not file_size:
@@ -563,7 +599,11 @@ class DownloadMethods:
 
         try:
             async for chunk in self._iter_download(
-                input_location, request_size=part_size, dc_id=dc_id, msg_data=msg_data
+                input_location,
+                request_size=part_size,
+                dc_id=dc_id,
+                msg_data=msg_data,
+                cdn_redirect=cdn_redirect,
             ):
                 if iv and key:
                     chunk = AES.decrypt_ige(chunk, key, iv)
@@ -582,6 +622,22 @@ class DownloadMethods:
 
             if in_memory:
                 return f.getvalue()
+        except _CdnRedirect as e:
+            self._log[__name__].info(
+                "FileCdnRedirect to CDN data center %s", e.cdn_redirect.dc_id
+            )
+            return await self._download_file(
+                input_location=input_location,
+                file=file,
+                part_size_kb=part_size_kb,
+                file_size=file_size,
+                progress_callback=progress_callback,
+                dc_id=e.cdn_redirect.dc_id,
+                key=e.cdn_redirect.encryption_key,
+                iv=e.cdn_redirect.encryption_iv,
+                msg_data=msg_data,
+                cdn_redirect=e.cdn_redirect,
+            )
         finally:
             if isinstance(file, str) or in_memory:
                 f.close()
@@ -704,6 +760,7 @@ class DownloadMethods:
         file_size: int = None,
         dc_id: int = None,
         msg_data: tuple = None,
+        cdn_redirect: types.upload.FileCdnRedirect = None,
     ):
         info = utils._get_file_info(file)
         if info.dc_id is not None:
@@ -764,6 +821,7 @@ class DownloadMethods:
             request_size=request_size,
             file_size=file_size,
             msg_data=msg_data,
+            cdn_redirect=cdn_redirect,
         )
 
     # endregion
