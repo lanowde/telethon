@@ -140,7 +140,7 @@ class UploadMethods:
         ttl: int = None,
         nosound_video: bool = None,
         **kwargs,
-    ) -> "types.Message":
+    ) -> typing.Union[typing.List[typing.Any], typing.Any]:
         """
         Sends message with the given file to the specified entity.
 
@@ -449,7 +449,7 @@ class UploadMethods:
 
             return result
 
-        if formatting_entities is not None:
+        if formatting_entities:
             msg_entities = formatting_entities
         else:
             caption, msg_entities = await self._parse_message_text(caption, parse_mode)

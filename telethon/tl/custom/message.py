@@ -193,6 +193,7 @@ class Message(ChatGetter, SenderGetter, TLObject):
         noforwards: Optional[bool] = None,
         invert_media: Optional[bool] = None,
         offline: Optional[bool] = None,
+        video_processing_pending: Optional[bool] = None,
         from_id: Optional[types.TypePeer] = None,
         from_boosts_applied: Optional[int] = None,
         saved_peer_id: Optional[types.TypePeer] = None,
@@ -235,6 +236,7 @@ class Message(ChatGetter, SenderGetter, TLObject):
         self.noforwards = noforwards
         self.invert_media = invert_media
         self.offline = offline
+        self.video_processing_pending = video_processing_pending
         self.from_id = from_id
         self.from_boosts_applied = from_boosts_applied
         self.saved_peer_id = saved_peer_id

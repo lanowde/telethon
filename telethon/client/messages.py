@@ -884,6 +884,10 @@ class MessageMethods:
                 await client.send_message(chat, 'Hi, future!', schedule=timedelta(minutes=5))
         """
         if file is not None:
+            if isinstance(message, types.Message):
+                formatting_entities = formatting_entities or message.entities
+                message = message.message
+
             return await self.send_file(
                 entity,
                 file,
