@@ -19,6 +19,7 @@ from ..tl.types import (
     MessageEntityStrike,
     MessageEntityCustomEmoji,
     MessageEntitySpoiler,
+    MessageEntityBlockquote,
 )
 
 
@@ -29,6 +30,7 @@ DEFAULT_DELIMITERS = {
     "`": MessageEntityCode,
     "```": MessageEntityPre,
     "||": MessageEntitySpoiler,
+    "^^": lambda *a, **k: MessageEntityBlockquote(*a, **k, collapsed=True),
 }
 REVERSE_DELIMITERS = {v: k for k, v in DEFAULT_DELIMITERS.items()}
 
