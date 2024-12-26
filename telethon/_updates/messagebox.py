@@ -329,6 +329,8 @@ class MessageBox:
     #
     # It also updates the next deadline time to reflect the new closest deadline.
     def reset_deadlines(self, entries, deadline):
+        if not entries:
+            return
         for entry in entries:
             if entry not in self.map:
                 raise RuntimeError(
