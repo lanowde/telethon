@@ -216,6 +216,8 @@ class Message(ChatGetter, SenderGetter, TLObject):
         quick_reply_shortcut_id: Optional[int] = None,
         effect: Optional[int] = None,
         factcheck: Optional[types.TypeFactCheck] = None,
+        report_delivery_until_date: Optional[int] = None,
+        reactions_are_possible: Optional[bool] = None,
         # Copied from MessageService.__init__ signature
         action: Optional[types.TypeMessageAction] = None,
     ):
@@ -259,8 +261,10 @@ class Message(ChatGetter, SenderGetter, TLObject):
         self.quick_reply_shortcut_id = quick_reply_shortcut_id
         self.effect = effect
         self.factcheck = factcheck
+        self.report_delivery_until_date = report_delivery_until_date
         # Copied from MessageService.__init__ body
         self.action = action
+        self.reactions_are_possible = reactions_are_possible
 
         # Convenient storage for custom functions
         # TODO This is becoming a bit of bloat
