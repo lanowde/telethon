@@ -217,9 +217,9 @@ class Message(ChatGetter, SenderGetter, TLObject):
         effect: Optional[int] = None,
         factcheck: Optional[types.TypeFactCheck] = None,
         report_delivery_until_date: Optional[int] = None,
-        reactions_are_possible: Optional[bool] = None,
         # Copied from MessageService.__init__ signature
         action: Optional[types.TypeMessageAction] = None,
+        reactions_are_possible: Optional[bool] = None,
     ):
         # Copied from Message.__init__ body
         self.id = id

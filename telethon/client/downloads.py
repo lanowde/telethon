@@ -796,7 +796,7 @@ class DownloadMethods:
         ):
             cls = _DirectDownloadIter
             self._log[__name__].info(
-                "Starting direct file download in chunks of " "%d at %d, stride %d",
+                "Starting direct file download in chunks of %d at %d, stride %d",
                 request_size,
                 offset,
                 stride,
@@ -804,7 +804,7 @@ class DownloadMethods:
         else:
             cls = _GenericDownloadIter
             self._log[__name__].info(
-                "Starting indirect file download in chunks of " "%d at %d, stride %d",
+                "Starting indirect file download in chunks of %d at %d, stride %d",
                 request_size,
                 offset,
                 stride,

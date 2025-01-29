@@ -143,8 +143,7 @@ class InteractiveTelegramClient(TelegramClient):
                 # if that's the case simply change it for input().
                 except SessionPasswordNeededError:
                     pw = getpass(
-                        "Two step verification is enabled. "
-                        "Please enter your password: "
+                        "Two step verification is enabled. Please enter your password: "
                     )
 
                     self_user = await self.sign_in(password=pw)

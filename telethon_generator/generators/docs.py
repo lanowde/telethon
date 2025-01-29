@@ -177,9 +177,7 @@ def _get_description(arg):
         desc.append("If left unspecified, it will be inferred automatically.")
         otherwise = True
     elif arg.flag:
-        desc.append(
-            "This argument defaults to " "<code>None</code> and can be omitted."
-        )
+        desc.append("This argument defaults to <code>None</code> and can be omitted.")
         otherwise = True
 
     if arg.type in {
@@ -395,7 +393,7 @@ def _write_html_pages(tlobjects, methods, layer, input_res):
                 errors = method_info and method_info.errors
                 if not errors:
                     docs.write_text(
-                        "This request can't cause any RPC error " "as far as we know."
+                        "This request can't cause any RPC error as far as we know."
                     )
                 else:
                     docs.write_text(
@@ -409,7 +407,7 @@ def _write_html_pages(tlobjects, methods, layer, input_res):
                         docs.add_row("{}.".format(error.description))
                     docs.end_table()
                     docs.write_text(
-                        "You can import these from " "<code>telethon.errors</code>."
+                        "You can import these from <code>telethon.errors</code>."
                     )
 
                 docs.write_title("Example", id="examples")

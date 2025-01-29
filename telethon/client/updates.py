@@ -623,7 +623,7 @@ class UpdateMethods:
             except events.StopPropagation:
                 name = getattr(callback, "__name__", repr(callback))
                 self._log[__name__].debug(
-                    'Event handler "%s" stopped chain of propagation ' "for event %s.",
+                    'Event handler "%s" stopped chain of propagation for event %s.',
                     name,
                     type(event).__name__,
                 )
@@ -667,7 +667,7 @@ class UpdateMethods:
             except events.StopPropagation:
                 name = getattr(callback, "__name__", repr(callback))
                 self._log[__name__].debug(
-                    'Event handler "%s" stopped chain of propagation ' "for event %s.",
+                    'Event handler "%s" stopped chain of propagation for event %s.',
                     name,
                     type(event).__name__,
                 )
@@ -685,7 +685,7 @@ class UpdateMethods:
             await self.get_me()
         except Exception as e:
             self._log[__name__].warning(
-                "Error executing high-level request " "after reconnect: %s: %s",
+                "Error executing high-level request after reconnect: %s: %s",
                 type(e),
                 e,
             )
@@ -717,7 +717,7 @@ class UpdateMethods:
             self._log[__name__].info("Successfully fetched missed updates")
         except errors.RPCError as e:
             self._log[__name__].warning(
-                "Failed to get missed updates after " "reconnect: %r", e
+                "Failed to get missed updates after reconnect: %r", e
             )
         except Exception:
             self._log[__name__].exception(

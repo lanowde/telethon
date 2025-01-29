@@ -38,11 +38,10 @@ def generate_errors(errors, f):
             f.write("    self.{} = int(capture)\n        ".format(error.capture_name))
         else:
             f.write(
-                "def __init__(self, request):\n    "
-                "    self.request = request\n        "
+                "def __init__(self, request):\n        self.request = request\n        "
             )
 
-        f.write("super(Exception, self).__init__(" "{}".format(repr(error.description)))
+        f.write("super(Exception, self).__init__({}".format(repr(error.description)))
 
         if error.has_captures:
             f.write(".format({0}=self.{0})".format(error.capture_name))

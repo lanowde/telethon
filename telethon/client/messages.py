@@ -1025,7 +1025,7 @@ class MessageMethods:
         top_msg_id: int = None,
         background: bool = None,
         drop_author: bool = None,
-        drop_caption: bool = None,
+        drop_media_captions: bool = None,
         with_my_score: bool = None,
         silent: bool = None,
         as_album: bool = None,
@@ -1062,6 +1062,12 @@ class MessageMethods:
 
             background (`bool`, optional):
                 Whether the message should be forwarded in background.
+
+            drop_author (`bool`, optional):
+                Whether to forward messages without quoting the original author.
+
+            drop_media_captions (`bool`, optional):
+                Whether to strip captions from media. Setting this to `True` requires that `drop_author` also be set to `True`.
 
             with_my_score (`bool`, optional):
                 Whether forwarded should contain your game score.
@@ -1148,7 +1154,7 @@ class MessageMethods:
                 silent=silent,
                 background=background,
                 drop_author=drop_author,
-                drop_media_captions=drop_caption,
+                drop_media_captions=drop_media_captions,
                 with_my_score=with_my_score,
                 schedule_date=schedule,
                 send_as=send_as,
@@ -1163,7 +1169,7 @@ class MessageMethods:
     async def edit_message(
         self: "TelegramClient",
         entity: "typing.Union[hints.EntityLike, types.Message]",
-        message: "hints.MessageLike" = None,
+        message: "typing.Union[int, types.Message, types.InputMessageID, str]" = None,
         text: str = None,
         *,
         parse_mode: str = (),
@@ -1196,7 +1202,7 @@ class MessageMethods:
                 which is the only way to edit messages that were sent
                 after the user selects an inline query result.
 
-            message (`int` | `Message <telethon.tl.custom.message.Message>` | `str`):
+            message (`int` | `Message <telethon.tl.custom.message.Message>` | :tl:`InputMessageID` | `str`):
                 The ID of the message (or `Message
                 <telethon.tl.custom.message.Message>` itself) to be edited.
                 If the `entity` was a `Message

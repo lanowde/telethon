@@ -66,9 +66,7 @@ def _write_modules(out_dir, depth, kind, namespace_tlobjects, type_constructors)
             if kind != "TLObject":
                 builder.writeln("from {}.tl.tlobject import {}", "." * depth, kind)
 
-            builder.writeln(
-                "from typing import Optional, List, " "Union, TYPE_CHECKING"
-            )
+            builder.writeln("from typing import Optional, List, Union, TYPE_CHECKING")
 
             # Add the relative imports to the namespaces,
             # unless we already are in a namespace.
@@ -258,7 +256,7 @@ def _write_class_init(tlobject, kind, type_constructors, builder):
                 code = "[{} for _ in range(len(id))]".format(code)
 
             builder.writeln(
-                "self.random_id = random_id if random_id " "is not None else {}", code
+                "self.random_id = random_id if random_id is not None else {}", code
             )
         else:
             raise ValueError("Cannot infer a value for ", arg)
@@ -413,7 +411,7 @@ def _write_read_result(tlobject, builder):
     builder.writeln("def read_result(reader):")
     builder.writeln("reader.read_int()  # Vector ID")
     builder.writeln(
-        "return [reader.read_{}() " "for _ in range(reader.read_int())]", m.group(1)
+        "return [reader.read_{}() for _ in range(reader.read_int())]", m.group(1)
     )
 
 
@@ -444,12 +442,12 @@ def _write_arg_to_bytes(builder, arg, tlobject, name=None):
             # Vector flags are special since they consist of 3 values,
             # so we need an extra join here. Note that empty vector flags
             # should NOT be sent either!
-            builder.write("b'' if {0} is None or {0} is False " "else b''.join((", name)
+            builder.write("b'' if {0} is None or {0} is False else b''.join((", name)
         elif "Bool" == arg.type:
             # `False` is a valid value for this type, so only check for `None`.
             builder.write("b'' if {0} is None else (", name)
         else:
-            builder.write("b'' if {0} is None or {0} is False " "else (", name)
+            builder.write("b'' if {0} is None or {0} is False else (", name)
 
     if arg.is_vector:
         if arg.use_vector_id:

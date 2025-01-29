@@ -117,8 +117,7 @@ class AuthMethods:
 
         if phone and bot_token and not callable(phone):
             raise ValueError(
-                "Both a phone and a bot token provided, "
-                "must only provide one of either"
+                "Both a phone and a bot token provided, must only provide one of either"
             )
 
         coro = self._start(
