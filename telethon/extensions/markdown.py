@@ -34,12 +34,8 @@ DEFAULT_DELIMITERS = {
 }
 REVERSE_DELIMITERS = {v: k for k, v in DEFAULT_DELIMITERS.items()}
 
-DEFAULT_URL_RE = re.compile(r"\[([^\]]+)\]\(([^)]+)\)")
+DEFAULT_URL_RE = re.compile(r"\[([\s\S]+?)\]\((.+?)\)")
 DEFAULT_URL_FORMAT = "[{0}]({1})"
-
-
-def overlap(a, b, x, y):
-    return max(a, x) < min(b, y)
 
 
 def parse(message, delimiters=None, url_re=None):
@@ -107,8 +103,10 @@ def parse(message, delimiters=None, url_re=None):
                 for ent in result:
                     # If the end is after our start, it is affected
                     if ent.offset + ent.length > i:
-                        # If the old start is also before ours, it is fully enclosed
-                        if ent.offset <= i:
+                        # If the old start is before ours and the old end is after ours, we are fully enclosed
+                        if ent.offset <= i and ent.offset + ent.length >= end + len(
+                            delim
+                        ):
                             ent.length -= len(delim) * 2
                         else:
                             ent.length -= len(delim)
@@ -150,7 +148,7 @@ def parse(message, delimiters=None, url_re=None):
                     (message[: m.start()], m.group(1), message[m.end() :])
                 )
 
-                delim_size = m.end() - m.start() - len(m.group())
+                delim_size = m.end() - m.start() - len(m.group(1))
                 for ent in result:
                     # If the end is after our start, it is affected
                     if ent.offset + ent.length > m.start():
