@@ -692,8 +692,8 @@ class MessageMethods:
         schedule: "hints.DateLike" = None,
         comment_to: "typing.Union[int, types.Message]" = None,
         nosound_video: bool = None,
-        send_as: typing.Optional['hints.EntityLike'] = None,
-        message_effect_id: typing.Optional[int] = None
+        send_as: typing.Optional["hints.EntityLike"] = None,
+        message_effect_id: typing.Optional[int] = None,
         invert_media: bool = None,
     ) -> "types.Message":
         """
@@ -828,7 +828,7 @@ class MessageMethods:
                  Use the GetSendAs to return the list of message sender identifiers, which can be used to send messages in the chat,
                  This setting applies to the current message and will remain effective for future messages unless explicitly changed.
                  To set this behavior permanently for all messages, use SaveDefaultSendAs.
- 
+
             message_effect_id (`int`, optional):
                  Unique identifier of the message effect to be added to the message; for private chats only
 
