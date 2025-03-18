@@ -671,7 +671,6 @@ class MessageMethods:
         message: "hints.MessageLike" = "",
         *,
         top_msg_id: int = None,
-        send_as: "hints.EntityLike" = None,
         reply_to: "typing.Union[int, types.Message, types.StoryItem, types.TypeInputReplyTo]" = None,
         attributes: "typing.Sequence[types.TypeDocumentAttribute]" = None,
         parse_mode: typing.Optional[str] = (),
@@ -693,6 +692,8 @@ class MessageMethods:
         schedule: "hints.DateLike" = None,
         comment_to: "typing.Union[int, types.Message]" = None,
         nosound_video: bool = None,
+        send_as: typing.Optional['hints.EntityLike'] = None,
+        message_effect_id: typing.Optional[int] = None
         invert_media: bool = None,
     ) -> "types.Message":
         """
@@ -821,6 +822,16 @@ class MessageMethods:
                 on non-video files. This is set to ``True`` for albums, as gifs
                 cannot be sent in albums.
 
+            send_as (`entity`):
+                 Unique identifier (int) or username (str) of the chat or channel to send the message as.
+                 You can use this to send the message on behalf of a chat or channel where you have appropriate permissions.
+                 Use the GetSendAs to return the list of message sender identifiers, which can be used to send messages in the chat,
+                 This setting applies to the current message and will remain effective for future messages unless explicitly changed.
+                 To set this behavior permanently for all messages, use SaveDefaultSendAs.
+ 
+            message_effect_id (`int`, optional):
+                 Unique identifier of the message effect to be added to the message; for private chats only
+
             invert_media (`bool`, optional):
                 Change the position of Media in link preview to top of message.
 
@@ -909,8 +920,10 @@ class MessageMethods:
                 nosound_video=nosound_video,
                 album=album,
                 allow_cache=allow_cache,
-                send_as=send_as,
                 noforwards=noforwards,
+                send_as=send_as,
+                message_effect_id=message_effect_id,
+                invert_media=invert_media,
             )
 
         entity = await self.get_input_entity(entity)
@@ -944,8 +957,10 @@ class MessageMethods:
                     formatting_entities=message.entities,
                     parse_mode=None,  # explicitly disable parse_mode to force using even empty formatting_entities
                     schedule=schedule,
-                    send_as=send_as,
                     noforwards=noforwards,
+                    send_as=send_as,
+                    message_effect_id=message_effect_id,
+                    invert_media=invert_media,
                 )
 
             request = functions.messages.SendMessageRequest(
@@ -961,8 +976,9 @@ class MessageMethods:
                 clear_draft=clear_draft,
                 no_webpage=not isinstance(message.media, types.MessageMediaWebPage),
                 schedule_date=schedule,
-                send_as=send_as,
                 noforwards=noforwards,
+                send_as=await self.get_input_entity(send_as) if send_as else None,
+                effect=message_effect_id,
                 invert_media=invert_media,
             )
             message = message.message
@@ -991,7 +1007,8 @@ class MessageMethods:
                 background=background,
                 reply_markup=self.build_reply_markup(buttons),
                 schedule_date=schedule,
-                send_as=send_as,
+                send_as=await self.get_input_entity(send_as) if send_as else None,
+                effect=message_effect_id,
                 noforwards=noforwards,
                 invert_media=invert_media,
             )

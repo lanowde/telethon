@@ -34,7 +34,7 @@ DEFAULT_DELIMITERS = {
 }
 REVERSE_DELIMITERS = {v: k for k, v in DEFAULT_DELIMITERS.items()}
 
-DEFAULT_URL_RE = re.compile(r"\[([\s\S]+?)\]\((.+?)\)")
+DEFAULT_URL_RE = re.compile(r"\[([^]]*?)\]\(([\s\S]*?)\)")
 DEFAULT_URL_FORMAT = "[{0}]({1})"
 
 

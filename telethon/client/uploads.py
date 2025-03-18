@@ -148,6 +148,9 @@ class UploadMethods:
         top_msg_id: int = None,
         ttl: int = None,
         nosound_video: bool = None,
+        send_as: typing.Optional['hints.EntityLike'] = None,
+        message_effect_id: typing.Optional[int] = None,
+        invert_media: bool = None,
         **kwargs,
     ) -> typing.Union[typing.List[typing.Any], typing.Any]:
         """
@@ -336,6 +339,19 @@ class UploadMethods:
                 on non-video files. This is set to ``True`` for albums, as gifs
                 cannot be sent in albums.
 
+            send_as (`entity`):
+                 Unique identifier (int) or username (str) of the chat or channel to send the message as.
+                 You can use this to send the message on behalf of a chat or channel where you have appropriate permissions.
+                 Use the GetSendAs to return the list of message sender identifiers, which can be used to send messages in the chat,
+                 This setting applies to the current message and will remain effective for future messages unless explicitly changed.
+                 To set this behavior permanently for all messages, use SaveDefaultSendAs.
+ 
+             message_effect_id (`int`, optional):
+                 Unique identifier of the message effect to be added to the message; for private chats only.
+
+            invert_media (`bool`, optional):
+                Change the position of Media in link preview to top of message.
+
         Returns
             The `Message <telethon.tl.custom.message.Message>` (or messages)
             containing the sent file, or messages if a list of them was passed.
@@ -385,6 +401,7 @@ class UploadMethods:
                     vcard=''
                 ))
         """
+
         # TODO Properly implement allow_cache to reuse the sha256 of the file
         # i.e. `None` was used
         if not file:
@@ -454,6 +471,9 @@ class UploadMethods:
                     clear_draft=clear_draft,
                     force_document=force_document,
                     background=background,
+                    send_as=send_as,
+                    message_effect_id=message_effect_id,
+                    invert_media=invert_media,
                 )
                 file = file[10:]
                 captions = captions[10:]
@@ -524,6 +544,9 @@ class UploadMethods:
             schedule_date=schedule,
             clear_draft=clear_draft,
             background=background,
+            send_as=await self.get_input_entity(send_as) if send_as else None,
+            effect=message_effect_id,
+            invert_media=invert_media,
         )
         return self._get_response_message(request, await self(request), entity)
 
@@ -544,6 +567,9 @@ class UploadMethods:
         background=None,
         ttl=None,
         top_msg_id=None,
+        send_as=None,
+        message_effect_id=None,
+        invert_media=None,
     ):
         """Specialized version of .send_file for albums"""
         # We don't care if the user wants to avoid cache, we will use it
@@ -640,6 +666,9 @@ class UploadMethods:
             schedule_date=schedule,
             clear_draft=clear_draft,
             background=background,
+            send_as=await self.get_input_entity(send_as) if send_as else None,
+            effect=message_effect_id,
+            invert_media=invert_media,
         )
         result = await self(request)
 
