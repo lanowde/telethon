@@ -147,6 +147,7 @@ class UploadMethods:
         comment_to: "typing.Union[int, types.Message]" = None,
         top_msg_id: int = None,
         ttl: int = None,
+        noforwards: bool = None,
         nosound_video: bool = None,
         send_as: typing.Optional["hints.EntityLike"] = None,
         message_effect_id: typing.Optional[int] = None,
@@ -471,6 +472,7 @@ class UploadMethods:
                     clear_draft=clear_draft,
                     force_document=force_document,
                     background=background,
+                    noforwards=noforwards,
                     send_as=send_as,
                     message_effect_id=message_effect_id,
                     invert_media=invert_media,
@@ -479,31 +481,6 @@ class UploadMethods:
                 captions = captions[10:]
                 formatting_entities = formatting_entities[10:]
                 sent_count += 10
-
-            for doc, cap in zip(file, captions):
-                result.append(
-                    await self.send_file(
-                        entity,
-                        doc,
-                        allow_cache=allow_cache,
-                        caption=cap,
-                        force_document=force_document,
-                        progress_callback=progress_callback,
-                        reply_to=reply_to,
-                        top_msg_id=top_msg_id,
-                        attributes=attributes,
-                        thumb=thumb,
-                        voice_note=voice_note,
-                        video_note=video_note,
-                        buttons=buttons,
-                        silent=silent,
-                        supports_streaming=supports_streaming,
-                        schedule=schedule,
-                        clear_draft=clear_draft,
-                        background=background,
-                        **kwargs,
-                    )
-                )
 
             return result
 
@@ -544,6 +521,7 @@ class UploadMethods:
             schedule_date=schedule,
             clear_draft=clear_draft,
             background=background,
+            noforwards=noforwards,
             send_as=await self.get_input_entity(send_as) if send_as else None,
             effect=message_effect_id,
             invert_media=invert_media,
@@ -565,6 +543,7 @@ class UploadMethods:
         clear_draft=None,
         force_document=False,
         background=None,
+        noforwards=None,
         ttl=None,
         top_msg_id=None,
         send_as=None,
@@ -666,6 +645,7 @@ class UploadMethods:
             schedule_date=schedule,
             clear_draft=clear_draft,
             background=background,
+            noforwards=noforwards,
             send_as=await self.get_input_entity(send_as) if send_as else None,
             effect=message_effect_id,
             invert_media=invert_media,
