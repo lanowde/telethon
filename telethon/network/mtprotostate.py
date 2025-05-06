@@ -154,9 +154,7 @@ class MTProtoState:
         """
         Inverse of `encrypt_message_data` for incoming server messages.
         """
-        now = (
-            time.time() + self.time_offset
-        )  # get the time as early as possible, even if other checks make it go unused
+        now = time.time()  # get the time as early as possible, even if other checks make it go unused
 
         if len(body) < 8:
             raise InvalidBufferError(body)
@@ -213,12 +211,19 @@ class MTProtoState:
         # messages to change server_salt and notifications about invalid time on the client."
         #
         # This means we skip the time check for certain types of messages.
-        if obj.CONSTRUCTOR_ID not in (
+        if obj.CONSTRUCTOR_ID in (
             BadServerSalt.CONSTRUCTOR_ID,
             BadMsgNotification.CONSTRUCTOR_ID,
         ):
+            if not self._highest_remote_id and not self.time_offset:
+                 # If the first message we receive is a bad notification, take this opportunity
+                 # to adjust the time offset. Assume it will remain stable afterwards. Updating
+                 # the offset unconditionally would make the next checks pointless.
+                 self.update_time_offset(remote_msg_id)
+
+        else:
             remote_msg_time = remote_msg_id >> 32
-            time_delta = now - remote_msg_time
+            time_delta = (now + self.time_offset) - remote_msg_time
 
             if time_delta > MSG_TOO_OLD_DELTA:
                 self._log.warning(

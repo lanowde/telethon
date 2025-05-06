@@ -53,6 +53,7 @@ class Button:
             button,
             (
                 types.KeyboardButtonBuy,
+                types.KeyboardButtonCopy,
                 types.KeyboardButtonCallback,
                 types.KeyboardButtonGame,
                 types.KeyboardButtonSwitchInline,
