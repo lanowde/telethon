@@ -154,7 +154,9 @@ class MTProtoState:
         """
         Inverse of `encrypt_message_data` for incoming server messages.
         """
-        now = time.time()  # get the time as early as possible, even if other checks make it go unused
+        now = (
+            time.time()
+        )  # get the time as early as possible, even if other checks make it go unused
 
         if len(body) < 8:
             raise InvalidBufferError(body)
@@ -216,10 +218,10 @@ class MTProtoState:
             BadMsgNotification.CONSTRUCTOR_ID,
         ):
             if not self._highest_remote_id and not self.time_offset:
-                 # If the first message we receive is a bad notification, take this opportunity
-                 # to adjust the time offset. Assume it will remain stable afterwards. Updating
-                 # the offset unconditionally would make the next checks pointless.
-                 self.update_time_offset(remote_msg_id)
+                # If the first message we receive is a bad notification, take this opportunity
+                # to adjust the time offset. Assume it will remain stable afterwards. Updating
+                # the offset unconditionally would make the next checks pointless.
+                self.update_time_offset(remote_msg_id)
 
         else:
             remote_msg_time = remote_msg_id >> 32

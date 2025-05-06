@@ -67,7 +67,9 @@ class MessageButton:
         if isinstance(self.button, types.KeyboardButtonUrl):
             return self.button.url
 
-    async def click(self, share_phone=None, share_geo=None, *, password=None, open_url=None):
+    async def click(
+        self, share_phone=None, share_geo=None, *, password=None, open_url=None
+    ):
         """
         Emulates the behaviour of clicking this button.
 

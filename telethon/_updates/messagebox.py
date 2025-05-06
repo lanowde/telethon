@@ -570,14 +570,14 @@ class MessageBox:
         real_result.extend(u for u in result if not u._self_outgoing)
 
         if result and not self.possible_gaps:
-             # > If the updates were applied, local *Updates* state must be updated
-             # > with `seq` (unless it's 0) and `date` from the constructor.
-             if __debug__:
-                 self._trace('Updating seq as all updates were applied')
-             if date != epoch():
-                 self.date = date
-             if seq != NO_SEQ:
-                 self.seq = seq
+            # > If the updates were applied, local *Updates* state must be updated
+            # > with `seq` (unless it's 0) and `date` from the constructor.
+            if __debug__:
+                self._trace("Updating seq as all updates were applied")
+            if date != epoch():
+                self.date = date
+            if seq != NO_SEQ:
+                self.seq = seq
 
         return (users, chats)
 
