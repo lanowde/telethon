@@ -938,6 +938,7 @@ class Message(ChatGetter, SenderGetter, TLObject):
         share_phone=None,
         share_geo=None,
         password=None,
+        open_url=None,
     ):
         """
         Calls :tl:`SendVote` with the specified poll option
@@ -1023,6 +1024,12 @@ class Message(ChatGetter, SenderGetter, TLObject):
                 you need to provide your account's password. Otherwise,
                 `teltehon.errors.PasswordHashInvalidError` is raised.
 
+            open_url (`bool`):
+                 When clicking on an inline keyboard URL button :tl:`KeyboardButtonUrl`
+                 By default it will return URL of the button, passing ``click(open_url=True)``
+                 will lunch the default browser with given URL of the button and 
+                 return `True` on success.
+
             Example:
 
                 .. code-block:: python
@@ -1052,7 +1059,7 @@ class Message(ChatGetter, SenderGetter, TLObject):
 
             but = types.KeyboardButtonCallback("", data)
             return await MessageButton(self._client, but, chat, None, self.id).click(
-                share_phone=share_phone, share_geo=share_geo, password=password
+                share_phone=share_phone, share_geo=share_geo, password=password, open_url=open_url,
             )
 
         if sum(int(x is not None) for x in (i, text, filter)) >= 2:
@@ -1125,7 +1132,7 @@ class Message(ChatGetter, SenderGetter, TLObject):
         button = find_button()
         if button:
             return await button.click(
-                share_phone=share_phone, share_geo=share_geo, password=password
+                share_phone=share_phone, share_geo=share_geo, password=password, open_url=open_url,
             )
 
     async def mark_read(self):
