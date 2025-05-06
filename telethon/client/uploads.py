@@ -341,14 +341,14 @@ class UploadMethods:
                 cannot be sent in albums.
 
             send_as (`entity`):
-                 Unique identifier (int) or username (str) of the chat or channel to send the message as.
-                 You can use this to send the message on behalf of a chat or channel where you have appropriate permissions.
-                 Use the GetSendAs to return the list of message sender identifiers, which can be used to send messages in the chat,
-                 This setting applies to the current message and will remain effective for future messages unless explicitly changed.
-                 To set this behavior permanently for all messages, use SaveDefaultSendAs.
+                Unique identifier (int) or username (str) of the chat or channel to send the message as.
+                You can use this to send the message on behalf of a chat or channel where you have appropriate permissions.
+                Use the GetSendAs to return the list of message sender identifiers, which can be used to send messages in the chat,
+                This setting applies to the current message and will remain effective for future messages unless explicitly changed.
+                To set this behavior permanently for all messages, use SaveDefaultSendAs.
 
-             message_effect_id (`int`, optional):
-                 Unique identifier of the message effect to be added to the message; for private chats only.
+            message_effect_id (`int`, optional):
+                Unique identifier of the message effect to be added to the message; for private chats only.
 
             invert_media (`bool`, optional):
                 Change the position of Media in link preview to top of message.
@@ -506,7 +506,7 @@ class UploadMethods:
 
         # e.g. invalid cast from :tl:`MessageMediaWebPage`
         if not media:
-            raise TypeError("Cannot use {!r} as file".format(file))
+            raise TypeError(f"Cannot use {file!r} as file")
 
         markup = self.build_reply_markup(buttons)
         reply_to = None if reply_to is None else types.InputReplyToMessage(reply_to)
