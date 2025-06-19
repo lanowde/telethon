@@ -29,6 +29,9 @@ from ..tl.types import (
 )
 
 
+CUSTOM_EMOJIS = True  # Can be disabled externally
+
+
 # Helpers from markdown.py
 def _add_surrogate(text):
     return "".join(
@@ -59,15 +62,15 @@ class HTMLToTelegramParser(HTMLParser):
         attrs = dict(attrs)
         EntityType = None
         args = {}
-        if tag in {"strong", "b"}:
+        if tag in ("strong", "b"):
             EntityType = MessageEntityBold
-        elif tag in {"em", "i"}:
+        elif tag in ("em", "i"):
             EntityType = MessageEntityItalic
-        elif tag in {"tg-spoiler"}:
+        elif tag == "tg-spoiler":
             EntityType = MessageEntitySpoiler
         elif tag == "u":
             EntityType = MessageEntityUnderline
-        elif tag in {"del", "s"}:
+        elif tag in ("del", "s"):
             EntityType = MessageEntityStrike
         elif tag == "blockquote":
             EntityType = MessageEntityBlockquote
@@ -106,9 +109,15 @@ class HTMLToTelegramParser(HTMLParser):
                     url = None
             self._open_tags_meta.popleft()
             self._open_tags_meta.appendleft(url)
-        elif tag == "emoji" and CUSTOM_EMOJIS:
+        elif tag in ("emoji", "tg-emoji") and CUSTOM_EMOJIS:
+            try:
+                doc_id = attrs.get("document_id")
+                emoji_id = int(attrs.get("emoji-id", doc_id))
+            except (KeyError, ValueError):
+                return
+
             EntityType = MessageEntityCustomEmoji
-            args["document_id"] = int(attrs["document_id"])
+            args["document_id"] = emoji_id
 
         if EntityType and tag not in self._building_entities:
             self._building_entities[tag] = EntityType(
@@ -157,8 +166,6 @@ def parse(html: str) -> Tuple[str, List[TypeMessageEntity]]:
     text = helpers.strip_text(parser.text, parser.entities)
     return _del_surrogate(text), parser.entities
 
-
-CUSTOM_EMOJIS = True  # Can be disabled externally
 
 # Based on https://github.com/aiogram/aiogram/blob/c43ff9b6f9dd62cd2d84272e5c460b904b4c3276/aiogram/utils/text_decorations.py
 
@@ -342,7 +349,7 @@ class HtmlDecoration(TextDecoration):
         return escape(value, quote=False)
 
     def custom_emoji(self, value: str, document_id: str) -> str:
-        return f"<emoji document_id={document_id}>{value}</emoji>"
+        return f"<tg-emoji emoji-id={document_id}>{value}</tg-emoji>"
 
 
 html_decoration = HtmlDecoration()

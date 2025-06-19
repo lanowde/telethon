@@ -38,11 +38,15 @@ class Button:
     the 129.
     """
 
-    def __init__(self, button, *, resize, single_use, selective):
+    def __init__(
+        self, button, *, resize, single_use, selective, persistent, placeholder
+    ):
         self.button = button
         self.resize = resize
         self.single_use = single_use
         self.selective = selective
+        self.persistent = persistent
+        self.placeholder = placeholder
 
     @staticmethod
     def _is_inline(button):
@@ -177,6 +181,9 @@ class Button:
         Creates a new keyboard button with the given text.
 
         Args:
+            text (`str`):
+                The title of the button.
+
             resize (`bool`):
                 If present, the entire keyboard will be reconfigured to
                 be resized and be smaller if there are not many buttons.
@@ -191,6 +198,15 @@ class Button:
                 users. It will target users that are @mentioned in the text
                 of the message or to the sender of the message you reply to.
 
+            persistent (`bool`):
+                If present, always show the keyboard when the regular keyboard
+                is hidden. Defaults to false, in which case the custom keyboard
+                can be hidden and revealed via the keyboard icon.
+
+            placeholder (`str`):
+                The placeholder to be shown in the input field when the keyboard is active;
+                1-64 characters
+
         When the user clicks this button, a text message with the same text
         as the button will be sent, and can be handled with `events.NewMessage
         <telethon.events.newmessage.NewMessage>`. You cannot distinguish
@@ -202,14 +218,25 @@ class Button:
             resize=resize,
             single_use=single_use,
             selective=selective,
+            persistent=persistent,
+            placeholder=placeholder,
         )
 
     @classmethod
-    def request_location(cls, text, *, resize=None, single_use=None, selective=None):
+    def request_location(
+        cls,
+        text,
+        *,
+        resize=None,
+        single_use=None,
+        selective=None,
+        persistent=None,
+        placeholder=None,
+    ):
         """
         Creates a new keyboard button to request the user's location on click.
 
-        ``resize``, ``single_use`` and ``selective`` are documented in `text`.
+        ``resize``, ``single_use``, ``selective``, ``persistent`` and ``placeholder`` are documented in `text`.
 
         When the user clicks this button, a confirmation box will be shown
         to the user asking whether they want to share their location with the
@@ -220,14 +247,25 @@ class Button:
             resize=resize,
             single_use=single_use,
             selective=selective,
+            persistent=persistent,
+            placeholder=placeholder,
         )
 
     @classmethod
-    def request_phone(cls, text, *, resize=None, single_use=None, selective=None):
+    def request_phone(
+        cls,
+        text,
+        *,
+        resize=None,
+        single_use=None,
+        selective=None,
+        persistent=None,
+        placeholder=None,
+    ):
         """
         Creates a new keyboard button to request the user's phone on click.
 
-        ``resize``, ``single_use`` and ``selective`` are documented in `text`.
+        ``resize``, ``single_use``, ``selective``, ``persistent`` and ``placeholder`` are documented in `text`.
 
         When the user clicks this button, a confirmation box will be shown
         to the user asking whether they want to share their phone with the
@@ -238,11 +276,21 @@ class Button:
             resize=resize,
             single_use=single_use,
             selective=selective,
+            persistent=persistent,
+            placeholder=placeholder,
         )
 
     @classmethod
     def request_poll(
-        cls, text, *, force_quiz=False, resize=None, single_use=None, selective=None
+        cls,
+        text,
+        *,
+        force_quiz=False,
+        resize=None,
+        single_use=None,
+        selective=None,
+        persistent=None,
+        placeholder=None,
     ):
         """
         Creates a new keyboard button to request the user to create a poll.
@@ -255,7 +303,7 @@ class Button:
         the votes cannot be retracted. Otherwise, users can vote and retract
         the vote, and the pol might be multiple choice.
 
-        ``resize``, ``single_use`` and ``selective`` are documented in `text`.
+        ``resize``, ``single_use``, ``selective``, ``persistent`` and ``placeholder`` are documented in `text`.
 
         When the user clicks this button, a screen letting the user create a
         poll will be shown, and if they do create one, the poll will be sent.
@@ -265,6 +313,8 @@ class Button:
             resize=resize,
             single_use=single_use,
             selective=selective,
+            persistent=persistent,
+            placeholder=placeholder,
         )
 
     @staticmethod
@@ -284,15 +334,7 @@ class Button:
         Forces a reply to the message with this markup. If used,
         no other button should be present or it will be ignored.
 
-        ``single_use`` and ``selective`` are as documented in `text`.
-
-        Args:
-            placeholder (str):
-                text to show the user at typing place of message.
-
-                If the placeholder is too long, Telegram applications will
-                crop the text (for example, to 64 characters and adding an
-                ellipsis (…) character as the 65th).
+        ``single_use``, ``selective`` and ``placeholder`` are as documented in `text`.
         """
         return types.ReplyKeyboardForceReply(
             single_use=single_use, selective=selective, placeholder=placeholder

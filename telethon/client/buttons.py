@@ -7,7 +7,7 @@ from ..tl import types, custom
 class ButtonMethods:
     @staticmethod
     def build_reply_markup(
-        buttons: "typing.Optional[hints.MarkupLike]", inline_only: bool = False
+        buttons: "typing.Optional[hints.MarkupLike]",
     ) -> "typing.Optional[types.TypeReplyMarkup]":
         """
         Builds a :tl:`ReplyInlineMarkup` or :tl:`ReplyKeyboardMarkup` for
@@ -25,9 +25,6 @@ class ButtonMethods:
             buttons (`hints.MarkupLike`):
                 The button, list of buttons, array of buttons or markup
                 to convert into a markup.
-
-            inline_only (`bool`, optional):
-                Whether the buttons **must** be inline buttons only or not.
 
         Example
             .. code-block:: python
@@ -57,6 +54,8 @@ class ButtonMethods:
         resize = None
         single_use = None
         selective = None
+        persistent = None
+        placeholder = None
 
         rows = []
         for row in buttons:
@@ -69,6 +68,10 @@ class ButtonMethods:
                         single_use = button.single_use
                     if button.selective is not None:
                         selective = button.selective
+                    if button.persistent is not None:
+                        persistent = button.persistent
+                    if button.placeholder is not None:
+                        placeholder = button.placeholder
 
                     button = button.button
                 elif isinstance(button, custom.MessageButton):
@@ -85,13 +88,16 @@ class ButtonMethods:
             if current:
                 rows.append(types.KeyboardButtonRow(current))
 
-        if inline_only and is_normal:
-            raise ValueError("You cannot use non-inline buttons here")
-        elif is_inline == is_normal and is_normal:
+        if is_inline and is_normal:
             raise ValueError("You cannot mix inline with normal buttons")
         elif is_inline:
             return types.ReplyInlineMarkup(rows)
-        # elif is_normal:
+
         return types.ReplyKeyboardMarkup(
-            rows, resize=resize, single_use=single_use, selective=selective
+            rows,
+            resize=resize,
+            single_use=single_use,
+            selective=selective,
+            persistent=persistent,
+            placeholder=placeholder,
         )

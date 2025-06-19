@@ -98,7 +98,7 @@ class Message(ChatGetter, SenderGetter, TLObject):
             The ID of the bot used to send this message
             through its inline mode (e.g. "via @like").
 
-        reply_to (:tl:`MessageReplyHeader`):
+        reply_to (:tl:`MessageReplyHeader` | :tl:`MessageReplyStoryHeader`):
             The original reply header if this message is replying to another.
 
         date (`datetime`):
@@ -431,7 +431,11 @@ class Message(ChatGetter, SenderGetter, TLObject):
     @property
     def is_reply(self):
         """
-        `True` if the message is a reply to some other message.
+        `True` if the message is a reply to some other message or story.
+
+        Remember that if the replied-to is a message,
+        you can access the ID of the message this one is
+        replying to through `reply_to.reply_to_msg_id`,
 
         Remember that you can access the ID of the message
         this one is replying to through `reply_to.reply_to_msg_id`,
@@ -729,7 +733,11 @@ class Message(ChatGetter, SenderGetter, TLObject):
         Returns the message ID this message is replying to, if any.
         This is equivalent to accessing ``.reply_to.reply_to_msg_id``.
         """
-        return self.reply_to.reply_to_msg_id if self.reply_to else None
+        return (
+            self.reply_to.reply_to_msg_id
+            if isinstance(self.reply_to, types.MessageReplyHeader)
+            else None
+        )
 
     @property
     def to_id(self):
@@ -795,7 +803,7 @@ class Message(ChatGetter, SenderGetter, TLObject):
         The result will be cached after its first use.
         """
         if self._reply_message is None and self._client:
-            if not self.reply_to:
+            if not isinstance(self.reply_to, types.MessageReplyHeader):
                 return None
 
             # Bots cannot access other bots' messages by their ID.
