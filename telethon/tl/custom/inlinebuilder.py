@@ -467,7 +467,7 @@ class InlineBuilder:
                 )
             )
 
-        markup = self._client.build_reply_markup(buttons, inline_only=True)
+        markup = self._client.build_reply_markup(buttons)
         if text is not None:
             text, msg_entities = await self._client._parse_message_text(
                 text, parse_mode
