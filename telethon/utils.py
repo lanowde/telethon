@@ -453,9 +453,11 @@ def get_input_media(
         if media.SUBCLASS_OF_ID == 0xFAF846F4:  # crc32(b'InputMedia')
             return media
         elif media.SUBCLASS_OF_ID == 0x846363E0:  # crc32(b'InputPhoto')
-            return types.InputMediaPhoto(media, ttl_seconds=ttl)
+            return types.InputMediaPhoto(media, ttl_seconds=ttl, spoiler=media.spoiler)
         elif media.SUBCLASS_OF_ID == 0xF33FDB68:  # crc32(b'InputDocument')
-            return types.InputMediaDocument(media, ttl_seconds=ttl)
+            return types.InputMediaDocument(
+                media, ttl_seconds=ttl, spoiler=media.spoiler
+            )
     except AttributeError:
         _raise_cast_fail(media, "InputMedia")
 

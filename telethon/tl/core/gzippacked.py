@@ -1,5 +1,9 @@
-import gzip
 import struct
+
+try:
+    from isal import igzip as gzip
+except ImportError:
+    import gzip
 
 from .. import TLObject
 
