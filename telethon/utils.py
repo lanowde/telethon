@@ -20,7 +20,7 @@ from mimetypes import guess_extension
 from types import GeneratorType
 import typing
 
-from .extensions import markdown, html
+from .extensions import markdown, markdown2, html
 from .helpers import add_surrogate, del_surrogate, strip_text
 from .tl import types
 
@@ -822,7 +822,7 @@ def sanitize_parse_mode(mode):
         return mode
     elif isinstance(mode, str):
         try:
-            return {"md": markdown, "markdown": markdown, "htm": html, "html": html}[
+            return {"md": markdown, "markdown": markdown, "md2": markdown2, "htm": html, "html": html}[
                 mode.lower()
             ]
         except KeyError:
