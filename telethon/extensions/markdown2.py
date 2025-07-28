@@ -18,9 +18,9 @@
 
 # copied from pyrogram: https://github.com/KurimuzonAkuma/pyrogram
 
-import html
 import re
 from struct import unpack
+from html import escape, unescape, parser as _parser
 from typing import List, Optional, Tuple, Union
 import warnings
 
@@ -95,7 +95,7 @@ class Vars:
 # --------------------------- HTML -----------------------------------------------
 
 
-class HTMLParserHelper(html.parser.HTMLParser):
+class HTMLParserHelper(_parser.HTMLParser):
     __slots__ = ("text", "entities", "tag_entities")
 
     def __init__(self):
@@ -149,7 +149,7 @@ class HTMLParserHelper(html.parser.HTMLParser):
         self.tag_entities[tag].append(entity(offset=len(self.text), length=0, **extra))
 
     def handle_data(self, data):
-        data = html.unescape(data)
+        data = unescape(data)
 
         for entities in self.tag_entities.values():
             for entity in entities:
@@ -292,7 +292,7 @@ class HTMLParser:
                 text = (
                     text[:offset]
                     + entity
-                    + html.escape(text[offset:last_offset])
+                    + escape(text[offset:last_offset])
                     + text[last_offset:]
                 )
                 last_offset = offset
@@ -351,7 +351,7 @@ class MarkdownV2:
                     ) :
                 ]
                 parsed_line = (
-                    html.escape(delim_stripped_line) if strict else delim_stripped_line
+                    escape(delim_stripped_line) if strict else delim_stripped_line
                 )
 
                 to_quote_list.append((index, parsed_line))
@@ -373,7 +373,7 @@ class MarkdownV2:
                 delim_stripped_line = line[: -len(Vars.BLOCKQUOTE_EXPANDABLE_END_DELIM)]
 
                 parsed_line = (
-                    html.escape(delim_stripped_line) if strict else delim_stripped_line
+                    escape(delim_stripped_line) if strict else delim_stripped_line
                 )
 
                 to_quote_list.append((index, parsed_line))
@@ -388,7 +388,7 @@ class MarkdownV2:
                     len(Vars.BLOCKQUOTE_DELIM)
                     + (1 if line.startswith(f"{Vars.BLOCKQUOTE_DELIM} ") else 0) :
                 ]
-                parsed_line = html.escape(parsed_line) if strict else parsed_line
+                parsed_line = escape(parsed_line) if strict else parsed_line
                 to_quote_list.append((index, parsed_line))
                 html_escaped_list.append(index)
 
@@ -403,7 +403,7 @@ class MarkdownV2:
                     + (1 if line.startswith(f"{Vars.BLOCKQUOTE_DELIM} ") else 0) :
                 ]
                 parsed_line = (
-                    html.escape(delim_stripped_line) if strict else delim_stripped_line
+                    escape(delim_stripped_line) if strict else delim_stripped_line
                 )
 
                 to_quote_list.append((index, parsed_line))
@@ -417,7 +417,7 @@ class MarkdownV2:
         if strict:
             for idx, line in enumerate(text_lines):
                 if idx not in html_escaped_list:
-                    text_lines[idx] = html.escape(line)
+                    text_lines[idx] = escape(line)
 
         return "\n".join(
             [valid_line for valid_line in text_lines if valid_line is not None]
