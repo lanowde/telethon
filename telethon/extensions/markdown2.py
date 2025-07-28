@@ -27,19 +27,6 @@ import warnings
 from telethon.tl import types
 
 
-# --------------------------------------------------------------------------
-
-
-parse = MarkdownV2.parse
-
-from .markdown import unparse as OldUnparse
-
-unparse = OldUnparse  # need to test new unparse func
-
-
-# --------------------------------------------------------------------------
-
-
 class Vars:
     BOLD_DELIM = "**"
     ITALIC_DELIM = "__"
@@ -585,3 +572,13 @@ class MarkdownV2:
             text = text[:offset] + entity + text[offset:]
 
         return Vars.remove_surrogates(text)
+
+
+# --------------------------------------------------------------------------
+
+
+parse = MarkdownV2.parse
+
+from .markdown import unparse as OldUnparse
+
+unparse = OldUnparse  # need to test new unparse func
