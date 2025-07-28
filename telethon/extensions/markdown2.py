@@ -49,7 +49,7 @@ class Vars:
     CODE_DELIM = "`"
     PRE_DELIM = "```"
 
-   # blockquote is buggy in markdown, however html works: <blockquote expandable>
+    # blockquote is buggy in markdown, however html works: <blockquote expandable>
     BLOCKQUOTE_DELIM = ">>"
     BLOCKQUOTE_EXPANDABLE_DELIM = "^^"
     BLOCKQUOTE_EXPANDABLE_END_DELIM = "!^^"

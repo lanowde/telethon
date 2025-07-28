@@ -822,9 +822,13 @@ def sanitize_parse_mode(mode):
         return mode
     elif isinstance(mode, str):
         try:
-            return {"md": markdown, "markdown": markdown, "md2": markdown2, "htm": html, "html": html}[
-                mode.lower()
-            ]
+            return {
+                "md": markdown,
+                "markdown": markdown,
+                "md2": markdown2,
+                "htm": html,
+                "html": html,
+            }[mode.lower()]
         except KeyError:
             raise ValueError("Unknown parse mode {}".format(mode))
     else:
