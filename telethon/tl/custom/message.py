@@ -222,6 +222,7 @@ class Message(ChatGetter, SenderGetter, TLObject):
         action: Optional[types.TypeMessageAction] = None,
         reactions_are_possible: Optional[bool] = None,
         paid_suggested_post_stars: Optional[bool] = None,
+        paid_suggested_post_ton: Optional[bool] = None,
     ):
         # Copied from Message.__init__ body
         self.id = id
@@ -269,6 +270,7 @@ class Message(ChatGetter, SenderGetter, TLObject):
         self.action = action
         self.reactions_are_possible = reactions_are_possible
         self.paid_suggested_post_stars = paid_suggested_post_stars
+        self.paid_suggested_post_ton = paid_suggested_post_ton
 
         # Convenient storage for custom functions
         # TODO This is becoming a bit of bloat
