@@ -102,7 +102,7 @@ class UserMethods:
                         return results
                 else:
                     result = await future
-                   await utils.maybe_async(self.session.process_entities(result))
+                    await utils.maybe_async(self.session.process_entities(result))
                     return result
             except (
                 errors.ServerError,
@@ -471,7 +471,8 @@ class UserMethods:
 
         # No InputPeer, cached peer, or known string. Fetch from disk cache
         try:
-            return await utils.maybe_async(self.session.get_input_entity(peer))
+            input_entity = await utils.maybe_async(self.session.get_input_entity(peer))
+            return input_entity
         except ValueError:
             pass
 
@@ -617,7 +618,9 @@ class UserMethods:
                     pass
             try:
                 # Nobody with this username, maybe it's an exact name/title
-                input_entity = await utils.maybe_async(oself.session.get_input_entity(string))
+                input_entity = await utils.maybe_async(
+                    self.session.get_input_entity(string)
+                )
                 return await self.get_entity(input_entity)
             except ValueError:
                 pass

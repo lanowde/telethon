@@ -366,7 +366,9 @@ class UpdateMethods:
                     if updates:
                         self._log[__name__].info("Got difference for account updates")
 
-                    _preprocess_updates = await utils.maybe_async(self._preprocess_updates(updates, users, chats))
+                    _preprocess_updates = await utils.maybe_async(
+                        self._preprocess_updates(updates, users, chats)
+                    )
                     updates_to_dispatch.extend(_preprocess_updates)
                     continue
 
@@ -478,7 +480,9 @@ class UpdateMethods:
                             get_diff.channel.channel_id,
                         )
 
-                    _preprocess_updates = await utils.maybe_async(self._preprocess_updates(updates, users, chats))
+                    _preprocess_updates = await utils.maybe_async(
+                        self._preprocess_updates(updates, users, chats)
+                    )
                     updates_to_dispatch.extend(_preprocess_updates)
                     continue
 
@@ -504,8 +508,11 @@ class UpdateMethods:
                 except GapError:
                     continue  # get(_channel)_difference will start returning requests
 
-                _preprocess_updates = await utils.maybe_async(self._preprocess_updates(updates, users, chats))
+                _preprocess_updates = await utils.maybe_async(
+                    self._preprocess_updates(processed, users, chats)
+                )
                 updates_to_dispatch.extend(_preprocess_updates)
+
         except asyncio.CancelledError:
             pass
         except Exception as e:
@@ -517,7 +524,11 @@ class UpdateMethods:
 
     async def _preprocess_updates(self, updates, users, chats):
         self._mb_entity_cache.extend(users, chats)
-        await utils.maybe_async(self.session.process_entities(types.contacts.ResolvedPeer(None, users, chats)))
+        await utils.maybe_async(
+            self.session.process_entities(
+                types.contacts.ResolvedPeer(None, users, chats)
+            )
+        )
         entities = {utils.get_peer_id(x): x for x in itertools.chain(users, chats)}
         for u in updates:
             u._entities = entities

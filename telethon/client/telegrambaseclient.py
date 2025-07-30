@@ -1,7 +1,7 @@
 import abc
-import inspect
 import re
 import asyncio
+import inspect
 import collections
 import logging
 import platform
@@ -10,7 +10,7 @@ import typing
 import datetime
 import pathlib
 
-from .. import utils, version, helpers, __name__ as __base_name__
+from .. import version, utils, helpers, __name__ as __base_name__
 from ..crypto import rsa
 from ..extensions import markdown
 from ..network import MTProtoSender, Connection, ConnectionTcpFull, TcpMTProxy
@@ -555,13 +555,18 @@ class TelegramBaseClient(abc.ABC):
             )
 
         # ':' in session.server_address is True if it's an IPv6 address
-        if not session.server_address or (":" in session.server_address) != use_ipv6:
-            await utils.maybe_async(session.set_dc(
-                DEFAULT_DC_ID,
-                DEFAULT_IPV6_IP if self._use_ipv6 else DEFAULT_IPV4_IP,
-                DEFAULT_PORT,
-            ))
-            await utils.maybe_async(session.save())
+        if (
+            not self.session.server_address
+            or (":" in self.session.server_address) != self._use_ipv6
+        ):
+            await utils.maybe_async(
+                self.session.set_dc(
+                    DEFAULT_DC_ID,
+                    DEFAULT_IPV6_IP if self._use_ipv6 else DEFAULT_IPV4_IP,
+                    DEFAULT_PORT,
+                )
+            )
+            await utils.maybe_async(self.session.save())
 
         if not await self._sender.connect(
             self._connection(
@@ -612,7 +617,9 @@ class TelegramBaseClient(abc.ABC):
             self._message_box.load(ss, cs)
             for state in cs:
                 try:
-                    entity = await utils.maybe_async(self.session.get_input_entity(state.channel_id))
+                    entity = await utils.maybe_async(
+                        self.session.get_input_entity(state.channel_id)
+                    )
                 except ValueError:
                     self._log[__name__].warning(
                         "No access_hash in cache for channel %s, will not catch up",
@@ -733,19 +740,27 @@ class TelegramBaseClient(abc.ABC):
         # Piggy-back on an arbitrary TL type with users and chats so the session can understand to read the entities.
         # It doesn't matter if we put users in the list of chats.
         if self._mb_entity_cache.self_id:
-            await utils.maybe_async(self.session.process_entities(
-                types.contacts.ResolvedPeer(
-                    None, [types.InputPeerUser(0, self._mb_entity_cache.self_id)], []
+            await utils.maybe_async(
+                self.session.process_entities(
+                    types.contacts.ResolvedPeer(
+                        None,
+                        [types.InputPeerUser(0, self._mb_entity_cache.self_id)],
+                        [],
+                    )
                 )
-            ))
+            )
 
         ss, cs = self._message_box.session_state()
-        await utils.maybe_async(self.session.set_update_state(0, types.updates.State(**ss, unread_count=0)))
+        await utils.maybe_async(
+            self.session.set_update_state(0, types.updates.State(**ss, unread_count=0))
+        )
         now = datetime.datetime.now()  # any datetime works; channels don't need it
         for channel_id, pts in cs.items():
-            await utils.maybe_async(self.session.set_update_state(
-                channel_id, types.updates.State(pts, 0, now, 0, unread_count=0)
-            ))
+            await utils.maybe_async(
+                self.session.set_update_state(
+                    channel_id, types.updates.State(pts, 0, now, 0, unread_count=0)
+                )
+            )
 
     async def _disconnect_coro(self: "TelegramClient"):
         if self.session is None:
@@ -777,7 +792,7 @@ class TelegramBaseClient(abc.ABC):
             await asyncio.wait(self._event_handler_tasks)
             self._event_handler_tasks.clear()
 
-        await utils.maybe_async(self._save_states_and_entities())
+        await self._save_states_and_entities()
 
         await utils.maybe_async(self.session.close())
 

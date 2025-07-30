@@ -1744,7 +1744,6 @@ def get_input_story_id(
 async def maybe_async(coro):
     result = coro
     if inspect.isawaitable(result):
-        # warnings.warn("Using async sessions support is an experimental feature")
-        return await result
-
+        # warnings.warn('Using async sessions support is an experimental feature')
+        result = await result
     return result

@@ -76,9 +76,11 @@ class _DirectDownloadIter(RequestIter):
                 config = await self.client(functions.help.GetConfigRequest())
                 for option in config.dc_options:
                     if option.ip_address == self.client.session.server_address:
-                        await utils.maybe_async(self.client.session.set_dc(
-                            option.id, option.ip_address, option.port
-                        ))
+                        await utils.maybe_async(
+                            self.client.session.set_dc(
+                                option.id, option.ip_address, option.port
+                            )
+                        )
                         await utils.maybe_async(self.client.session.save())
                         break
 
