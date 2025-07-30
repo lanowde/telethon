@@ -585,7 +585,7 @@ class AuthMethods:
         self._authorized = False
 
         await self.disconnect()
-        self.session.delete()
+        await utils.maybe_async(self.session.delete())
         self.session = None
         return True
 

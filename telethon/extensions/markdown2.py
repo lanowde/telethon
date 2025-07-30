@@ -194,7 +194,7 @@ class HTMLParser:
         # Remove zero-length entities
         # entities = list(filter(lambda x: x.length > 0, parser.entities))
 
-        ents = sorted(parser.entities, key=lambda e: e.offset) or None
+        ents = sorted(parser.entities, key=lambda e: e.offset)
         return Vars.remove_surrogates(parser.text), ents
 
     @staticmethod

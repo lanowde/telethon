@@ -15,6 +15,7 @@ import os
 import pathlib
 import re
 import struct
+import warnings
 from collections import namedtuple
 from mimetypes import guess_extension
 from types import GeneratorType
@@ -1738,3 +1739,12 @@ def get_input_story_id(
     Get the input story ID from the given parameters.
     """
     return story if isinstance(story, int) else story.id
+
+
+async def maybe_async(coro):
+    result = coro
+    if inspect.isawaitable(result):
+        # warnings.warn("Using async sessions support is an experimental feature")
+        return await result
+
+    return result

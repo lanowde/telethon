@@ -92,7 +92,7 @@ class UserMethods:
                             exceptions.append(e)
                             results.append(None)
                             continue
-                        self.session.process_entities(result)
+                        await utils.maybe_async(self.session.process_entities(result))
                         exceptions.append(None)
                         results.append(result)
                         request_index += 1
@@ -102,7 +102,7 @@ class UserMethods:
                         return results
                 else:
                     result = await future
-                    self.session.process_entities(result)
+                   await utils.maybe_async(self.session.process_entities(result))
                     return result
             except (
                 errors.ServerError,
@@ -471,7 +471,7 @@ class UserMethods:
 
         # No InputPeer, cached peer, or known string. Fetch from disk cache
         try:
-            return self.session.get_input_entity(peer)
+            return await utils.maybe_async(self.session.get_input_entity(peer))
         except ValueError:
             pass
 
@@ -617,7 +617,8 @@ class UserMethods:
                     pass
             try:
                 # Nobody with this username, maybe it's an exact name/title
-                return await self.get_entity(self.session.get_input_entity(string))
+                input_entity = await utils.maybe_async(oself.session.get_input_entity(string))
+                return await self.get_entity(input_entity)
             except ValueError:
                 pass
 
