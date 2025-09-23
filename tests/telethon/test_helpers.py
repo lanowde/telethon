@@ -42,9 +42,9 @@ def test_strip_text():
 
 class TestSyncifyAsyncContext:
     class NoopContextManager:
-        def __init__(self, loop):
+        def __init__(self):
             self.count = 0
-            self.loop = loop
+            self.loop = helpers.get_running_loop()
 
         async def __aenter__(self):
             self.count += 1
@@ -57,8 +57,8 @@ class TestSyncifyAsyncContext:
         __enter__ = helpers._sync_enter
         __exit__ = helpers._sync_exit
 
-    def test_sync_acontext(self, event_loop):
-        contm = self.NoopContextManager(event_loop)
+    def test_sync_acontext(self):
+        contm = self.NoopContextManager()
         assert contm.count == 0
 
         with contm:
@@ -67,8 +67,8 @@ class TestSyncifyAsyncContext:
         assert contm.count == 0
 
     @pytest.mark.asyncio
-    async def test_async_acontext(self, event_loop):
-        contm = self.NoopContextManager(event_loop)
+    async def test_async_acontext(self):
+        contm = self.NoopContextManager()
         assert contm.count == 0
 
         async with contm:
