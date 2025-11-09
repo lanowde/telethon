@@ -102,7 +102,6 @@ class MTProtoSender:
         self._user_connected = False
         self._reconnecting = False
         self.__disconnected = None
-        self._disconnected.set_result(None)
 
         # We need to join the loops upon disconnection
         self._send_loop_handle = None

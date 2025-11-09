@@ -339,7 +339,7 @@ class TelegramBaseClient(abc.ABC):
         # TODO A better fix is obviously avoiding the use of `sock_connect`
         #
         # See https://github.com/LonamiWebs/Telethon/issues/1337 for details.
-        if not callable(getattr(self._loop, "sock_connect", None)):
+        if not callable(getattr(self.loop, "sock_connect", None)):
             raise TypeError(
                 "Event loop of type {} lacks `sock_connect`, which is needed to use proxies.\n\n"
                 "Change the event loop in use to use proxies:\n"

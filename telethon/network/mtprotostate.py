@@ -4,7 +4,7 @@ import time
 from hashlib import sha1, sha256
 from collections import deque
 
-from ..crypto import AES, Authkey
+from ..crypto import AES, AuthKey
 from ..errors import SecurityError, InvalidBufferError
 from ..extensions import BinaryReader
 from ..tl.core import TLMessage
