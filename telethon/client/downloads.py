@@ -1122,11 +1122,18 @@ class DownloadMethods:
             return file
 
         if os.path.isdir(file) or not file:
+            isreserved = getattr(
+                os.path, "isreserved", lambda _: False
+            )  # Python 3.13 and above
             try:
                 name = (
                     None
                     if possible_names is None
-                    else next(x for x in possible_names if x)
+                    else next(
+                        x  # basename to prevent path traversal (#4713)
+                        for x in map(os.path.basename, possible_names)
+                        if x and not isreserved(x)
+                    )
                 )
             except StopIteration:
                 name = None

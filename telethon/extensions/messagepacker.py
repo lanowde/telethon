@@ -63,6 +63,7 @@ class MessagePacker:
                     state.data,
                     isinstance(state.request, TLRequest),
                     after_id=state.after.msg_id if state.after else None,
+                    msg_id=state.msg_id,
                 )
                 batch.append(state)
                 self._log.debug(
