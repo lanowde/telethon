@@ -346,7 +346,7 @@ class TelegramBaseClient(abc.ABC):
                 "# https://github.com/LonamiWebs/Telethon/issues/1337\n"
                 "import asyncio\n"
                 "asyncio.set_event_loop(asyncio.SelectorEventLoop())".format(
-                    self._loop.__class__.__name__
+                    self.loop.__class__.__name__
                 )
             )
 
