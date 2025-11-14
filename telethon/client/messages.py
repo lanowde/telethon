@@ -1013,12 +1013,7 @@ class MessageMethods:
                 invert_media=invert_media,
             )
 
-        try:
-            result = await self(request)
-        except errors.rpcerrorlist.AuthKeyPermEmptyError as e:
-            await self._sender._reconnect(e)
-            result = await self(request)
-
+        result = await self(request)
         if isinstance(result, types.UpdateShortSentMessage):
             message = types.Message(
                 id=result.id,

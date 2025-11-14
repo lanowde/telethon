@@ -10,7 +10,6 @@ from hashlib import sha1
 from ..tl.types import (
     ResPQ,
     PQInnerData,
-    PQInnerDataTemp,
     ServerDHParamsFail,
     ServerDHParamsOk,
     ServerDHInnerData,
@@ -28,18 +27,13 @@ from ..tl.functions import (
     ReqDHParamsRequest,
     SetClientDHParamsRequest,
 )
-from ..tl.functions.auth import BindTempAuthKeyRequest
 
 
-async def do_authentication(
-    sender, tmp_auth_key=False, tmp_auth_key_expires_s=24 * 3600
-):
+async def do_authentication(sender):
     """
     Executes the authentication process with the Telegram servers.
 
     :param sender: a connected `MTProtoPlainSender`.
-    :param tmp_auth_key: whether the flow for a tmp_auth_key should be executed
-    :param tmp_auth_key_expires_s: duration in s until tmp_auth_key expires
     :return: returns a (authorization key, time offset) tuple.
     """
 
@@ -57,32 +51,16 @@ async def do_authentication(
     p, q = Factorization.factorize(pq)
     p, q = rsa.get_byte_array(p), rsa.get_byte_array(q)
     new_nonce = int.from_bytes(os.urandom(32), "little", signed=True)
-
-    if tmp_auth_key:
-        expires_at = int(time.time()) + tmp_auth_key_expires_s
-        pq_inner_data = bytes(
-            PQInnerDataTemp(
-                pq=rsa.get_byte_array(pq),
-                p=p,
-                q=q,
-                nonce=res_pq.nonce,
-                server_nonce=res_pq.server_nonce,
-                new_nonce=new_nonce,
-                expires_in=tmp_auth_key_expires_s,
-            )
+    pq_inner_data = bytes(
+        PQInnerData(
+            pq=rsa.get_byte_array(pq),
+            p=p,
+            q=q,
+            nonce=res_pq.nonce,
+            server_nonce=res_pq.server_nonce,
+            new_nonce=new_nonce,
         )
-
-    else:
-        pq_inner_data = bytes(
-            PQInnerData(
-                pq=rsa.get_byte_array(pq),
-                p=p,
-                q=q,
-                nonce=res_pq.nonce,
-                server_nonce=res_pq.server_nonce,
-                new_nonce=new_nonce,
-            )
-        )
+    )
 
     # sha_digest + data + random_bytes
     cipher_text, target_fingerprint = None, None
@@ -237,36 +215,7 @@ async def do_authentication(
     if not isinstance(dh_gen, DhGenOk):
         raise AssertionError("Step 3.2 answer was %s" % dh_gen)
 
-    if tmp_auth_key:
-        # auth_key is only a tmp_auth_key here!
-        return auth_key, expires_at
-    else:
-        return auth_key, time_offset
-
-
-async def bind_tmp_auth_key(sender, auth_key, tmp_auth_key):
-    """
-    Binds a tmpAuthKey to an authkey.
-
-    :param sender: a connected `MTProtoender`.
-    :param auth_key: auth key to bind to
-    :parm tmp_auth_key: unbound tmp_auth_key
-    :return: None
-    """
-    nonce = int.from_bytes(os.urandom(8), "little", signed=True)
-    timestamp = tmp_auth_key.expires_at
-    encrypted_bind, msg_id = sender._state.get_encrypted_bind(
-        nonce, auth_key, tmp_auth_key, timestamp
-    )
-
-    bind_request = BindTempAuthKeyRequest(
-        perm_auth_key_id=auth_key.key_id,
-        nonce=nonce,
-        expires_at=timestamp,
-        encrypted_message=encrypted_bind,
-    )
-
-    await sender.send(bind_request, msg_id=msg_id)
+    return auth_key, time_offset
 
 
 def get_int(byte_array, signed=True):
