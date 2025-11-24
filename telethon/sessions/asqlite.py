@@ -1,9 +1,14 @@
+"""
+Async SQLite Session!
+"""
+
 import datetime
 import os
 import time
 
 from ..tl import types, TLObject
-from .memory import MemorySession, _SentFileType
+from .abstract import Session
+from .memory import _SentFileType
 from .. import utils
 from ..crypto import AuthKey
 from ..tl.types import (
@@ -28,11 +33,12 @@ except ImportError as e:
     aiosqlite = None
     sqlite3_err = type(e)
 
+
 EXTENSION = ".session"
 CURRENT_VERSION = 8  # database version
 
 
-class AsyncSQLite(MemorySession):
+class AsyncSQLite(Session):
     """This session contains the required information to login into your
     Telegram account. NEVER give the saved session file to anyone, since
     they would gain instant access to all your messages and contacts.
@@ -41,11 +47,39 @@ class AsyncSQLite(MemorySession):
     through an official Telegram client to revoke the authorization.
     """
 
+    __slots__ = (
+        "_dc_id",
+        "_server_address",
+        "_port",
+        "_auth_key",
+        "_tmp_auth_key",
+        "_takeout_id",
+        "_files",
+        "_entities",
+        "_update_states",
+        "conn",
+        "filename",
+        "save_entities",
+        "store_tmp_auth_key_on_disk",
+    )
+
     def __init__(self, filename=None, store_tmp_auth_key_on_disk: bool = False):
         if aiosqlite is None:
             raise sqlite3_err
 
         super().__init__()
+
+        self._dc_id = 0
+        self._server_address = None
+        self._port = None
+        self._auth_key = None
+        self._tmp_auth_key = None
+        self._takeout_id = None
+
+        self._files = {}
+        self._entities = set()
+        self._update_states = {}
+
         self.filename = filename
         self.save_entities = True
         self.store_tmp_auth_key_on_disk = store_tmp_auth_key_on_disk
@@ -87,7 +121,6 @@ class AsyncSQLite(MemorySession):
         else:
             # Tables don't exist, create new ones
             await self._create_table(
-                self.conn,
                 "version (version integer primary key)",
                 """sessions (
                     dc_id integer primary key,
@@ -127,9 +160,7 @@ class AsyncSQLite(MemorySession):
             await self._update_session_table()
 
     async def clone(self, to_instance=None):
-        cloned = super().clone(to_instance)
-        cloned.save_entities = self.save_entities
-        return cloned
+        raise NotImplementedError
 
     async def _upgrade_database(self, old):
         if old == 1:
@@ -140,7 +171,6 @@ class AsyncSQLite(MemorySession):
             # Old cache from old sent_files lasts then a day anyway, drop
             await self.conn.execute("drop table sent_files")
             await self._create_table(
-                self.conn,
                 """sent_files (
                 md5_digest blob,
                 file_size integer,
@@ -153,7 +183,6 @@ class AsyncSQLite(MemorySession):
         if old == 3:
             old += 1
             await self._create_table(
-                self.conn,
                 """update_state (
                 id integer primary key,
                 pts integer,
@@ -179,15 +208,16 @@ class AsyncSQLite(MemorySession):
             old += 1
             await self.conn.execute("alter table sessions add column tmp_auth_key blob")
 
-    @staticmethod
-    async def _create_table(c, *definitions):
+    async def _create_table(self, *definitions):
         for definition in definitions:
-            await c.execute("create table {}".format(definition))
+            await self.conn.execute("create table {}".format(definition))
 
     # Data from sessions should be kept as properties
     # not to fetch the database every time we need it
     async def set_dc(self, dc_id, server_address, port):
-        super().set_dc(dc_id, server_address, port)
+        self._dc_id = dc_id or 0
+        self._server_address = server_address
+        self._port = port
         await self._update_session_table()
 
         # Fetch the auth_key corresponding to this data center
@@ -204,15 +234,39 @@ class AsyncSQLite(MemorySession):
         else:
             self._tmp_auth_key = None
 
-    @MemorySession.auth_key.setter
+    @property
+    def dc_id(self):
+        return self._dc_id
+
+    @property
+    def server_address(self):
+        return self._server_address
+
+    @property
+    def port(self):
+        return self._port
+
+    @property
+    def auth_key(self):
+        return self._auth_key
+
+    @property
+    def tmp_auth_key(self):
+        return self._tmp_auth_key
+
+    @property
+    def takeout_id(self):
+        return self._takeout_id
+
+    @auth_key.setter
     def auth_key(self, value):
         self._auth_key = value
 
-    @MemorySession.tmp_auth_key.setter
+    @tmp_auth_key.setter
     def tmp_auth_key(self, value):
         self._tmp_auth_key = value
 
-    @MemorySession.takeout_id.setter
+    @takeout_id.setter
     def takeout_id(self, value):
         self._takeout_id = value
 
@@ -277,12 +331,6 @@ class AsyncSQLite(MemorySession):
             for row in rows
         )
 
-    async def save(self):
-        """Saves the current session object as session_user_id.session"""
-        # This is a no-op if there are no changes to commit, so there's
-        # no need for us to keep track of an "unsaved changes" variable.
-        await self.conn.commit()
-
     async def _execute(self, stmt, *values):
         """
         Gets a cursor, executes `stmt` and closes the cursor,
@@ -290,6 +338,12 @@ class AsyncSQLite(MemorySession):
         """
         resp = await self.conn.execute(stmt, values)
         return await resp.fetchone()
+
+    async def save(self):
+        """Saves the current session object as session_user_id.session"""
+        # This is a no-op if there are no changes to commit, so there's
+        # no need for us to keep track of an "unsaved changes" variable.
+        await self.conn.commit()
 
     async def close(self):
         """Closes the connection unless we're working in-memory"""
@@ -299,14 +353,7 @@ class AsyncSQLite(MemorySession):
             self.conn = None
 
     async def delete(self):
-        """Deletes the current session file"""
-        if self.filename == ":memory:":
-            return True
-        try:
-            os.remove(self.filename)
-            return True
-        except OSError:
-            return False
+        raise NotImplementedError
 
     @classmethod
     def list_sessions(cls):
@@ -425,6 +472,65 @@ class AsyncSQLite(MemorySession):
                 return InputPeerChannel(entity_id, entity_hash)
         else:
             raise ValueError("Could not find input entity with key ", key)
+
+    @staticmethod
+    def _entity_values_to_row(id, hash, username, phone, name):
+        # While this is a simple implementation it might be overrode by,
+        # other classes so they don't need to implement the plural form
+        # of the method. Don't remove.
+        return id, hash, username, phone, name
+
+    def _entity_to_row(self, e):
+        if not isinstance(e, TLObject):
+            return
+        try:
+            p = utils.get_input_peer(e, allow_self=False)
+            marked_id = utils.get_peer_id(p)
+        except TypeError:
+            # Note: `get_input_peer` already checks for non-zero `access_hash`.
+            #        See issues #354 and #392. It also checks that the entity
+            #        is not `min`, because its `access_hash` cannot be used
+            #        anywhere (since layer 102, there are two access hashes).
+            return
+
+        if isinstance(p, (InputPeerUser, InputPeerChannel)):
+            p_hash = p.access_hash
+        elif isinstance(p, InputPeerChat):
+            p_hash = 0
+        else:
+            return
+
+        username = getattr(e, "username", None) or None
+        if username is not None:
+            username = username.lower()
+        phone = getattr(e, "phone", None)
+        name = utils.get_display_name(e) or None
+        return self._entity_values_to_row(marked_id, p_hash, username, phone, name)
+
+    def _entities_to_rows(self, tlo):
+        if not isinstance(tlo, TLObject) and utils.is_list_like(tlo):
+            # This may be a list of users already for instance
+            entities = tlo
+        else:
+            entities = []
+            if hasattr(tlo, "user"):
+                entities.append(tlo.user)
+            if hasattr(tlo, "chat"):
+                entities.append(tlo.chat)
+            if hasattr(tlo, "chats") and utils.is_list_like(tlo.chats):
+                entities.extend(tlo.chats)
+            if hasattr(tlo, "users") and utils.is_list_like(tlo.users):
+                entities.extend(tlo.users)
+
+        rows = []  # Rows to add (id, hash, username, phone, name)
+        for e in entities:
+            row = self._entity_to_row(e)
+            if row:
+                rows.append(row)
+        return rows
+
+    def process_entities(self, tlo):
+        self._entities |= set(self._entities_to_rows(tlo))
 
     # File processing
 
