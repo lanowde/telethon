@@ -54,7 +54,9 @@ class AsyncSQLite(MemorySession):
             if version < CURRENT_VERSION:
                 await self._upgrade_database(old=version)
                 await self.conn.execute("delete from version")
-                await self.conn.execute("insert into version values (?)", (CURRENT_VERSION,))
+                await self.conn.execute(
+                    "insert into version values (?)", (CURRENT_VERSION,)
+                )
                 await self.save()
 
             # These values will be saved
@@ -74,7 +76,6 @@ class AsyncSQLite(MemorySession):
         else:
             # Tables don't exist, create new ones
             await self._create_table(
-                c,
                 "version (version integer primary key)",
                 """sessions (
                     dc_id integer primary key,
@@ -108,7 +109,9 @@ class AsyncSQLite(MemorySession):
                     seq integer
                 )""",
             )
-            await self.conn.execute("insert into version values (?)", (CURRENT_VERSION,))
+            await self.conn.execute(
+                "insert into version values (?)", (CURRENT_VERSION,)
+            )
             await self._update_session_table()
 
     async def clone(self, to_instance=None):
@@ -149,7 +152,9 @@ class AsyncSQLite(MemorySession):
             )
         if old == 4:
             old += 1
-            await self.conn.execute("alter table sessions add column takeout_id integer")
+            await self.conn.execute(
+                "alter table sessions add column takeout_id integer"
+            )
         if old == 5:
             # Not really any schema upgrade, but potentially all access
             # hashes for User and Channel are wrong, so drop them off.
@@ -240,26 +245,25 @@ class AsyncSQLite(MemorySession):
         )
 
     async def get_update_states(self):
-            resp = await self.conn.execute(
-                "select id, pts, qts, date, seq from update_state"
-            )
-            rows = await resp.fetchall()
-            return (
-                (
-                    row[0],
-                    types.updates.State(
-                        pts=row[1],
-                        qts=row[2],
-                        date=datetime.datetime.fromtimestamp(
-                            row[3], tz=datetime.timezone.utc
-                        ),
-                        seq=row[4],
-                        unread_count=0,
+        resp = await self.conn.execute(
+            "select id, pts, qts, date, seq from update_state"
+        )
+        rows = await resp.fetchall()
+        return (
+            (
+                row[0],
+                types.updates.State(
+                    pts=row[1],
+                    qts=row[2],
+                    date=datetime.datetime.fromtimestamp(
+                        row[3], tz=datetime.timezone.utc
                     ),
-                )
-                for row in rows
+                    seq=row[4],
+                    unread_count=0,
+                ),
             )
-
+            for row in rows
+        )
 
     async def save(self):
         """Saves the current session object as session_user_id.session"""
@@ -319,29 +323,33 @@ class AsyncSQLite(MemorySession):
 
         now_tup = (int(time.time()),)
         rows = [row + now_tup for row in rows]
-        await self.conn.executemany("insert or replace into entities values (?,?,?,?,?,?)", rows)
+        await self.conn.executemany(
+            "insert or replace into entities values (?,?,?,?,?,?)", rows
+        )
 
     async def get_entity_rows_by_phone(self, phone):
-        return await self._execute("select id, hash from entities where phone = ?", phone)
+        return await self._execute(
+            "select id, hash from entities where phone = ?", phone
+        )
 
     async def get_entity_rows_by_username(self, username):
-            resp = await self.conn.execute(
-                "select id, hash, date from entities where username = ?", (username,)
+        resp = await self.conn.execute(
+            "select id, hash, date from entities where username = ?", (username,)
+        )
+        results = await resp.fetchall()
+
+        if not results:
+            return None
+
+        # If there is more than one result for the same username, evict the oldest one
+        if len(results) > 1:
+            results.sort(key=lambda t: t[2] or 0)
+            await self.conn.executemany(
+                "update entities set username = null where id = ?",
+                [(t[0],) for t in results[:-1]],
             )
-            results = await resp.fetchall()
 
-            if not results:
-                return None
-
-            # If there is more than one result for the same username, evict the oldest one
-            if len(results) > 1:
-                results.sort(key=lambda t: t[2] or 0)
-                await self.conn.executemany(
-                    "update entities set username = null where id = ?",
-                    [(t[0],) for t in results[:-1]],
-                )
-
-            return results[-1][0], results[-1][1]
+        return results[-1][0], results[-1][1]
 
     async def get_entity_rows_by_name(self, name):
         return await self._execute("select id, hash from entities where name = ?", name)
