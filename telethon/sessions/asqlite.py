@@ -2,11 +2,23 @@ import datetime
 import os
 import time
 
-from ..tl import types
+from ..tl import types, TLObject
 from .memory import MemorySession, _SentFileType
 from .. import utils
 from ..crypto import AuthKey
-from ..tl.types import InputPhoto, InputDocument, PeerUser, PeerChat, PeerChannel
+from ..tl.types import (
+    PeerUser,
+    PeerChat,
+    PeerChannel,
+    InputPeerUser,
+    InputPeerChat,
+    InputPeerChannel,
+    InputPhoto,
+    InputDocument,
+    PeerUser,
+    PeerChat,
+    PeerChannel,
+)
 
 try:
     import aiosqlite
@@ -50,7 +62,7 @@ class AsyncSQLite(MemorySession):
         if await resp.fetchone():
             # Tables already exist, check for the version
             resp = await self.conn.execute("select version from version")
-            version = await resp.fetchone()[0]
+            version = (await resp.fetchone())[0]
             if version < CURRENT_VERSION:
                 await self._upgrade_database(old=version)
                 await self.conn.execute("delete from version")
@@ -60,8 +72,7 @@ class AsyncSQLite(MemorySession):
                 await self.save()
 
             # These values will be saved
-            resp = await c.execute("select * from sessions")
-            tuple_ = await resp.fetchone()
+            tuple_ = await self._execute("select * from sessions")
             if tuple_:
                 (
                     self._dc_id,
@@ -76,6 +87,7 @@ class AsyncSQLite(MemorySession):
         else:
             # Tables don't exist, create new ones
             await self._create_table(
+                self.conn,
                 "version (version integer primary key)",
                 """sessions (
                     dc_id integer primary key,
@@ -128,7 +140,7 @@ class AsyncSQLite(MemorySession):
             # Old cache from old sent_files lasts then a day anyway, drop
             await self.conn.execute("drop table sent_files")
             await self._create_table(
-                c,
+                self.conn,
                 """sent_files (
                 md5_digest blob,
                 file_size integer,
@@ -141,7 +153,7 @@ class AsyncSQLite(MemorySession):
         if old == 3:
             old += 1
             await self._create_table(
-                c,
+                self.conn,
                 """update_state (
                 id integer primary key,
                 pts integer,
@@ -364,6 +376,55 @@ class AsyncSQLite(MemorySession):
                 utils.get_peer_id(PeerChat(id)),
                 utils.get_peer_id(PeerChannel(id)),
             )
+
+    async def get_input_entity(self, key):
+        try:
+            if key.SUBCLASS_OF_ID in (0xC91C90B6, 0xE669BF46, 0x40F202FD):
+                # hex(crc32(b'InputPeer', b'InputUser' and b'InputChannel'))
+                # We already have an Input version, so nothing else required
+                return key
+            # Try to early return if this key can be casted as input peer
+            return utils.get_input_peer(key)
+        except (AttributeError, TypeError):
+            # Not a TLObject or can't be cast into InputPeer
+            if isinstance(key, TLObject):
+                key = utils.get_peer_id(key)
+                exact = True
+            else:
+                exact = not isinstance(key, int) or key < 0
+
+        result = None
+        if isinstance(key, str):
+            phone = utils.parse_phone(key)
+            if phone:
+                result = await self.get_entity_rows_by_phone(phone)
+            else:
+                username, invite = utils.parse_username(key)
+                if username and not invite:
+                    result = await self.get_entity_rows_by_username(username)
+                else:
+                    tup = utils.resolve_invite_link(key)[1]
+                    if tup:
+                        result = await self.get_entity_rows_by_id(tup, exact=False)
+
+        elif isinstance(key, int):
+            result = await self.get_entity_rows_by_id(key, exact)
+
+        if not result and isinstance(key, str):
+            result = await self.get_entity_rows_by_name(key)
+
+        if result:
+            entity_id, entity_hash = result  # unpack resulting tuple
+            entity_id, kind = utils.resolve_id(entity_id)
+            # removes the mark and returns type of entity
+            if kind == PeerUser:
+                return InputPeerUser(entity_id, entity_hash)
+            elif kind == PeerChat:
+                return InputPeerChat(entity_id)
+            elif kind == PeerChannel:
+                return InputPeerChannel(entity_id, entity_hash)
+        else:
+            raise ValueError("Could not find input entity with key ", key)
 
     # File processing
 
