@@ -88,7 +88,7 @@ class AsyncSQLite(Session):
             if not self.filename.endswith(EXTENSION):
                 self.filename += EXTENSION
 
-    async def _init(self):
+    async def _initiate(self):
         self.conn = await aiosqlite.connect(self.filename, timeout=10, autocommit=True)
         resp = await self.conn.execute(
             "select name from sqlite_master where type='table' and name='version'"

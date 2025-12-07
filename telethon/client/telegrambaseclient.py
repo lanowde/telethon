@@ -271,7 +271,7 @@ class TelegramBaseClient(abc.ABC):
         base_logger: typing.Union[str, logging.Logger] = None,
         receive_updates: bool = True,
         catch_up: bool = False,
-        entity_cache_limit: int = 6000,
+        entity_cache_limit: int = 5000,
     ):
         if not api_id or not api_hash:
             raise ValueError(
@@ -553,6 +553,9 @@ class TelegramBaseClient(abc.ABC):
             raise RuntimeError(
                 "The asyncio event loop must not change after connection (see the FAQ for details)"
             )
+
+        if hasattr(self.session, "_initiate"):
+            await self.session._initiate()
 
         # ':' in session.server_address is True if it's an IPv6 address
         if (
