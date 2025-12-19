@@ -554,9 +554,6 @@ class TelegramBaseClient(abc.ABC):
                 "The asyncio event loop must not change after connection (see the FAQ for details)"
             )
 
-        if hasattr(self.session, "_initiate"):
-            await self.session._initiate()
-
         # ':' in session.server_address is True if it's an IPv6 address
         if (
             not self.session.server_address
