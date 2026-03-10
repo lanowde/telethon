@@ -72,9 +72,16 @@ class Button:
         """
         Returns `KeyboardButtonStyle` by an appropriate mapping.
         """
-        if style is not None and (not isinstance(style,str) or (style := style.lower()) not in {'primary','danger','success'}):
-           raise ValueError("Invalid value. Must be either one of 'primary' (blue) , 'danger' (red) and 'success' (green) , or None")
-        return types.KeyboardButtonStyle(**({f'bg_{style}': True,'icon':icon} if style else {'icon': icon}))
+        if style is not None and (
+            not isinstance(style, str)
+            or (style := style.lower()) not in {"primary", "danger", "success"}
+        ):
+            raise ValueError(
+                "Invalid value. Must be either one of 'primary' (blue) , 'danger' (red) and 'success' (green) , or None"
+            )
+        return types.KeyboardButtonStyle(
+            **({f"bg_{style}": True, "icon": icon} if style else {"icon": icon})
+        )
 
     @staticmethod
     def inline(text, data=None, style=None, icon=None):
@@ -102,7 +109,9 @@ class Button:
         if len(data) > 64:
             raise ValueError("Too many bytes for the data")
 
-        return types.KeyboardButtonCallback(text, data, style=Button._get_style(style, icon))
+        return types.KeyboardButtonCallback(
+            text, data, style=Button._get_style(style, icon)
+        )
 
     @staticmethod
     def switch_inline(text, query="", same_peer=False, style=None, icon=None):
@@ -120,7 +129,9 @@ class Button:
         input field will be filled with the username of your bot followed
         by the query text, ready to make inline queries.
         """
-        return types.KeyboardButtonSwitchInline(text, query, same_peer, style=Button._get_style(style, icon))
+        return types.KeyboardButtonSwitchInline(
+            text, query, same_peer, style=Button._get_style(style, icon)
+        )
 
     @staticmethod
     def url(text, url=None, style=None, icon=None):
@@ -136,10 +147,21 @@ class Button:
         the domain is trusted, and once confirmed the URL will open in their
         device.
         """
-        return types.KeyboardButtonUrl(text, url or text, style=Button._get_style(style, icon))
+        return types.KeyboardButtonUrl(
+            text, url or text, style=Button._get_style(style, icon)
+        )
 
     @staticmethod
-    def auth(text, url=None, style=None, icon=None, *, bot=None, write_access=False, fwd_text=None):
+    def auth(
+        text,
+        url=None,
+        style=None,
+        icon=None,
+        *,
+        bot=None,
+        write_access=False,
+        fwd_text=None,
+    ):
         """
         Creates a new inline button to authorize the user at the given URL.
 
@@ -186,7 +208,16 @@ class Button:
         )
 
     @classmethod
-    def text(cls, text, *, resize=None, single_use=None, selective=None, style=None, icon=None):
+    def text(
+        cls,
+        text,
+        *,
+        resize=None,
+        single_use=None,
+        selective=None,
+        style=None,
+        icon=None,
+    ):
         """
         Creates a new keyboard button with the given text.
 
@@ -255,7 +286,9 @@ class Button:
         bot, and if confirmed a message with geo media will be sent.
         """
         return cls(
-            types.KeyboardButtonRequestGeoLocation(text, style=cls._get_style(style, icon)),
+            types.KeyboardButtonRequestGeoLocation(
+                text, style=cls._get_style(style, icon)
+            ),
             resize=resize,
             single_use=single_use,
             selective=selective,
@@ -325,7 +358,9 @@ class Button:
         poll will be shown, and if they do create one, the poll will be sent.
         """
         return cls(
-            types.KeyboardButtonRequestPoll(text, quiz=force_quiz, style=cls._get_style(style, icon)),
+            types.KeyboardButtonRequestPoll(
+                text, quiz=force_quiz, style=cls._get_style(style, icon)
+            ),
             resize=resize,
             single_use=single_use,
             selective=selective,

@@ -305,8 +305,10 @@ class UpdateMethods:
                     )
                     await self._save_states_and_entities()
                     self._mb_entity_cache.retain(
-                        lambda id: id == self._mb_entity_cache.self_id
-                        or id in self._message_box.map
+                        lambda id: (
+                            id == self._mb_entity_cache.self_id
+                            or id in self._message_box.map
+                        )
                     )
                     if len(self._mb_entity_cache) >= self._entity_cache_limit:
                         warnings.warn(
@@ -364,7 +366,7 @@ class UpdateMethods:
                         self._log[__name__].warning(
                             "Cannot get difference due to unexpected error (this may be a bug "
                             f"in Telethon v{__version__} in that it could be handled better, but it's unlikely): %s",
-                            e
+                            e,
                         )
                         self._message_box.end_difference()
                         continue
@@ -485,12 +487,13 @@ class UpdateMethods:
                         self._log[__name__].warning(
                             "Cannot get difference for channel %d due to unexpected error (this may be a bug "
                             f"in Telethon v{__version__} in that it could be handled better, but it's unlikely): %s",
-                            get_diff.channel.channel_id, e
+                            get_diff.channel.channel_id,
+                            e,
                         )
                         self._message_box.end_channel_difference(
                             get_diff,
                             PrematureEndReason.TEMPORARY_SERVER_ISSUES,
-                            self._mb_entity_cache
+                            self._mb_entity_cache,
                         )
                         continue
                     except OSError as e:

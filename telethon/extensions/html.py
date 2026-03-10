@@ -74,8 +74,8 @@ class HTMLToTelegramParser(HTMLParser):
             EntityType = MessageEntityStrike
         elif tag == "blockquote":
             EntityType = MessageEntityBlockquote
-            if 'expandable' in attrs:
-                args['collapsed'] = True
+            if "expandable" in attrs:
+                args["collapsed"] = True
         elif tag == "code":
             try:
                 # If we're in the middle of a <pre> tag, this <code> tag is
@@ -349,7 +349,7 @@ class HtmlDecoration(TextDecoration):
         return f"<s>{value}</s>"
 
     def blockquote(self, value: str, collapsed: bool) -> str:
-        out = '<blockquote expandable>' if collapsed else '<blockquote>'
+        out = "<blockquote expandable>" if collapsed else "<blockquote>"
         return f"{out}{value}</blockquote>"
 
     def quote(self, value: str) -> str:
