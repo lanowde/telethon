@@ -74,6 +74,8 @@ class HTMLToTelegramParser(HTMLParser):
             EntityType = MessageEntityStrike
         elif tag == "blockquote":
             EntityType = MessageEntityBlockquote
+            if 'expandable' in attrs:
+                args['collapsed'] = True
         elif tag == "code":
             try:
                 # If we're in the middle of a <pre> tag, this <code> tag is
@@ -200,6 +202,8 @@ class TextDecoration(ABC):
             )
         if type(entity) == MessageEntityMentionName:
             return self.link(value=text, link=f"tg://user?id={entity.user_id}")
+        if type(entity) == MessageEntityBlockquote:
+            return self.blockquote(value=text, collapsed=entity.collapsed)
         if type(entity) == MessageEntityTextUrl:
             return self.link(value=text, link=cast(str, entity.url))
         if type(entity) == MessageEntityUrl:
@@ -208,6 +212,8 @@ class TextDecoration(ABC):
             return self.link(value=text, link=f"mailto:{text}")
         if type(entity) == MessageEntityCustomEmoji and CUSTOM_EMOJIS:
             return self.custom_emoji(value=text, document_id=entity.document_id)
+        if type(entity) == MessageEntityBlockquote:
+            return self.blockquote(value=text, collapsed=entity.collapsed)
 
         return self.quote(text)
 
@@ -342,8 +348,9 @@ class HtmlDecoration(TextDecoration):
     def strikethrough(self, value: str) -> str:
         return f"<s>{value}</s>"
 
-    def blockquote(self, value: str) -> str:
-        return f"<blockquote>{value}</blockquote>"
+    def blockquote(self, value: str, collapsed: bool) -> str:
+        out = '<blockquote expandable>' if collapsed else '<blockquote>'
+        return f"{out}{value}</blockquote>"
 
     def quote(self, value: str) -> str:
         return escape(value, quote=False)

@@ -353,7 +353,7 @@ def _write_to_bytes(tlobject, builder):
             )
             builder.writeln(
                 "assert ({}) or ({}), '{} parameters must all "
-                "be False-y (like None) or all me True-y'",
+                "be False-y (like None) or all be True-y'",
                 " and ".join(cnd1),
                 " and ".join(cnd2),
                 ", ".join(a.name for a in ra),
