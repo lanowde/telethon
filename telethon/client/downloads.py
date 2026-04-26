@@ -1131,8 +1131,8 @@ class DownloadMethods:
                     if possible_names is None
                     else next(
                         x  # basename to prevent path traversal (#4713)
-                        for x in map(os.path.basename, possible_names)
-                        if x and not isreserved(x)
+                        for x in map(os.path.basename, filter(None, possible_names))
+                        if not isreserved(x)
                     )
                 )
             except StopIteration:
