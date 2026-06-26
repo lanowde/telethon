@@ -63,6 +63,7 @@ class Button:
                 types.KeyboardButtonSwitchInline,
                 types.KeyboardButtonUrl,
                 types.InputKeyboardButtonUrlAuth,
+                types.KeyboardButtonWebView,
                 types.InputKeyboardButtonUserProfile,
             ),
         )
