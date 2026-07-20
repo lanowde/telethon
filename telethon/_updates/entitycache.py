@@ -44,10 +44,17 @@ class EntityCache:
                 c.id,
                 (
                     c.access_hash,
-                    EntityType.COMMUNITY if isinstance(c, types.Community) else (
-                    EntityType.MEGAGROUP if getattr(c, 'megagroup', None) else (
-                        EntityType.GIGAGROUP if getattr(c, 'gigagroup', None) else EntityType.CHANNEL
-                    )
+                    EntityType.COMMUNITY
+                    if isinstance(c, types.Community)
+                    else (
+                        EntityType.MEGAGROUP
+                        if getattr(c, "megagroup", None)
+                        else (
+                            EntityType.GIGAGROUP
+                            if getattr(c, "gigagroup", None)
+                            else EntityType.CHANNEL
+                        )
+                    ),
                 ),
             )
             for c in chats
