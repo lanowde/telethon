@@ -698,10 +698,10 @@ class MessageMethods:
         comment_to: "typing.Union[int, types.Message]" = None,
         nosound_video: bool = None,
         send_as: typing.Optional["hints.EntityLike"] = None,
-        quick_reply_shortcut: typing.Optional['TypeInputQuickReplyShortcut'] = None,
+        quick_reply_shortcut: typing.Optional["TypeInputQuickReplyShortcut"] = None,
         message_effect_id: typing.Optional[int] = None,
         allow_paid_stars: typing.Optional[int] = None,
-        suggested_post: typing.Optional['TypeSuggestedPost'] = None,
+        suggested_post: typing.Optional["TypeSuggestedPost"] = None,
     ) -> "types.Message":
         """
         Sends a message to the specified user, chat or channel.
@@ -955,7 +955,7 @@ class MessageMethods:
                 send_as=send_as,
                 message_effect_id=message_effect_id,
                 allow_paid_stars=allow_paid_stars,
-                suggested_post=suggested_post
+                suggested_post=suggested_post,
             )
 
         entity = await self.get_input_entity(entity)
@@ -1015,7 +1015,7 @@ class MessageMethods:
                 send_as=await self.get_input_entity(send_as) if send_as else None,
                 effect=message_effect_id,
                 allow_paid_stars=allow_paid_stars,
-                suggested_post=suggested_post
+                suggested_post=suggested_post,
                 invert_media=invert_media,
             )
             message = message.message
@@ -1080,26 +1080,24 @@ class MessageMethods:
         messages: "typing.Union[hints.MessageIDLike, typing.Sequence[hints.MessageIDLike]]",
         from_peer: "hints.EntityLike" = None,
         *,
-        send_as: "hints.EntityLike" = None,
-        top_msg_id: int = None,
         background: bool = None,
         with_my_score: bool = None,
         silent: bool = None,
         noforwards: bool = False,
         allow_paid_floodskip: bool = False,
         top_msg_id: typing.Optional[int] = None,
-        reply_to: typing.Optional['TypeInputReplyTo']
+        reply_to: typing.Optional["TypeInputReplyTo"],
         as_album: bool = None,
         schedule: "hints.DateLike" = None,
         schedule_repeat_period: typing.Optional[int] = None,
-        send_as: typing.Optional['TypeInputPeer'] = None,
-        quick_reply_shortcut: typing.Optional['TypeInputQuickReplyShortcut'] = None,
+        send_as: typing.Optional["TypeInputPeer"] = None,
+        quick_reply_shortcut: typing.Optional["TypeInputQuickReplyShortcut"] = None,
         message_effect_id: typing.Optional[int] = None,
         video_timestamp: typing.Optional[int] = None,
         drop_author: bool = None,
         drop_media_captions: bool = None,
         allow_paid_stars: typing.Optional[int] = None,
-        suggested_post: typing.Optional['TypeSuggestedPost'] = None
+        suggested_post: typing.Optional["TypeSuggestedPost"] = None,
     ) -> "typing.Sequence[types.Message]":
         """
         Forwards the given messages to the specified entity.
@@ -1130,7 +1128,7 @@ class MessageMethods:
                 this behaviour.
 
             noforwards (`bool`, optional):
-                Whether to make message not forwardable or not. 
+                Whether to make message not forwardable or not.
 
             allow_paid_floodskip (`bool`, optional):
                 Whether to allow bot to pay to bypass broadcast limits or not.
@@ -1271,7 +1269,7 @@ class MessageMethods:
                 drop_author=drop_author,
                 drop_media_captions=drop_media_captions,
                 allow_paid_stars=allow_paid_stars,
-                suggested_post=suggested_post
+                suggested_post=suggested_post,
             )
             result = await self(req)
             sent.extend(self._get_response_message(req, result, entity))
