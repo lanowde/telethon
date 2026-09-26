@@ -683,19 +683,25 @@ class MessageMethods:
         thumb: "hints.FileLike" = None,
         force_document: bool = False,
         clear_draft: bool = False,
+        noforwards: bool = False,
+        update_stickersets_order: bool = False,
+        invert_media: bool = False,
+        allow_paid_floodskip: bool = False,
         buttons: typing.Optional["hints.MarkupLike"] = None,
         silent: bool = None,
         background: bool = None,
         album: bool = False,
         allow_cache: bool = False,
-        noforwards: bool = False,
         supports_streaming: bool = False,
         schedule: "hints.DateLike" = None,
+        schedule_repeat_period: typing.Optional[int] = None,
         comment_to: "typing.Union[int, types.Message]" = None,
         nosound_video: bool = None,
         send_as: typing.Optional["hints.EntityLike"] = None,
+        quick_reply_shortcut: typing.Optional['TypeInputQuickReplyShortcut'] = None,
         message_effect_id: typing.Optional[int] = None,
-        invert_media: bool = None,
+        allow_paid_stars: typing.Optional[int] = None,
+        suggested_post: typing.Optional['TypeSuggestedPost'] = None,
     ) -> "types.Message":
         """
         Sends a message to the specified user, chat or channel.
@@ -772,6 +778,18 @@ class MessageMethods:
             clear_draft (`bool`, optional):
                 Whether the existing draft should be cleared or not.
 
+            noforwards (`bool`, optional):
+                Whether to make message not forwardable or not.
+
+            update_stickersets_order (`bool`, optional):
+                Whether to update sticker set order after sending a new sticker or not.
+
+            invert_media (`bool`, optional):
+                Whether to change the position of a media in message or not.
+
+            allow_paid_floodskip (`bool`, optional):
+                Whether to allow bot to pay to bypass broadcast limits or not
+
             buttons (`list`, `custom.Button <telethon.tl.custom.button.Button>`, :tl:`KeyboardButton`, :tl:`KeyboardInlineButton`):
                 The matrix (list of lists), row list or button to be shown
                 after sending the message. This parameter will only work if
@@ -806,6 +824,9 @@ class MessageMethods:
                 it will be scheduled to be automatically sent at a later
                 time.
 
+            schedule_repeat_period (`int`, optional):
+                Whether the scheduled message should repeat after a certain interval or not.
+
             comment_to (`int` | `Message <telethon.tl.custom.message.Message>`, optional):
                 Similar to ``reply_to``, but replies in the linked group of a
                 broadcast channel instead (effectively leaving a "comment to"
@@ -830,11 +851,17 @@ class MessageMethods:
                  This setting applies to the current message and will remain effective for future messages unless explicitly changed.
                  To set this behavior permanently for all messages, use SaveDefaultSendAs.
 
+            quick_reply_shortcut (`TypeInputQuickReplyShortcut`, optional):
+                Whether to add the chat to quick replies shortcut or not.
+
             message_effect_id (`int`, optional):
                  Unique identifier of the message effect to be added to the message; for private chats only
 
-            invert_media (`bool`, optional):
-                Change the position of Media in link preview to top of message.
+            allow_paid_stars (`int`, optional):
+                Stars amount client should be able to pay to send messages to users who have paid messages enabled.
+
+            suggested_post (`TypeSuggestedPost`, optional):
+                Sending suggested post a channels.
 
         Returns
             The sent `custom.Message <telethon.tl.custom.message.Message>`.
@@ -912,7 +939,11 @@ class MessageMethods:
                 thumb=thumb,
                 buttons=buttons,
                 clear_draft=clear_draft,
+                noforwards=noforwards,
+                invert_media=invert_media,
+                allow_paid_floodskip=allow_paid_floodskip,
                 silent=silent,
+                schedule_repeat_period=schedule_repeat_period,
                 schedule=schedule,
                 supports_streaming=supports_streaming,
                 formatting_entities=formatting_entities,
@@ -921,10 +952,10 @@ class MessageMethods:
                 nosound_video=nosound_video,
                 album=album,
                 allow_cache=allow_cache,
-                noforwards=noforwards,
                 send_as=send_as,
                 message_effect_id=message_effect_id,
-                invert_media=invert_media,
+                allow_paid_stars=allow_paid_stars,
+                suggested_post=suggested_post
             )
 
         entity = await self.get_input_entity(entity)
@@ -975,11 +1006,16 @@ class MessageMethods:
                 reply_markup=markup,
                 entities=message.entities,
                 clear_draft=clear_draft,
+                noforwards=noforwards,
+                update_stickersets_order=update_stickersets_order,
+                allow_paid_floodskip=allow_paid_floodskip,
                 no_webpage=not isinstance(message.media, types.MessageMediaWebPage),
                 schedule_date=schedule,
-                noforwards=noforwards,
+                schedule_repeat_period=schedule_repeat_period,
                 send_as=await self.get_input_entity(send_as) if send_as else None,
                 effect=message_effect_id,
+                allow_paid_stars=allow_paid_stars,
+                suggested_post=suggested_post
                 invert_media=invert_media,
             )
             message = message.message
@@ -1004,13 +1040,18 @@ class MessageMethods:
                     None if reply_to is None else types.InputReplyToMessage(reply_to)
                 ),
                 clear_draft=clear_draft,
+                noforwards=noforwards,
+                update_stickersets_order=update_stickersets_order,
+                allow_paid_floodskip=allow_paid_floodskip,
                 silent=silent,
                 background=background,
                 reply_markup=self.build_reply_markup(buttons),
                 schedule_date=schedule,
+                schedule_repeat_period=schedule_repeat_period,
                 send_as=await self.get_input_entity(send_as) if send_as else None,
                 effect=message_effect_id,
-                noforwards=noforwards,
+                allow_paid_stars=allow_paid_stars,
+                suggested_post=suggested_post,
                 invert_media=invert_media,
             )
 
@@ -1042,13 +1083,23 @@ class MessageMethods:
         send_as: "hints.EntityLike" = None,
         top_msg_id: int = None,
         background: bool = None,
-        drop_author: bool = None,
-        drop_media_captions: bool = None,
         with_my_score: bool = None,
         silent: bool = None,
+        noforwards: bool = False,
+        allow_paid_floodskip: bool = False,
+        top_msg_id: typing.Optional[int] = None,
+        reply_to: typing.Optional['TypeInputReplyTo']
         as_album: bool = None,
         schedule: "hints.DateLike" = None,
-        noforwards: bool = None,
+        schedule_repeat_period: typing.Optional[int] = None,
+        send_as: typing.Optional['TypeInputPeer'] = None,
+        quick_reply_shortcut: typing.Optional['TypeInputQuickReplyShortcut'] = None,
+        message_effect_id: typing.Optional[int] = None,
+        video_timestamp: typing.Optional[int] = None,
+        drop_author: bool = None,
+        drop_media_captions: bool = None,
+        allow_paid_stars: typing.Optional[int] = None,
+        suggested_post: typing.Optional['TypeSuggestedPost'] = None
     ) -> "typing.Sequence[types.Message]":
         """
         Forwards the given messages to the specified entity.
@@ -1078,14 +1129,21 @@ class MessageMethods:
                 the person has the chat muted). Set it to `True` to alter
                 this behaviour.
 
+            noforwards (`bool`, optional):
+                Whether to make message not forwardable or not. 
+
+            allow_paid_floodskip (`bool`, optional):
+                Whether to allow bot to pay to bypass broadcast limits or not.
+
+            top_msg_id (`int` optional):
+                Whether message should be sent in a specific topic bt its id
+
+            reply_to (`int` | `Message <telethon.tl.custom.message.Message>`, optional):
+                Whether to reply to a message or not. If an integer is provided,
+                it should be the ID of the message that it should reply to.
+
             background (`bool`, optional):
                 Whether the message should be forwarded in background.
-
-            drop_author (`bool`, optional):
-                Whether to forward messages without quoting the original author.
-
-            drop_media_captions (`bool`, optional):
-                Whether to strip captions from media. Setting this to `True` requires that `drop_author` also be set to `True`.
 
             with_my_score (`bool`, optional):
                 Whether forwarded should contain your game score.
@@ -1101,6 +1159,34 @@ class MessageMethods:
                 If set, the message(s) won't forward immediately, and
                 instead they will be scheduled to be automatically sent
                 at a later time.
+
+            schedule_repeat_period (`int`, optional):
+                Whether the scheduled message should repeat after a certain interval or not.
+
+            send_as (`entity`):
+                Unique identifier (int) or username (str) of the chat or channel to send the message as.
+                You can use this to send the message on behalf of a chat or channel where you have appropriate permissions.
+                Use the GetSendAs to return the list of message sender identifiers, which can be used to send messages in the chat,
+                This setting applies to the current message and will remain effective for future messages unless explicitly changed.
+                To set this behavior permanently for all messages, use SaveDefaultSendAs.
+
+            quick_reply_shortcut (`TypeInputQuickReplyShortcut`, optional):
+                Whether to add the chat to quick replies shortcut or not.
+
+            message_effect_id (`int`, optional):
+                Unique identifier of the message effect to be added to the message; for private chats only
+
+            drop_author (`bool`, optional):
+                Whether to forward messages without quoting the original author.
+
+            drop_media_captions (`bool`, optional):
+                Whether to strip captions from media. Setting this to `True` requires that `drop_author` also be set to `True`.
+
+            allow_paid_stars (`int`, optional):
+                Stars amount client should be able to pay to send messages to users who have paid messages enabled.
+
+            suggested_post (`TypeSuggestedPost`, optional):
+                Sending suggested post a channels.
 
         Returns
             The list of forwarded `Message <telethon.tl.custom.message.Message>`,
@@ -1170,14 +1256,22 @@ class MessageMethods:
                 id=chunk,
                 to_peer=entity,
                 silent=silent,
+                noforwards=noforwards,
+                allow_paid_floodskip=allow_paid_floodskip,
+                top_msg_id=top_msg_id,
+                reply_to=reply_to,
                 background=background,
-                drop_author=drop_author,
-                drop_media_captions=drop_media_captions,
                 with_my_score=with_my_score,
                 schedule_date=schedule,
-                send_as=send_as,
-                top_msg_id=top_msg_id,
-                noforwards=noforwards,
+                schedule_repeat_period=schedule_repeat_period,
+                send_as=await self.get_input_entity(send_as) if send_as else None,
+                quick_reply_shortcut=quick_reply_shortcut,
+                effect=message_effect_id,
+                video_timestamp=video_timestamp,
+                drop_author=drop_author,
+                drop_media_captions=drop_media_captions,
+                allow_paid_stars=allow_paid_stars,
+                suggested_post=suggested_post
             )
             result = await self(req)
             sent.extend(self._get_response_message(req, result, entity))
