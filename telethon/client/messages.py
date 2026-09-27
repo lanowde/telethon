@@ -1086,7 +1086,7 @@ class MessageMethods:
         noforwards: bool = False,
         allow_paid_floodskip: bool = False,
         top_msg_id: typing.Optional[int] = None,
-        reply_to: typing.Optional["TypeInputReplyTo"],
+        reply_to: typing.Optional["TypeInputReplyTo"] = None,
         as_album: bool = None,
         schedule: "hints.DateLike" = None,
         schedule_repeat_period: typing.Optional[int] = None,
