@@ -429,12 +429,15 @@ class Button:
         )
 
     @staticmethod
-    def mention(text, user_id):
+    def mention(text, user):
         """Send Button with UserProfile mention.
 
         - Call 'get_input_entity' to fill in user parameter."""
-        return types.InputKeyboardButtonUserProfile(text, user_id)
+        return types.KeyboardInlineButton(
+            text, types.InputInlineButtonTypeUserProfile(user)
+        )
 
+    '''
     @staticmethod
     def web(text, url):
         """
@@ -443,3 +446,4 @@ class Button:
         - Works Only in Private.
         """
         return types.KeyboardButtonSimpleWebView(text, url)
+    '''
